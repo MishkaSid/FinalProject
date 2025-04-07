@@ -1,0 +1,15 @@
+:root {
+  --clr-blue-5: #007aff; /* Main blue color */
+  --clr-white: #ffffff; /* White color */
+  --clr-yellow: #f47521; /* Yellow accent */
+  --clr-light-grey: #f4f6fa; /* Light grey background */
+  --clr-dark-grey: #333333; /* Dark grey text color */
+}
+.app{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.app main{
+  flex: 1;
+}

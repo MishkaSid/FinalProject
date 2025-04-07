@@ -1,0 +1,72 @@
+/* pages.module.css */
+
+/* Common styles for all pages */
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcomeText {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--clr-blue-2); /* Use a variable from src/index.css */
+}
+
+.cardsContainer {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Media queries for responsiveness */
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .mainContent {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cardsContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .mainContent {
+    padding: 8px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cardsContainer {
+    grid-template-columns: 1fr;
+  }
+}

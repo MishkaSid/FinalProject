@@ -1,0 +1,206 @@
+.homepage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding: 3rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 1rem;
+  margin-top: 10px;
+  max-width: 900px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('../images/Login-background.jpg'), linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+  background-size: cover;
+  background-position: center;
+  animation: fadeIn 1s ease-in-out 1;
+}
+
+/* Keyframe for the animation */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.welcome {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.welcome h1 {
+  font-size: 3.5rem;
+  color: var(--clr-blue-5);
+  margin-bottom: 1rem;
+}
+
+.welcome p {
+  font-size: 1.8rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.login h1 {
+  font-size: 2.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--clr-blue-5);
+}
+
+input {
+  border: none;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  width: 100%;
+}
+
+input:focus {
+  border: none;
+  box-shadow: 0 0 8px var(--clr-blue-5);
+}
+
+button {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  width: 100%;
+  max-width: 300px;
+  background-color: var(--clr-blue-5);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--clr-yellow);
+  box-shadow: 0 0 10px var(--clr-yellow);
+}
+
+.warning {
+  margin-top: 2rem;
+  text-align: center;
+  background-color: rgba(244, 117, 33, 0.7);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.warning p {
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 1024px) {
+  .homepage {
+    max-width: 85%;
+    padding: 2.5rem;
+  }
+
+  .welcome h1 {
+    font-size: 3rem;
+  }
+
+  .welcome p {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .homepage {
+    max-width: 90%;
+    padding: 2rem;
+  }
+
+  .welcome h1 {
+    font-size: 2.5rem;
+  }
+
+  .welcome p {
+    font-size: 1.5rem;
+  }
+
+  .login input,
+  .login button {
+    max-width: 100%;
+  }
+
+  .warning p {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .homepage {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .welcome h1 {
+    font-size: 2.2rem;
+  }
+
+  .welcome p {
+    font-size: 1.4rem;
+  }
+
+  .login {
+    max-width: 100%;
+  }
+
+  input {
+    font-size: 1.2rem;
+    padding: 0.8rem;
+  }
+
+  button {
+    font-size: 1.3rem;
+    padding: 0.8rem;
+  }
+
+  .warning {
+    max-width: 90%;
+    padding: 0.8rem;
+  }
+
+  .warning p {
+    font-size: 1.3rem;
+  }
+}

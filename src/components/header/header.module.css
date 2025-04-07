@@ -1,0 +1,35 @@
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 125, 214, 0.7);
+  padding: 1rem 3rem;  /* Adjust padding for larger screens */
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.schoolLogo {
+  height: 6rem;
+  width: auto;
+  border-radius: 0.5rem;
+  margin-left: 2rem;
+}
+.logo {
+  height: 10rem;
+  width: auto;
+  border-radius: 0.5rem;
+  margin-left: 2rem;
+}
+
+@media screen and (max-width: 768px) {
+  header {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem; /* Adjust padding for small screens */
+  }
+
+  img {
+    margin-top: 1rem;
+    height: 5rem;
+  }
+}

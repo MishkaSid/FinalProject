@@ -1,0 +1,52 @@
+footer {
+  background-color: var(--clr-footer);
+  border-top: 1px solid #ddd;
+  color: var(--clr-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  position: relative;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin-top: auto;
+}
+
+.contact {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.contact a {
+  color: aliceblue;
+  text-decoration: none;
+}
+
+.contact a:hover {
+  text-decoration: underline;
+}
+
+.copyright {
+  font-size: 1.2rem;
+  text-align: center;
+}
+p{
+  color: aliceblue;
+}
+
+@media screen and (max-width: 768px) {
+  footer {
+    padding: 1rem;
+  }
+
+  .contact {
+    font-size: 1.3rem;
+  }
+
+  .copyright {
+    font-size: 1rem;
+  }
+}
