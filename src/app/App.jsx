@@ -1,11 +1,9 @@
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
-import Login from "../Login/Login-page";  
-import Manager from "../manager/Manager";
-import Student from "../student/Student";
-import TeacherDashboard from "../teacher/Teacher";
-
-import Footer from "../components/footer/Footer";
+import Login from "../pages/Login/Login-page";
+import Manager from "../pages/manager/Manager";
+import TeacherDashboard from "../pages/teacher/Teacher";
+import Student from "../pages/student/Student";
 import { BrowserRouter, Route, Routes} from "react-router-dom";
 import "./app.css";
 

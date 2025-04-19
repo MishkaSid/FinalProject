@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./student.module.css";
-import { Bell, BookOpen, Home, Sidebar, User } from "lucide-react";
-import Sidebar from "../components/sidebar/Sidebar";
+import { Bell, BookOpen, Home,User } from "lucide-react";
+import Sidebar from "../../components/sidebar/Sidebar";
 
 const StudentDashboard = () => {
   return (

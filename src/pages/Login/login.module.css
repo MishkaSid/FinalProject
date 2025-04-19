@@ -29,7 +29,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('../images/Login-background.jpg'), linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+  background-image: url('../../images/Login-background.jpg'), linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
   background-size: cover;
   background-position: center;
   animation: fadeIn 1s ease-in-out 1;

@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Card from "../components/card/Card";
+import Card from "../../components/card/Card";
+import Sidebar from "../../components/sidebar/Sidebar";
 import "./manager.css";
-import Sidebar from "../components/sidebar/Sidebar";
 
 function Manager() {
   const navigate = useNavigate();
