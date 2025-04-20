@@ -6,12 +6,7 @@ const TeacherDashboard = () => {
   return (
     <div className={styles.container}>
       {/* Sidebar */}
-      <div className={styles.sidebar}>
-        <Home className={styles.icon} />
-        <Users className={styles.icon} />
-        <Book className={styles.icon} />
-        <ClipboardList className={styles.icon} />
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
       <div className={styles.mainContent}>

@@ -1,0 +1,75 @@
+.adminPage {
+  position: relative;
+  padding: 32px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  backdrop-filter: blur(3px);
+}
+
+/* Background stays fixed */
+.adminPage::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../../images/managerBackground.jpg'); /* Replace with actual image path */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  z-index: -2;
+}
+
+/* Optional dark overlay for contrast */
+.adminPage::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: -1;
+}
+
+.pageTitle {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: var(--clr-blue-2);
+  margin-bottom: 16px;
+}
+
+.pageDescription {
+  font-size: 1.3rem;
+  color: #444;
+  margin-bottom: 28px;
+  line-height: 1.6;
+  max-width: 800px;
+}
+
+input[type="file"] {
+  padding: 3em;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 2rem;
+  cursor: pointer;
+  max-width: 50%;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+input[type="file"]:hover {
+  border-color: var(--clr-blue-2);
+}
+
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 1.8rem;
+  }
+
+  .pageDescription {
+    font-size: 1.1rem;
+  }
+}

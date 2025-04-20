@@ -1,0 +1,95 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 16px;
+  background-color: white;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 20px;
+  cursor: pointer;
+  margin:2em;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+.cardIcon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  color: var(--clr-blue-2);
+}
+
+.cardTitle {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.cardDescription {
+  font-size: 1.2rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* Size Modifiers */
+.small {
+  width: 160px;
+  height: 160px;
+  padding: 16px;
+}
+
+.medium {
+  width: 280px;
+  height: 180px;
+}
+
+.large {
+  width: 100%;
+  max-width: 500px;
+  min-height: 240px;
+}
+
+/* Horizontal modifier */
+.horizontal {
+  flex-direction: row;
+  text-align: left;
+  align-items: center;
+  gap: 20px;
+}
+
+.horizontal .cardIcon {
+  margin: 0;
+  font-size: 3rem;
+}
+
+.horizontal .cardTitle {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.horizontal .cardDescription {
+  font-size: 1rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .medium {
+    width: 100%;
+  }
+
+  .large {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .horizontal {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}

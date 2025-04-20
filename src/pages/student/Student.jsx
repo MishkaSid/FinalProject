@@ -13,7 +13,6 @@ const StudentDashboard = () => {
       <div className={styles.mainContent}>
         <div className={styles.header}>
           <h1 className={styles.welcomeText}>Welcome, Student!</h1>
-          <Bell className={styles.bellIcon} />
         </div>
 
         {/* Cards Section */}

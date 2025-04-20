@@ -1,10 +1,8 @@
 /* pages.module.css */
-
 /* Common styles for all pages */
 
 .container {
   display: flex;
-  height: 100vh;
 }
 
 .mainContent {
@@ -29,6 +27,15 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+}
+
+.pageContent {
+  transition: filter 0.3s ease;
+}
+
+.pageContent.blurred {
+  filter: blur(4px);
+  pointer-events: none; /* Optional: prevent clicks when blurred */
 }
 
 /* Media queries for responsiveness */
