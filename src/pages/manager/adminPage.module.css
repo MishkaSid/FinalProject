@@ -16,14 +16,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('../../images/managerBackground.jpg'); /* Replace with actual image path */
+  background-image: url('../../images/managerBackground.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   z-index: -2;
 }
 
-/* Optional dark overlay for contrast */
 .adminPage::after {
   content: "";
   position: fixed;
@@ -31,7 +30,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.85);
   z-index: -1;
 }
 
@@ -51,17 +50,98 @@
 }
 
 input[type="file"] {
-  padding: 3em;
+  padding: 1em;
   border: 2px solid #ccc;
-  border-radius: 4px;
-  font-size: 2rem;
+  border-radius: 6px;
+  font-size: 1.2rem;
   cursor: pointer;
   max-width: 50%;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 input[type="file"]:hover {
   border-color: var(--clr-blue-2);
+}
+
+.searchInput {
+  padding: 10px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* Add Button */
+.addButton {
+  background-color: var(--clr-blue-2);
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.3s ease;
+}
+
+.addButton:hover {
+  background-color: #1e63d5;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.table th,
+.table td {
+  padding: 12px 16px;
+  text-align: right;
+  border-bottom: 1px solid #eee;
+}
+
+.table th {
+  background-color: #f5f6f8;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Small general-purpose buttons */
+.actionButton {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  margin-left: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+/* Edit button */
+.editButton {
+  background-color: #e2eaf2;
+  color: #2c3e50;
+}
+.editButton:hover {
+  background-color: #c9d9e8;
+}
+
+/* Delete button */
+.deleteButton {
+  background-color: #e74c3c;
+  color: white;
+}
+.deleteButton:hover {
+  background-color: #c0392b;
 }
 
 @media (max-width: 768px) {
@@ -71,5 +151,10 @@ input[type="file"]:hover {
 
   .pageDescription {
     font-size: 1.1rem;
+  }
+
+  .actionButton {
+    font-size: 0.75rem;
+    padding: 5px 8px;
   }
 }

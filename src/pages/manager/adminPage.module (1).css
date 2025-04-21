@@ -1,0 +1,54 @@
+
+/* General button base */
+.button {
+  font-size: 1rem;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Add Button */
+.addButton {
+  background-color: var(--clr-blue-2);
+  color: #fff;
+}
+
+.addButton:hover {
+  background-color: #1e63d5;
+  transform: translateY(-1px);
+}
+
+/* Edit Button */
+.editButton {
+  background-color: #f0f4f7;
+  color: #2c3e50;
+}
+
+.editButton:hover {
+  background-color: #d9e1e8;
+  transform: translateY(-1px);
+}
+
+/* Delete Button */
+.deleteButton {
+  background-color: #ff5b57;
+  color: #fff;
+}
+
+.deleteButton:hover {
+  background-color: #e74c3c;
+  transform: translateY(-1px);
+}
+
+/* Optional: button group spacing */
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+}
