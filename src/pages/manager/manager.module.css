@@ -26,8 +26,7 @@
 .managerPage {
   flex-grow: 1;
   padding: 2rem;
-  text-align: center;
-  margin-left: 10rem;
+  margin-left: 4%;
 }
 
 /* Cards Grid */

@@ -12,10 +12,16 @@ import {
 import styles from "./sharedChartStyles.module.css";
 
 const data = [
-  { range: "90-100", students: 6 },
-  { range: "80-89", students: 10 },
-  { range: "70-79", students: 5 },
-  { range: "<70", students: 3 },
+  { range: "0-10", students: 5 },
+  { range: "10-20", students: 10 },
+  { range: "20-30", students: 15 },
+  { range: "30-40", students: 8 },
+  { range: "40-50", students: 10 },
+  { range: "50-60", students: 20 },
+  { range: "60-70", students: 15 },
+  { range: "70-80", students: 8 },
+  { range: "80-90", students: 12 },
+  { range: "90-100", students: 5 }
 ];
 
 export default function GradeDistributionChart() {
