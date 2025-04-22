@@ -5,16 +5,9 @@ import Sidebar from "../../../components/sidebar/Sidebar";
 import { useState } from "react";
 import "../../pages.css";
 import styles from "../manager.module.css";
-import {
-  FiUsers,
-  FiUpload,
-  FiBookOpen,
-  FiArchive,
-  FiSettings,
-} from "react-icons/fi";
-import ActivityHeatMap from "../../../components/charts/ActivityHeatmap";
 import GradesDistributionChart from "../../../components/charts/GradeDistributionChart";
-import QuestionDifficultyChart from "../../../components/charts/QuestionDifficultyChart";
+import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
+import StudentUsageChart from "../../../components/charts/StudentUsageChart";
 
 
 
@@ -36,10 +29,10 @@ function Manager() {
 
         <div className={styles.managerPage}>
           <h1 className={styles.welcomeText}>Welcome, Manager!</h1>
-          <div className={styles.cardContainer}>
-            
+          <div className={styles.chartsGrid}>
+            <QuestionStatsChart/>
+            <StudentUsageChart/>
             <GradesDistributionChart />
-            <QuestionDifficultyChart/>
           </div>
         </div>
       </div>

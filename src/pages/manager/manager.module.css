@@ -5,6 +5,7 @@
   position: relative;
   min-height: 90vh;
 }
+
 .background {
   position: fixed;
   top: 0;
@@ -29,7 +30,15 @@
   margin-left: 4%;
 }
 
-/* Cards Grid */
+/* charts Grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 8px;
+}
 
 
 

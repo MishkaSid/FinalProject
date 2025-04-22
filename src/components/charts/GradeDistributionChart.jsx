@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import styles from "./sharedChartStyles.module.css";
 
+
 const data = [
   { range: "0-10", students: 5 },
   { range: "10-20", students: 10 },
@@ -19,8 +20,8 @@ const data = [
   { range: "40-50", students: 10 },
   { range: "50-60", students: 20 },
   { range: "60-70", students: 15 },
-  { range: "70-80", students: 8 },
-  { range: "80-90", students: 12 },
+  { range: "70-80", students: 25 },
+  { range: "80-90", students: 19 },
   { range: "90-100", students: 5 }
 ];
 
@@ -33,8 +34,8 @@ export default function GradeDistributionChart() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="range" />
           <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Bar dataKey="students" fill="#3498db" radius={[10, 10, 0, 0]} />
+          <Tooltip contentStyle={{ backgroundColor: "rgba(255, 255, 255, 0.8)"}}/>
+          <Bar dataKey="students" fill="#3598db" radius={[25, 25, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
