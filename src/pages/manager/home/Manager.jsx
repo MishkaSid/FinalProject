@@ -9,8 +9,14 @@ import GradesDistributionChart from "../../../components/charts/GradeDistributio
 import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
 import StudentUsageChart from "../../../components/charts/StudentUsageChart";
 
-
-
+/**
+ * The Manager component renders the main page for managers.
+ * It contains a sidebar with links to relevant pages, and a main content area
+ * with three charts: a question statistics chart, a student usage chart, and a
+ * grades distribution chart.
+ *
+ * @returns {JSX.Element} The rendered Manager component.
+ */
 function Manager() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -29,6 +35,7 @@ function Manager() {
 
         <div className={styles.managerPage}>
           <h1 className={styles.welcomeText}>Welcome, Manager!</h1>
+          
           <div className={styles.chartsGrid}>
             <QuestionStatsChart/>
             <StudentUsageChart/>

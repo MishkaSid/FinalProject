@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "../adminPage.module.css";
+import styles from "../adminPages.module.css";
 
 const mockData = [
   { id: 1, topic: "משוואות", level: "בינוני", type: "אמריקאית" },

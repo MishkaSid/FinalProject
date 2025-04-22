@@ -31,7 +31,6 @@ export default function StudentUsageChart() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
           <YAxis allowDecimals={false} />
-          <Tooltip />
           <Legend />
           <Line
             type="monotone"

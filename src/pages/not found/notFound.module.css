@@ -1,0 +1,45 @@
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('../../images/notFoundBackground.webp'), linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding:3rem;
+  border-radius: 1rem;
+}
+
+.title {
+  font-size: 8rem;
+  color: var(--clr-blue-5);
+  margin: 0;
+  padding: 0;
+  font-weight: 200;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.message {
+  font-size: 2rem;
+  color: var(--clr-blue-5);
+  margin: 0;
+  padding: 0;
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+}

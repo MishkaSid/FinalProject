@@ -1,6 +1,6 @@
 
 import React from "react";
-import styles from "../adminPage.module.css";
+import styles from "../adminPages.module.css";
 
 export default function UserPermissions() {
   return (
