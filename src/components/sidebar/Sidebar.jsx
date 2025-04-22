@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FiUsers, FiUpload, FiBookOpen, FiMenu } from "react-icons/fi";
+import { FiUsers, FiHome, FiBookOpen, FiMenu } from "react-icons/fi";
 import styles from "./sidebar.module.css";
 import { useState } from "react";
 
@@ -14,15 +14,15 @@ function Sidebar({ isOpen, setIsOpen }) {
       
       <ul className={styles.navLinks}>
         <li>
-          <Link to="/manager/permissions">
-            <FiUsers size={30} className={styles.icon} />
-            {expanded && <span>הרשאות משתמשים</span>}
+          <Link to="/manager">
+            <FiHome size={30} className={styles.icon} />
+            {expanded && <span>בית</span>}
           </Link>
         </li>
         <li>
-          <Link to="/manager/upload">
-            <FiUpload size={30} className={styles.icon} />
-            {expanded && <span>העלאת טבלאות</span>}
+          <Link to="/manager/permissions">
+            <FiUsers size={30} className={styles.icon} />
+            {expanded && <span>הרשאות משתמשים</span>}
           </Link>
         </li>
         <li>

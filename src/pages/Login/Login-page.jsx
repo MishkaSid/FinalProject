@@ -8,7 +8,7 @@ function Login() {
   const navigate = useNavigate();
 
   const users = [
-    { username: "manager", password: "manager" },
+    { username: "teacher", password: "teacher" },
     { username: "admin", password: "admin" },
     { username: "user", password: "user" },
   ];
@@ -23,7 +23,11 @@ function Login() {
       (user) => user.username === username && user.password === password
     );
 
-    if (user) navigate("/manager");
+    if (user) {
+      if (user.username === "teacher") navigate("/teacher");
+      else if (user.username === "admin") navigate("/manager");
+      else if (user.username === "user") navigate("/student");
+    }
     else alert("שם משתמש או סיסמה שגוי");
   }
 
