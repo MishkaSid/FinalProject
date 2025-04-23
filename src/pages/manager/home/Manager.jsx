@@ -4,7 +4,7 @@ import Card from "../../../components/card/Card";
 import Sidebar from "../../../components/sidebar/Sidebar";
 import { useState } from "react";
 import "../../pages.css";
-import styles from "../manager.module.css";
+import styles from "./manager.module.css";
 import GradesDistributionChart from "../../../components/charts/GradeDistributionChart";
 import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
 import StudentUsageChart from "../../../components/charts/StudentUsageChart";

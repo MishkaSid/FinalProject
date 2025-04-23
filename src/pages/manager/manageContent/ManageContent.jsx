@@ -22,15 +22,16 @@ export default function ManageContent() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-
-      <button className={styles.addButton}>➕ הוסף תוכן</button>
-
+      <div className={styles.addingLine}>
+        <button className={styles.addButton}>הוסף תוכן</button>
+      </div>
       <table className={styles.table}>
         <thead>
           <tr>
             <th>נושא</th>
             <th>רמת קושי</th>
             <th>סוג שאלה</th>
+            <th>פעולות</th>
           </tr>
         </thead>
         <tbody>
@@ -40,18 +41,16 @@ export default function ManageContent() {
               <td>{item.level}</td>
               <td>{item.type}</td>
               <td>
-                <td>
-                  <button
-                    className={`${styles.actionButton} ${styles.editButton}`}
-                  >
-                    ✏️ ערוך
-                  </button>
-                  <button
-                    className={`${styles.actionButton} ${styles.deleteButton}`}
-                  >
-                    🗑️ מחק
-                  </button>
-                </td>
+                <button
+                  className={`${styles.actionButton} ${styles.editButton}`}
+                >
+                  ✏️ ערוך
+                </button>
+                <button
+                  className={`${styles.actionButton} ${styles.deleteButton}`}
+                >
+                  🗑️ מחק
+                </button>
               </td>
             </tr>
           ))}

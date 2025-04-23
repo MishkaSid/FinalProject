@@ -3,34 +3,41 @@ import { FiUsers, FiHome, FiBookOpen, FiMenu } from "react-icons/fi";
 import styles from "./sidebar.module.css";
 import { useState } from "react";
 
-function Sidebar({ isOpen, setIsOpen }) {
+function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
   const [expanded, setExpanded] = useState(false);
+
+  const menuItems = {
+    admin: [
+      { to: "/manager", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
+      { to: "/manager/permissions", icon: <FiUsers size={30} className={styles.icon} />, label: "הרשאות משתמשים" },
+      { to: "/manager/manageContent", icon: <FiBookOpen size={30} className={styles.icon} />, label: "ניהול תכנים" }
+    ],
+    teacher: [
+      { to: "/teacher", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
+      { to: "/teacher/manageContent", icon: <FiBookOpen size={30} className={styles.icon} />, label: "שיעורים" }
+    ],
+    student: [
+      { to: "/student", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
+      { to: "/practice", icon: <FiBookOpen size={30} className={styles.icon} />, label: "תרגול" }
+    ],
+    guest: []
+  };
 
   return (
     <div className={`${styles.sidebar} ${expanded ? styles.expanded : styles.collapsed}`}>
       <button className={styles.menuToggle} onClick={() => setExpanded(!expanded)}>
-        <FiMenu className={styles.icon}size={25} />
+        <FiMenu size={30} />
       </button>
-      
+
       <ul className={styles.navLinks}>
-        <li>
-          <Link to="/manager">
-            <FiHome size={30} className={styles.icon} />
-            {expanded && <span className={styles.text}>בית</span>}
-          </Link>
-        </li>
-        <li>
-          <Link to="/manager/permissions">
-            <FiUsers size={30} className={styles.icon} />
-            {expanded && <span className={styles.text}>הרשאות משתמשים</span>}
-          </Link>
-        </li>
-        <li>
-          <Link to="/manager/manageContent">
-            <FiBookOpen size={30} className={styles.icon} />
-            {expanded && <span className={styles.text}>תרגילים ושאלות</span>}
-          </Link>
-        </li>
+        {(menuItems[userType] || []).map((item, index) => (
+          <li key={index}>
+            <Link to={item.to}>
+              {item.icon}
+              {expanded && <span>{item.label}</span>}
+            </Link>
+          </li>
+        ))}
       </ul>
     </div>
   );

@@ -6,9 +6,10 @@
   flex-direction: column;
   z-index: 1;
   backdrop-filter: blur(3px);
+  direction: rtl;
 }
 
-/* Background stays fixed */
+/* Background */
 .adminPage::before {
   content: "";
   position: fixed;
@@ -30,59 +31,53 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.7);
   z-index: -1;
 }
 
 .pageTitle {
-  font-size: 2.2rem;
   font-weight: bold;
   color: var(--clr-blue-2);
   margin-bottom: 16px;
+  text-align: right;
 }
 
 .pageDescription {
-  font-size: 1.3rem;
   color: #444;
   margin-bottom: 28px;
-  line-height: 1.6;
   max-width: 800px;
-}
-
-input[type="file"] {
-  padding: 1em;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  max-width: 50%;
-  background-color: rgba(255, 255, 255, 0.9);
-}
-
-input[type="file"]:hover {
-  border-color: var(--clr-blue-2);
+  text-align: right;
 }
 
 .searchInput {
-  padding: 10px;
-  font-size: 1rem;
+  padding: 12px;
   width: 100%;
   max-width: 400px;
-  margin-bottom: 16px;
+  margin-bottom: 1.5rem;
   border-radius: 8px;
   border: 1px solid #ccc;
+  text-align: right;
 }
 
-/* Add Button */
+/* Flex line */
+.addingLine {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+/* ✅ Restored your nice add button */
 .addButton {
   background-color: var(--clr-blue-2);
   color: white;
-  padding: 8px 14px;
+  padding: 2rem;
   border: none;
   border-radius: 6px;
-  margin-bottom: 20px;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-weight: bold;
+  box-shadow: 4px 8px 10px -3px rgba(0, 0, 0, 0.356);
   transition: background-color 0.3s ease;
 }
 
@@ -94,16 +89,16 @@ input[type="file"]:hover {
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 12px;
   background-color: white;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  direction: rtl;
 }
 
 .table th,
 .table td {
-  padding: 12px 16px;
+  padding: 16px 20px;
   text-align: right;
   border-bottom: 1px solid #eee;
 }
@@ -114,34 +109,30 @@ input[type="file"]:hover {
   color: #333;
 }
 
-/* Small general-purpose buttons */
+/* ✅ Edit/Delete buttons now match your theme */
 .actionButton {
-  padding: 6px 10px;
-  font-size: 0.85rem;
+  padding: 10px 14px;
   font-weight: 600;
   border-radius: 6px;
   margin-left: 6px;
   border: none;
   cursor: pointer;
-  transition: 0.2s ease-in-out;
-}
-
-/* Edit button */
-.editButton {
-  background-color: #e2eaf2;
-  color: #2c3e50;
-}
-.editButton:hover {
-  background-color: #c9d9e8;
-}
-
-/* Delete button */
-.deleteButton {
-  background-color: #e74c3c;
+  transition: background-color 0.2s ease;
   color: white;
 }
+
+.editButton {
+  background-color: var(--clr-blue-2);
+}
+.editButton:hover {
+  background-color: #1e63d5;
+}
+
+.deleteButton {
+  background-color: #2c3e50;
+}
 .deleteButton:hover {
-  background-color: #c0392b;
+  background-color: #1c2b3c;
 }
 
 @media (max-width: 768px) {
@@ -154,7 +145,12 @@ input[type="file"]:hover {
   }
 
   .actionButton {
-    font-size: 0.75rem;
-    padding: 5px 8px;
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .addingLine {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

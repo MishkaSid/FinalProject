@@ -37,3 +37,7 @@
 .container:hover::before {
   width: 100%;
 }
+.container:hover {
+  background-color:#307750;
+  box-shadow: 0 0 10px rgba(75, 218, 77, 0.5);
+}
