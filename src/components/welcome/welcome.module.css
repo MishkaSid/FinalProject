@@ -58,9 +58,11 @@
   width: 24px;
   height: 24px;
   stroke-width: 2px;
-  color: var(--clr-blue-2);
+  color: var(--clr-blue-5);
 }
-
+.chevron:hover{
+  color: var(--clr-yellow);
+}
 /* Animate the entrance */
 @keyframes fadeIn {
   to {
@@ -87,5 +89,7 @@
 
 /* Section below for scroll target */
 .nextSection {
-
+  min-height: 100vh;
+  padding: 2rem;
 }
+

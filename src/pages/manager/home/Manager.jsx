@@ -29,21 +29,21 @@ function Manager() {
 
   return (
     <div className={styles.adminPage}>
-      <Welcome/>
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <Welcome user={{ username: "Shani" }}>
+        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-      <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
-        <div className={styles.background}></div>
+        <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
+          <div className={styles.background}></div>
 
-        <div className={styles.managerPage}>
-          
-          <div className={styles.chartsGrid}>
-            <QuestionStatsChart/>
-            <StudentUsageChart/>
-            <GradesDistributionChart />
+          <div className={styles.managerPage}>
+            <div className={styles.chartsGrid}>
+              <QuestionStatsChart />
+              <StudentUsageChart />
+              <GradesDistributionChart />
+            </div>
           </div>
         </div>
-      </div>
+      </Welcome>
     </div>
   );
 }

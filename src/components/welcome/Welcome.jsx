@@ -1,52 +1,52 @@
-"use client";
-
-import { useEffect, useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
+import { scroller, Element } from "react-scroll";
 import styles from "./welcome.module.css";
 
+
 /**
- * Reusable Welcome section component with scroll behavior.
- * @param {React.ReactNode} children - The content to scroll to.
- * @returns {JSX.Element}
+ * Scroll down to the next section of the page.
+ * @function
+ * @return {JSX.Element} No return value.
  */
-const Welcome = ({ user = { username: "User" }, children }) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const nextSectionRef = useRef(null);
+function Welcome({ user = { username: "User" }, children }){
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY === 0);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+/**
+ * Scroll down to the next section of the page.
+ * @function
+ * @return {none} No return value.
+ * @description
+ *   This function uses the `react-scroll` module to scroll down to the
+ *   element with the `nextSection` name. The animation is set to last 800ms
+ *   and to use the `easeInOutQuart` timing function.
+ */
 
   const scrollDown = () => {
-    nextSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    scroller.scrollTo("nextSection", {
+      duration: 800,
+      delay: 0,
+      smooth: "easeInOutQuart"
+    });
   };
 
   return (
     <>
-      <div className={styles.welcomeContainer}>
+      <section className={styles.welcomeContainer}>
         <div className={styles.content}>
-          <h1 className={styles.title}>welcome {user.username}</h1>
+          <h1 className={styles.title}>Welcome {user.username}</h1>
           <p className={styles.subtitle}>כאן תוכל למצוא מידע על המערכת</p>
 
-          {isVisible && (
-            <div className={styles.scrollIndicator} onClick={scrollDown}>
-              <p>Scroll Down to Explore</p>
-              <div className={styles.chevronContainer}>
-                <ChevronDown className={styles.chevron} />
-              </div>
+          <div className={styles.scrollIndicator} onClick={scrollDown}>
+            <p>Scroll Down to Explore</p>
+            <div className={styles.chevronContainer}>
+              <ChevronDown className={styles.chevron} />
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div ref={nextSectionRef} className={styles.nextSection}>
+      <Element name="nextSection" className={styles.nextSection}>
         {children}
-      </div>
+      </Element>
     </>
   );
 };
