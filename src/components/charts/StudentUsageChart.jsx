@@ -31,6 +31,7 @@ export default function StudentUsageChart() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
           <YAxis allowDecimals={false} />
+          <Tooltip contentStyle={{ backgroundColor:" rgba(0, 0, 0, 0.8)", borderRadius: "2rem", fontSize: "1.8rem" }}/>
           <Legend />
           <Line
             type="monotone"

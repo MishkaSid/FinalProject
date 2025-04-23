@@ -28,7 +28,7 @@ export default function QuestionStatsChart() {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="type" />
             <YAxis />
-            <Tooltip />
+            <Tooltip contentStyle={{ backgroundColor:" rgba(0, 0, 0, 0.8)", borderRadius: "2rem", fontSize: "1.8rem" }}/>
             <Bar dataKey="count" fill="#3498db" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -56,7 +56,7 @@ export default function QuestionStatsChart() {
                 />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip contentStyle={{ backgroundColor:" rgba(255, 255, 255, 0.8)", borderRadius: "2rem", fontSize: "1.8rem" }}/>
             <Legend />
           </PieChart>
         </ResponsiveContainer>

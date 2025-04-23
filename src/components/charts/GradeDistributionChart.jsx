@@ -34,7 +34,7 @@ export default function GradeDistributionChart() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="range" />
           <YAxis allowDecimals={false} />
-          <Tooltip contentStyle={{ backgroundColor: "rgba(255, 255, 255, 0.8)"}}/>
+          <Tooltip contentStyle={{ backgroundColor:" rgba(0, 0, 0, 0.8)", borderRadius: "2rem", fontSize: "1.8rem" }}/>
           <Bar dataKey="students" fill="#3598db" radius={[25, 25, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
