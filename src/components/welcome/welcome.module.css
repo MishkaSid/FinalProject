@@ -1,0 +1,91 @@
+.welcomeContainer {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 1.2s ease-in-out;
+}
+
+.content {
+  background:rgba(255, 255, 255, 0.5);
+  padding: 5rem;
+  border-radius: 2rem;
+  width: 30%;
+  text-align: center;
+  animation: slideUp 1s ease forwards;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.title {
+  font-weight: bold;
+  color: var(--clr-blue-2);
+  margin-bottom: 0.5rem;
+  animation: fadeIn 1s 0.2s ease-out forwards;
+  opacity: 0;
+}
+
+.subtitle {
+  color: #555;
+  margin-bottom: 2rem;
+  animation: fadeIn 1s 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.scrollIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  animation: fadeIn 1s 1s ease-out forwards;
+  opacity: 0;
+}
+
+.scrollIndicator p{
+  color: #333;
+}
+
+.chevronContainer {
+  margin-top: 0.3rem;
+  animation: bounce 2s infinite;
+}
+
+.chevron {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2px;
+  color: var(--clr-blue-2);
+}
+
+/* Animate the entrance */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Bounce chevron */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* Section below for scroll target */
+.nextSection {
+
+}

@@ -8,6 +8,7 @@ import styles from "../manager.module.css";
 import GradesDistributionChart from "../../../components/charts/GradeDistributionChart";
 import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
 import StudentUsageChart from "../../../components/charts/StudentUsageChart";
+import Welcome from "../../../components/welcome/Welcome";
 
 /**
  * The Manager component renders the main page for managers.
@@ -28,13 +29,13 @@ function Manager() {
 
   return (
     <div className={styles.adminPage}>
+      <Welcome/>
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
         <div className={styles.background}></div>
 
         <div className={styles.managerPage}>
-          <h1 className={styles.welcomeText}>Welcome, Manager!</h1>
           
           <div className={styles.chartsGrid}>
             <QuestionStatsChart/>
