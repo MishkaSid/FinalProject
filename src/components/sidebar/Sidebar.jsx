@@ -9,26 +9,26 @@ function Sidebar({ isOpen, setIsOpen }) {
   return (
     <div className={`${styles.sidebar} ${expanded ? styles.expanded : styles.collapsed}`}>
       <button className={styles.menuToggle} onClick={() => setExpanded(!expanded)}>
-        <FiMenu size={30} />
+        <FiMenu className={styles.icon}size={25} />
       </button>
       
       <ul className={styles.navLinks}>
         <li>
           <Link to="/manager">
             <FiHome size={30} className={styles.icon} />
-            {expanded && <span>בית</span>}
+            {expanded && <span className={styles.text}>בית</span>}
           </Link>
         </li>
         <li>
           <Link to="/manager/permissions">
             <FiUsers size={30} className={styles.icon} />
-            {expanded && <span>הרשאות משתמשים</span>}
+            {expanded && <span className={styles.text}>הרשאות משתמשים</span>}
           </Link>
         </li>
         <li>
           <Link to="/manager/manageContent">
             <FiBookOpen size={30} className={styles.icon} />
-            {expanded && <span>תרגילים ושאלות</span>}
+            {expanded && <span className={styles.text}>תרגילים ושאלות</span>}
           </Link>
         </li>
       </ul>

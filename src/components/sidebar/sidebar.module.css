@@ -2,10 +2,11 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
-  background-color:#0c2658; /* Dark gray tone */
-  color: #f5f5f5; /* Soft white */
-  transition: width 0.3s ease;
+  height: 100dvh;
+  max-height: 100dvh;
+  background-color: #0c2658;
+  color: #f5f5f5;
+  transition: width 0.3s ease, padding 0.3s ease;
   z-index: 1000;
   overflow-x: hidden;
   overflow-y: auto;
@@ -23,11 +24,10 @@
 
 .expanded {
   width: 250px;
-  align-items: flex-start;
-  padding-left: 1rem;
+
 }
 
-/* Toggle */
+/* Toggle button */
 .menuToggle {
   background: none;
   border: none;
@@ -37,7 +37,7 @@
   font-size: 1.5rem;
 }
 
-/* Link list */
+/* Navigation list */
 .navLinks {
   list-style: none;
   padding: 0;
@@ -45,7 +45,6 @@
   width: 100%;
 }
 
-/* Link item styles */
 .navLinks li {
   margin-bottom: 1rem;
 }
@@ -53,6 +52,8 @@
 .navLinks a {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
   padding: 10px 12px;
   width: 100%;
   color: #f5f5f5;
@@ -67,15 +68,39 @@
   background-color: #14377d;
 }
 
-.icon {
-  margin-right: 10px;
-  font-size: 20px;
+.navLinks a.active {
+  background-color: #1e4cb5;
 }
 
+/* Icon styling */
+.icon {
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+  margin-right: 0.5rem;
+}
+
+/* Smooth label transitions */
+.navLinks span {
+  opacity: 0;
+  transform: translateX(-10px);
+  pointer-events: none;
+  transition: opacity 1s ease 1s, transform 1s ease 1s;
+}
+
+
 .collapsed .navLinks span {
-  display: none;
+  opacity: 0;
+  transform: translateX(-10px);
+  pointer-events: none;
 }
 
 .expanded .navLinks span {
-  display: inline;
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  transition: opacity 1s ease 1s, transform 1s ease 1s;
 }
+
+
+
