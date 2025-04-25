@@ -20,7 +20,7 @@ const TeacherDashboard = () => {
   return (
     <div className={styles.container}>
       <Welcome user={{ username: "Dr. haim" }}>
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="teacher" />
 
         <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
           <div className={styles.background}></div>

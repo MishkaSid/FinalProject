@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FiUsers, FiHome, FiBookOpen, FiMenu } from "react-icons/fi";
+import { FiUsers, FiHome, FiBookOpen,FiBook,FiSidebar, FiMenu } from "react-icons/fi";
 import styles from "./sidebar.module.css";
 import { useState } from "react";
 
@@ -18,7 +18,7 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
     ],
     student: [
       { to: "/student", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
-      { to: "/practice", icon: <FiBookOpen size={30} className={styles.icon} />, label: "תרגול" }
+      { to: "/practice", icon: <FiBook size={30} className={styles.icon} />, label: "תרגול" }
     ],
     guest: []
   };

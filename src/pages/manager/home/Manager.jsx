@@ -30,7 +30,7 @@ function Manager() {
   return (
     <div className={styles.adminPage}>
       <Welcome user={{ username: "Shani" }}>
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="admin" />
 
         <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
           <div className={styles.background}></div>

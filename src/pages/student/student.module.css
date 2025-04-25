@@ -1,75 +1,72 @@
-.container {
-  display: flex;
-  height: 100vh;
+.studentPage {
+  min-height: 100vh;
+  direction: rtl;
+  background: linear-gradient(to bottom right, #eaf0ff, #ffffff);
+  padding: 2rem;
 }
 
-.sidebar {
-  width: 80px;
-  background-color: #2563eb;
+/* Hero section */
+.hero {
+  position: relative;
+  height: 300px;
+  border-radius: 1rem;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 20px 0;
-  gap: 20px;
-}
-
-.icon {
+  justify-content: flex-end;
+  padding: 2rem;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.3);
   color: white;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
 }
 
-.mainContent {
-  flex: 1;
-  padding: 24px;
-  background-color: #f3f4f6;
+/* Fixed hero background */
+.heroBackground {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image: url("../../images/Login-background.jpg");
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  filter: brightness(0.5);
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.heroContent {
+  text-align: right;
+  max-width: 400px;
+  margin-left: auto;
+  z-index: 1;
 }
 
-.welcomeText {
-  font-size: 24px;
+.title {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
   font-weight: bold;
-  color: #1e3a8a;
+  color: #eaf0ff;
 }
 
-.bellIcon {
-  width: 24px;
-  height: 24px;
-  color: #6b7280;
-  cursor: pointer;
+.subTitle {
+  font-size: 1.4rem;
+  font-weight: 300;
 }
 
-.cardsContainer {
-  margin-top: 24px;
+/* Dashboard cards */
+.dashboard {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
 }
 
-@media (min-width: 768px) {
-  .cardsContainer {
-    grid-template-columns: 1fr 1fr;
+/* Mobile */
+@media (max-width: 600px) {
+  .title {
+    font-size: 2rem;
   }
-}
 
-.card {
-  background: white;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.cardTitle {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.cardText {
-  color: #6b7280;
+  .subTitle {
+    font-size: 1.1rem;
+  }
 }
