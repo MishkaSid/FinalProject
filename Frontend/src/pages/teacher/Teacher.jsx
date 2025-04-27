@@ -8,6 +8,19 @@ import GradesDistributionChart from "../../components/charts/GradeDistributionCh
 import QuestionStatsChart from "../../components/charts/QuestionStatsChart";
 import Welcome from "../../components/welcome/Welcome";
 
+/**
+ * The TeacherDashboard component renders the main page for teachers.
+ * It includes a sidebar for navigation, a welcome message for the user,
+ * and a main content area with charts displaying question statistics 
+ * and grade distribution.
+ *
+ * The sidebar can be toggled open or closed, which blurs the background 
+ * content. The component uses the Welcome, Sidebar, QuestionStatsChart, 
+ * and GradesDistributionChart components to render the respective sections.
+ *
+ * @returns {JSX.Element} The rendered TeacherDashboard component.
+ */
+
 const TeacherDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 

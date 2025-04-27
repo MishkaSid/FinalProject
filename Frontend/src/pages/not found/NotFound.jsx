@@ -1,5 +1,12 @@
 import styles from "./notFound.module.css";
 
+/**
+ * A NotFound component that displays a 404 error page.
+ *
+ * This component is shown when an invalid route is entered.
+ *
+ * @returns {JSX.Element} The rendered NotFound component.
+ */
 const NotFound = () => {
   return (
     <>

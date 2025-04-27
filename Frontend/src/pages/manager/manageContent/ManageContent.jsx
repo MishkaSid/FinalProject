@@ -6,6 +6,16 @@ const mockData = [
   { id: 2, topic: "גאומטריה", level: "קשה", type: "אמריקאית" },
 ];
 
+/**
+ * The ManageContent component renders the main page for managing content.
+ * It contains a search bar and a table of content items. The table is
+ * filtered based on the search input. The table has four columns: topic,
+ * level, type and actions. The actions column contains two buttons: edit
+ * and delete. The edit button navigates to the edit page, and the delete
+ * button opens a confirmation dialog.
+ *
+ * @returns {JSX.Element} The rendered ManageContent component.
+ */
 export default function ManageContent() {
   const [search, setSearch] = useState("");
 

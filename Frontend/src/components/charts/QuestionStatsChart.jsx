@@ -18,6 +18,22 @@ const difficultyStats = [
 
 const COLORS = ["#e74c3c", "#f1c40f", "#3498db", "#2ecc71"];
 
+/**
+ * The QuestionStatsChart component renders a set of charts that visualize
+ * question statistics in the system. The component includes two main charts:
+ * 
+ * 1. A BarChart that displays the number of questions by type. Each bar
+ *    represents a different type of question (e.g., "אלגברה", "גיאומטריה"),
+ *    and its height corresponds to the count of questions of that type.
+ * 
+ * 2. A PieChart that shows the percentage of failed questions by subject.
+ *    Each slice of the pie represents a different subject and indicates the
+ *    proportion of failed questions within that subject.
+ * 
+ * Both charts are wrapped in responsive containers to ensure they resize
+ * appropriately based on the available space.
+ */
+
 export default function QuestionStatsChart() {
   return (
     <>

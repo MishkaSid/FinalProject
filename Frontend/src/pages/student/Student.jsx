@@ -2,6 +2,13 @@ import React from "react";
 import styles from "./student.module.css";
 import Card from "../../components/card/Card";
 import { FiBook } from "react-icons/fi";
+/**
+ * The StudentDashboard component renders the main page for students.
+ * It contains a hero section with the student's name and course, and a dashboard
+ * with a card containing a link to exercises for the course.
+ *
+ * @returns {JSX.Element} The rendered StudentDashboard component.
+ */
 export default function StudentDashboard() {
   const student = {
     name: "מיכאל סידוריוק",

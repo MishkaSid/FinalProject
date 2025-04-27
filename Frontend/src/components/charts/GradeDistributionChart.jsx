@@ -25,6 +25,23 @@ const data = [
   { range: "90-100", students: 5 }
 ];
 
+/**
+ * The GradeDistributionChart component renders a bar chart that displays the
+ * distribution of student grades on a given assignment.
+ *
+ * The chart is rendered inside a div with the class "chartWrapper", and the
+ * chart title is rendered as a heading element with the class "chartTitle".
+ *
+ * The chart is a bar chart, with the x-axis displaying the range of grades
+ * (e.g. "0-10", "10-20", etc.), and the y-axis displaying the number of
+ * students who scored within each range.
+ *
+ * The chart is responsive, meaning it will resize to fit the available space.
+ *
+ * The chart is rendered with a tooltip that displays the range of grades and
+ * the number of students who scored within that range when the user hovers over
+ * the bar.
+ */
 export default function GradeDistributionChart() {
   return (
     <div className={styles.chartWrapper}>

@@ -1,6 +1,11 @@
 import React from "react";
 import styles from "./uploadStudentTable.module.css";
 
+/**
+ * A styled button for uploading a student table file.
+ *
+ * @returns {React.ReactElement} A styled button with an SVG icon and a file input.
+ */
 export default function UploadStudentTable() {
   return (
     <button class={styles.container}>

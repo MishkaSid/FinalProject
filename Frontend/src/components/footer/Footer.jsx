@@ -1,4 +1,9 @@
 import './footer.css'
+/**
+ * A simple footer component that displays a contact email and a copyright message
+ * for the current year.
+ * @returns {JSX.Element} The footer element.
+ */
 function Footer() {
   return(
      <footer>

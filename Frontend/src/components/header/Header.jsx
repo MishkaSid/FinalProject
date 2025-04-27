@@ -1,5 +1,11 @@
 import classes from './header.module.css';
 
+/**
+ * Renders the header of the application, containing the company logo and
+ * the logo of the Perets Taubenslagel school.
+ *
+ * @return {ReactElement} The header element.
+ */
 function Header() {
   return (
     <header>

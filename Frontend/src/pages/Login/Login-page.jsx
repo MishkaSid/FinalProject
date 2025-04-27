@@ -2,6 +2,16 @@ import classes from "./login.module.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * A login page component that renders a form with input fields for
+ * username and password. The form submission event is handled by the
+ * handleSubmit function, which checks if the provided username and
+ * password match any of the users in the users array. If a match is
+ * found, navigates to the corresponding route. Otherwise, shows an
+ * alert with an error message.
+ *
+ * @returns {JSX.Element} A JSX element representing the login page.
+ */
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,6 +26,13 @@ function Login() {
   const handleUsernameChange = (event) => setUsername(event.target.value);
   const handlePasswordChange = (event) => setPassword(event.target.value);
 
+  /**
+   * Handles form submission event. Prevents page refresh and checks if
+   * the provided username and password match any of the users in the
+   * users array. If a match is found, navigates to the corresponding
+   * route. Otherwise, shows an alert with an error message.
+   * @param {Event} event The form submission event.
+   */
   function handleSubmit(event) {
     event.preventDefault(); // Prevent page refresh
 

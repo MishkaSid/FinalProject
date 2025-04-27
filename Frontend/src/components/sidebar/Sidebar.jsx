@@ -3,6 +3,20 @@ import { FiUsers, FiHome, FiBookOpen,FiBook,FiSidebar, FiMenu } from "react-icon
 import styles from "./sidebar.module.css";
 import { useState } from "react";
 
+/**
+ * Sidebar component for navigation.
+ *
+ * This component renders a sidebar with navigation links based on the user type.
+ * It can be toggled between expanded and collapsed states.
+ *
+ * @param {Object} props - Component properties.
+ * @param {boolean} props.isOpen - Whether the sidebar is open.
+ * @param {function} props.setIsOpen - Function to toggle the open state of the sidebar.
+ * @param {string} [props.userType="guest"] - The type of user to determine which menu items to render.
+ *
+ * @returns {JSX.Element} The rendered sidebar component.
+ */
+
 function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
   const [expanded, setExpanded] = useState(false);
 

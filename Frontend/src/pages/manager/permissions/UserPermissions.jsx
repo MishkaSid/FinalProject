@@ -11,6 +11,16 @@ const mockPermissions = [
   { id: 5, name: "יוסי כהן", role: "תלמיד", access: "קריאה בלבד" },
 ];
 
+/**
+ * The UserPermissions component renders a user interface for managing user permissions.
+ * It includes a search bar to filter the list of users by name, a table displaying user
+ * information such as name, role, and access level, and actions to edit or delete users.
+ * Additionally, it provides a button to add new users and an upload component for bulk
+ * user uploads.
+ *
+ * @returns {JSX.Element} The rendered UserPermissions component.
+ */
+
 export default function UserPermissions() {
   const [search, setSearch] = useState("");
 

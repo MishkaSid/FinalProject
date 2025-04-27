@@ -22,6 +22,21 @@ const usageData = [
   { date: "07/04", users: 34 },
 ];
 
+/**
+ * The StudentUsageChart component renders a line chart that displays the
+ * number of students who logged in to the platform per day.
+ *
+ * The chart is rendered inside a div with the class "chartWrapper", and the
+ * chart title is rendered as a heading element with the class "chartTitle".
+ *
+ * The chart is a line chart, with the x-axis displaying the date and the
+ * y-axis displaying the number of students who logged in.
+ *
+ * The chart is responsive, meaning it will resize to fit the available space.
+ *
+ * The chart has a tooltip that displays the date and the number of students
+ * who logged in when the user hovers over the line.
+ */
 export default function StudentUsageChart() {
   return (
     <div className={styles.chartWrapper}>
