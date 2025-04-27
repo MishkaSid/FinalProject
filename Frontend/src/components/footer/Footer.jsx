@@ -8,7 +8,7 @@ function Footer() {
       </div>  
       
       <div className="copyright">
-      <p>| Michael Sidoruk , Nadav Sayag | Copyright &copy; {new Date().getFullYear()} all rights reserved  
+      <p> {new Date().getFullYear()} all rights reserved &copy; Michael Sidoruk & Nadav Sayag  
       </p>
       </div>
     </footer>
