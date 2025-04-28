@@ -16,6 +16,7 @@ const mockData = [
  *
  * @returns {JSX.Element} The rendered ManageContent component.
  */
+
 export default function ManageContent() {
   const [search, setSearch] = useState("");
 

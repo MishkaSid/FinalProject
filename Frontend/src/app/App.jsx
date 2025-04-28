@@ -42,9 +42,9 @@ function App() {
               <Route path="/manager/permissions" element={<UserPermissions />} />
               <Route path="/manager/manageContent" element={<ManageContent />} />
               <Route path="/teacher" element={<TeacherDashboard />} />
-              <Route path="/teacher/manageContent" element={<TeacherDashboard />} />
+              <Route path="/teacher/manageContent" element={<ManageContent />} />
               <Route path="/student" element={<Student/>} />
-              <Route path ="*" element={<NotFound />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
         </main>
         <Footer />

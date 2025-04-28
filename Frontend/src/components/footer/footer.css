@@ -1,5 +1,5 @@
 footer {
-  background-color: var(--clr-footer);
+  background-color: rgba(0, 125, 214, 0.7);
   border-top: 1px solid #ddd;
   color: var(--clr-white);
   display: flex;
