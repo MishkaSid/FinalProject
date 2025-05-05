@@ -12,6 +12,7 @@ async function getConnection() {
       database: process.env.DB_NAME,
       port: process.env.DB_PORT || 3306,
     });
+    console.log("Connected to database");
   }
   return connection;
 }

@@ -8,7 +8,7 @@ import styles from "./uploadStudentTable.module.css";
  */
 export default function UploadStudentTable() {
   return (
-    <button class={styles.container}>
+    <button className={styles.container}>
       <svg
         fill="#fff"
         xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +38,7 @@ export default function UploadStudentTable() {
         ></path>
       </svg>
       Upload File
-      <input class="file" name="text" type="file" />
+      <input className="file" name="text" type="file" />
     </button>
   );
 }
