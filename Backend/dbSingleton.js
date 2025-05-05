@@ -15,11 +15,14 @@ const dbSingleton = {
 
     getConnection: () => {
         if (!connection) {
+          const dotenv = require('dotenv');
+          dotenv.config();
+
           connection = mysql.createConnection({
-            host: 'LAPTOP-NFISVKKU', 
-            user: 'root',
-            password: 'M1cha3l.',
-            database: 'final_project'
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME
           });
 
             // Connect to the database
