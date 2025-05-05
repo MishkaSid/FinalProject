@@ -46,6 +46,7 @@ export default function UserPermissions() {
               <th>שם משתמש</th>
               <th>תפקיד</th>
               <th>הרשאה</th>
+              <th>אימייל</th>
               <th>פעולות</th>
             </tr>
           </thead>
@@ -55,6 +56,7 @@ export default function UserPermissions() {
                 <td>{user.name}</td>
                 <td>{user.role}</td>
                 <td>{user.access || "---"}</td>
+                <td>{user.email}</td>
                 <td>
                   <button
                     className={`${styles.actionButton} ${styles.editButton}`}
