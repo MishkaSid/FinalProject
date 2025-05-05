@@ -1,25 +1,24 @@
-// server.js
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
-const db = require('./dbSingleton');
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+const db = require("./dbSingleton");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Backend is working!' });
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend is working!" });
 });
 
-app.get('/api/users', async (req, res) => {
+app.get("/api/users", async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query('SELECT * FROM users');
+    const [rows] = await connection.query("SELECT * FROM users");
     res.json(rows);
   } catch (err) {
-    console.error('Error fetching users:', err);
-    res.status(500).json({ error: 'Server error while fetching users' });
+    console.error("Error fetching users:", err);
+    res.status(500).json({ error: "Server error while fetching users" });
   }
 });
 
