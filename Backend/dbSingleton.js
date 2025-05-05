@@ -17,8 +17,8 @@ const dbSingleton = {
         if (!connection) {
           connection = mysql.createConnection({
             host: 'LAPTOP-NFISVKKU', 
-            user: 'your-username',
-            password: 'm1cha3l.',
+            user: 'root',
+            password: 'M1cha3l.',
             database: 'final_project'
           });
 
