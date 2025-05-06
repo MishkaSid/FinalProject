@@ -13,7 +13,6 @@ import NotFound from "../pages/not found/NotFound";
 
 /**
  * The main App component.
- * 
  * This component wraps the entire application with the BrowserRouter
  * component and provides the routes for the application. The routes are
  * as follows:
