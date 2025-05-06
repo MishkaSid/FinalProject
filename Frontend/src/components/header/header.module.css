@@ -19,6 +19,7 @@ header {
   width: auto;
   border-radius: 0.5rem;
   margin-left: 2rem;
+  src: url("../../assets/images/logoBeta.PNG");
 }
 
 @media screen and (max-width: 768px) {

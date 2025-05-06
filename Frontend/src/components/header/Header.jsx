@@ -9,7 +9,7 @@ import classes from './header.module.css';
 function Header() {
   return (
     <header>
-      <img className={classes.logo} src="FinalProjectDemo\Frontend\src\assets\images\logoBeta.PNG" alt="logo" />
+      <img className={classes.logo} src="src/assets/images/logoBeta.PNG" alt="logo" />
       <img className={classes.schoolLogo} src="https://www.pet.ac.il/images/logo.png" alt="logo" />
     </header>
   )
