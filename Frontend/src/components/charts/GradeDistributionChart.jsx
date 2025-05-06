@@ -37,7 +37,6 @@ const data = [
  * students who scored within each range.
  *
  * The chart is responsive, meaning it will resize to fit the available space.
- *
  * The chart is rendered with a tooltip that displays the range of grades and
  * the number of students who scored within that range when the user hovers over
  * the bar.
