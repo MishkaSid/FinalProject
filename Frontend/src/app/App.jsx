@@ -10,7 +10,6 @@ import { BrowserRouter, Route, Routes} from "react-router-dom";
 import "./app.css";
 import NotFound from "../pages/not found/NotFound";
 
-
 /**
  * The main App component.
  * This component wraps the entire application with the BrowserRouter
