@@ -54,12 +54,46 @@
 
 /* Dashboard cards */
 .dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 3rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
+.profile, .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: right;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 1rem;
+  max-width: 900px;
+  width: 90%;
+  padding: 3rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profile {
+  order: -1;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+}
+
+.profileTitle{
+  font-size: 7rem;
+  color: var(--clr-blue-5);
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.profileContent{
+  font-size: 1.8rem;
+  color: var(--clr-blue-5);
+  font-weight: 700;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
 /* Mobile */
 @media (max-width: 600px) {
   .title {
@@ -70,3 +104,4 @@
     font-size: 1.1rem;
   }
 }
+

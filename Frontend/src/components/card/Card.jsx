@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./card.module.css";
 
 /**
@@ -8,16 +9,24 @@ import styles from "./card.module.css";
  * @prop {String} title The card title.
  * @prop {String} [description] The card description.
  * @prop {ReactNode} [icon] A React component to display as the card icon.
- * @prop {Function} [onClick] A callback function to call when the card is clicked.
+ * @prop {String} [to] The location to navigate to when the card is clicked.
  * @prop {String} [size=medium] The card size. Can be "small", "medium", or "large".
  * @prop {String} [layout=vertical] The card layout. Can be "vertical" or "horizontal".
  */
 
-export default function Card({ title, description, icon, onClick, size = "medium", layout = "vertical" }) {
+export default function Card({ title, description, icon, to, size = "medium", layout = "vertical" }) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (to) {
+      navigate(to);
+    }
+  };
+
   return (
     <div
       className={`${styles.card} ${styles[size]} ${layout === "horizontal" ? styles.horizontal : ""}`}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {icon && <div className={styles.cardIcon}>{icon}</div>}
       <div>
@@ -27,3 +36,4 @@ export default function Card({ title, description, icon, onClick, size = "medium
     </div>
   );
 }
+

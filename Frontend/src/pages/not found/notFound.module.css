@@ -5,7 +5,7 @@
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  background-image: url('../../images/notFoundBackground.webp');
+  background-image: url('../../assets/images/notFoundBackground.webp');
   background-size: 110%;
   background-position: center;
   background-repeat: no-repeat;
@@ -14,14 +14,11 @@
 }
 
 @keyframes kenBurns {
-  0% {
-    background-size: 110%;
-    background-position: center;
-  }
-  100% {
-    background-size: 120%;
-    background-position: top center;
-  }
+  0% { background-size: 100%; }
+  25% { background-size: 105%; }
+  50% { background-size: 110%; }
+  75% { background-size: 105%; }
+  100% { background-size: 100%; }
 }
 
 
