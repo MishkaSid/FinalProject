@@ -1,0 +1,42 @@
+.practicePage {
+  min-height: 100vh;
+  direction: rtl;
+  background: linear-gradient(to bottom right, #eaf0ff, #ffffff);
+  padding: 2rem;
+}
+
+.question {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.question img {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 1rem;
+}
+
+.question input[type="radio"] {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  border: none;
+  outline: none;
+}
+
+.optionsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content:space-between;
+}
+@media (max-width: 768px) {
+  .practicePage {
+    padding: 1rem;
+  }
+}
+

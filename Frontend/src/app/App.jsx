@@ -5,7 +5,8 @@ import Manager from "../pages/manager/home/Manager";
 import UserPermissions from "../pages/manager/permissions/UserPermissions";
 import ManageContent from "../pages/manager/manageContent/ManageContent";
 import TeacherDashboard from "../pages/teacher/Teacher";
-import Student from "../pages/student/Student";
+import Student from "../pages/student/dashboard/Student";
+import Practice from "../pages/student/practice/practice";
 import { BrowserRouter, Route, Routes} from "react-router-dom";
 import "./app.css";
 import NotFound from "../pages/not found/NotFound";
@@ -42,6 +43,7 @@ function App() {
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route path="/teacher/manageContent" element={<ManageContent />} />
               <Route path="/student" element={<Student/>} />
+              <Route path="/student/practice" element={<Practice />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
         </main>

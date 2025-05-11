@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./student.module.css";
-import Card from "../../components/card/Card";
+import Card from "../../../components/card/Card";
 import { FiBook } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";
 import { CgPlayButtonO } from "react-icons/cg";
@@ -37,7 +37,7 @@ export default function StudentDashboard() {
           title="תרגולים"
           description="כאן תמיד יהיו תרגולים למתמטיקה"
           icon={<FiBook size={30} />}
-          to="/practice"
+          to="/student/practice"
           size="medium"
           layout="horizontal"
         />
