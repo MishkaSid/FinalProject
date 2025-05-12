@@ -7,7 +7,7 @@ const asyncHandler = fn => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
 // Route for fetching all users
-router.get('/users', asyncHandler(dataController.getUsers));
+router.get('/allUsers', asyncHandler(dataController.getUsers));
 
 // Route for fetching practice data
 router.get('/practice', asyncHandler(dataController.getPracticeData));
