@@ -16,7 +16,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('../.././images/managerBackground.jpg'), linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+  background-image: url('../.././assets/images/managerBackground.jpg'), linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

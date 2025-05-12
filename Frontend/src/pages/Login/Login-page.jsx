@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
  *
  * @returns {JSX.Element} A JSX element representing the login page.
  */
+
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -88,3 +89,5 @@ function Login() {
 }
 
 export default Login;
+
+

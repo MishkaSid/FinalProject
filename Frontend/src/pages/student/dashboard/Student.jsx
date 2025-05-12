@@ -33,8 +33,10 @@ export default function StudentDashboard() {
       </div>
 
       <div className={styles.dashboard}>
+        <h2 className={styles.dashboardTitle}>מה תרצו לתרגל היום?</h2>
+        <div className={styles.cardContainer} >
         <Card
-          title="תרגולים"
+          title="שברים"
           description="כאן תמיד יהיו תרגולים למתמטיקה"
           icon={<FiBook size={30} />}
           to="/student/practice"
@@ -42,7 +44,7 @@ export default function StudentDashboard() {
           layout="horizontal"
         />
         <Card
-          title="מבחנים"
+          title="גאומטריה"
           description="כאן תוכלו לדמות מבחן אמיתי"
           icon={<LuNotebookPen size={30} />}
           to="/exams"
@@ -50,13 +52,15 @@ export default function StudentDashboard() {
           layout="horizontal"
         />
         <Card
-          title="סרטונים"
+          title="שאלות מילוליות"
           description="כאן תוכלו לראות סרטוני הסברה"
           icon={<CgPlayButtonO size={30} />}
           to="/videos"
           size="medium"
           layout="horizontal"
         />
+        </div>
+
         <div className={styles.profile}>
           <h2 className={styles.profileTitle}>פרופיל</h2>
           <div className={styles.profileContent}>

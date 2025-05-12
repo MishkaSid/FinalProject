@@ -55,16 +55,23 @@
 /* Dashboard cards */
 .dashboard {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .profile, .card {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
-  text-align: right;
+  align-items: center;
+  text-align: center;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 1rem;
   max-width: 900px;
@@ -72,12 +79,14 @@
   padding: 3rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  margin-bottom: 2rem;
+  margin-right: 2rem;
 }
 
 .profile {
   order: -1;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
+  margin-bottom: 4rem;
+  margin-top: 4rem;
 }
 
 .profileTitle{
@@ -94,6 +103,13 @@
   font-weight: 700;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
+
+.cardIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: var(--clr-blue-5);
+}
+
 /* Mobile */
 @media (max-width: 600px) {
   .title {
@@ -102,6 +118,19 @@
 
   .subTitle {
     font-size: 1.1rem;
+  }
+
+  .profile {
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+  }
+
+  .profileContent {
+    font-size: 1.4rem;
+  }
+
+  .cardIcon {
+    font-size: 3rem;
   }
 }
 

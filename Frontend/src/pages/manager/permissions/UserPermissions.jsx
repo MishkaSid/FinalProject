@@ -10,7 +10,7 @@ export default function UserPermissions() {
 
   useEffect(() => {
     axios
-      .get("/api/users")
+      .get("/api/data/allUsers")
       .then((res) => {
         console.log("Fetched users:", res.data);
         setUsers(res.data);
@@ -71,6 +71,11 @@ export default function UserPermissions() {
                 </td>
               </tr>
             ))}
+            {!filtered.length && (
+              <tr className="noResults">
+                <td colSpan="5">לא נמצאו משתמשים</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

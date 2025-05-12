@@ -125,6 +125,19 @@
   text-decoration: none;
   
 }
+.noResults {
+  font-size: 3rem;
+  color: var(--clr-blue-5);
+  text-align: center;
+  padding: 3rem;
+  border-radius: 10px;
+  background-color: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+noResults td {
+  border: none;
+  
+}
 
 .editButton {
   background-color: var(--clr-blue-2);
