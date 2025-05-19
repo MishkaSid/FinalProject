@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/generalData", dataRoutes);
-
+app.use("/api/specificData", dataRoutes);
 
 
 

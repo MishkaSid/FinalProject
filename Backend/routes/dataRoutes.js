@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const generalDataController = require('../controllers/generalDataController');
-const specificDataController = require('../controllers/dataController');
+const specificDataController = require('../controllers/specificUserDataController');
 
 /*  general data routes  */
 
@@ -39,6 +39,8 @@ router.get('/examinee/:id', specificDataController.getSpecificExaminee);
 // Route for fetching specific teacher data
 router.get('/teacher/:id', specificDataController.getSpecificTeacher);
 
+// Route for fetching specific admin data
+router.get('/admin/:id', specificDataController.getSpecificAdmin);
 
 
 
