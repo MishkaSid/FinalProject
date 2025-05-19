@@ -1,13 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const db = require("./dbSingleton");
 const dataRoutes = require("./routes/dataRoutes");
 const app = express();
+
+
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/data", dataRoutes);
+app.use("/api/generalData", dataRoutes);
 
 
 
