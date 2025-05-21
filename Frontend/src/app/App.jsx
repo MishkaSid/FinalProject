@@ -1,56 +1,35 @@
-import Header from "../components/header/Header";
-import Footer from "../components/footer/Footer";
-import Login from "../pages/Login/Login-page";
-import Manager from "../pages/manager/home/Manager";
-import UserPermissions from "../pages/manager/permissions/UserPermissions";
-import ManageContent from "../pages/manager/manageContent/ManageContent";
-import TeacherDashboard from "../pages/teacher/Teacher";
-import Student from "../pages/student/dashboard/Student";
-import Practice from "../pages/student/practice/practice";
-import { BrowserRouter, Route, Routes} from "react-router-dom";
-import "./app.css";
-import NotFound from "../pages/not found/NotFound";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from '../context/AuthContext';
+import Layout from './Layout';
+import ProtectedRoute from './ProtectedRoute';
+import LoginPage from '../pages/Login/Login-page';
+import UnauthorizedPage from '../pages/unauthorize/Unauthorize';
+import ManagerDashboard from '../pages/manager/home/Manager';
+import TeacherDashboard from '../pages/teacher/Teacher';
+import StudentDashboard from '../pages/student/dashboard/Student';
+import NotFound from '../pages/not found/NotFound';
 
-/**
- * The main App component.
- * This component wraps the entire application with the BrowserRouter
- * component and provides the routes for the application. The routes are
- * as follows:
- * 
- * - / : The login page
- * - /manager : The manager dashboard
- * - /manager/permissions : The permissions management page
- * - /manager/manageContent : The content management page
- * - /teacher : The teacher dashboard
- * - /teacher/manageContent : The content management page for teachers
- * - /student : The student dashboard
- * - * : The not found page
- * 
- * The App component also includes a Header and Footer component.
- */
 function App() {
-  
   return (
-    <BrowserRouter>
-      <div className="app"> 
-        <Header />
-        <main>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/manager" element={<Manager />} />
-              <Route path="/manager/permissions" element={<UserPermissions />} />
-              <Route path="/manager/manageContent" element={<ManageContent />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route element={<Layout />}>
+            <Route element={<ProtectedRoute allowedRoles={['manager', 'teacher', 'student']} />}>
+              <Route path="/" element={<ManagerDashboard />} />
+              <Route path="/manager" element={<ManagerDashboard />} />
               <Route path="/teacher" element={<TeacherDashboard />} />
-              <Route path="/teacher/manageContent" element={<ManageContent />} />
-              <Route path="/student" element={<Student/>} />
-              <Route path="/student/practice" element={<Practice />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+              <Route path="/student" element={<StudentDashboard />} />
+            </Route>
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
 export default App;
+
