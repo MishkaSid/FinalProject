@@ -9,6 +9,7 @@ import TeacherDashboard from '../pages/teacher/Teacher';
 import StudentDashboard from '../pages/student/dashboard/Student';
 import NotFound from '../pages/not found/NotFound';
 
+
 function App() {
   return (
     <AuthProvider>
