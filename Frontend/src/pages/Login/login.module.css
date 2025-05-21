@@ -1,22 +1,38 @@
 .homepage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  position: relative;
-  z-index: 1;
   padding: 3rem;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 1rem;
   max-width: 900px;
   width: 90%;
-  margin-top: 2rem;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 2rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.logos{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.logo{
+  width:250px;
+  height: 125px;
+  margin-right: 2rem;
+}
+
+.shcoolLogo{
+  width:125px;
+  height: 125px;
 }
 
 .background {
@@ -108,8 +124,8 @@ button {
 }
 
 button:hover {
-  background-color: var(--clr-yellow);
-  box-shadow: 0 0 10px var(--clr-yellow);
+  background-color: #f47521;
+  box-shadow: 0 0 10px #f47521;
 }
 
 .warning {

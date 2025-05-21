@@ -1,84 +1,99 @@
-import classes from "./login.module.css";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import classes from "./login.module.css";
 
 /**
- * A login page component that renders a form with input fields for
- * username and password. The form submission event is handled by the
- * handleSubmit function, which checks if the provided username and
- * password match any of the users in the users array. If a match is
- * found, navigates to the corresponding route. Otherwise, shows an
- * alert with an error message.
+ * A login page component that handles user authentication.
  *
+ * ************  IN PROGRESS   ****************
+ * 
  * @returns {JSX.Element} A JSX element representing the login page.
  */
 
-function Login() {
-  const [username, setUsername] = useState("");
+function LoginPage() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const users = [
-    { username: "teacher", password: "teacher" },
-    { username: "admin", password: "admin" },
-    { username: "user", password: "user" },
-  ];
-
-  const handleUsernameChange = (event) => setUsername(event.target.value);
-  const handlePasswordChange = (event) => setPassword(event.target.value);
-
   /**
-   * Handles form submission event. Prevents page refresh and checks if
-   * the provided username and password match any of the users in the
-   * users array. If a match is found, navigates to the corresponding
-   * route. Otherwise, shows an alert with an error message.
-   * @param {Event} event The form submission event.
+   * Handles login form submission. Sends a request to the authentication
+   * API endpoint and processes the response.
+   * @param {Event} e The form submission event.
    */
-  function handleSubmit(event) {
-    event.preventDefault(); // Prevent page refresh
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    const user = users.find(
-      (user) => user.username === username && user.password === password
-    );
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
-    if (user) {
-      if (user.username === "teacher") navigate("/teacher");
-      else if (user.username === "admin") navigate("/manager");
-      else if (user.username === "user") navigate("/student");
+      const { token, user } = response.data;
+
+      // Save token & user in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Navigate to dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      const message = error.response?.data?.message || "שגיאה בהתחברות";
+      alert(message);
     }
-    else alert("שם משתמש או סיסמה שגוי");
-  }
+  };
 
   return (
     <div className={classes.loginPage}>
       <div className={classes.background}></div>
       <div className={classes.homepage}>
+        <div className={classes.logos}>
+          <img
+            className={classes.logo}
+            src="src/assets/images/logoBeta.PNG"
+            alt="logo"
+          />
+          <img
+            className={classes.schoolLogo}
+            src="https://www.pet.ac.il/images/logo.png"
+            alt="logo"
+          />
+        </div>
         <div className={classes.welcome}>
-          <h1>נבחנים יקרים</h1>
           <p>
-            ברוכים הבאים לפלטפורמת "מוכנים ובגדול"! הפלטפורמה שלנו נועדה במיוחד עבור מי ששואפים להצטרף למכללה ורוצים להתכונן בצורה הטובה ביותר למבחני הקבלה. כאן תוכלו לתרגל מתמטיקה, לשפר את הכישורים שלכם, ולבנות ביטחון לקראת האתגרים שמחכים לכם. התחילו כבר עכשיו לקחת את הצעד הראשון בדרך להגשמת השאיפות האקדמיות שלכם        </p>
+            ברוכים הבאים לפלטפורמת "מוכנים ובגדול"! הפלטפורמה שלנו נועדה במיוחד
+            עבור מי ששואפים להצטרף למכללה ורוצים להתכונן בצורה הטובה ביותר
+            למבחני הקבלה. כאן תוכלו לתרגל מתמטיקה, לשפר את הכישורים שלכם, ולבנות
+            ביטחון לקראת האתגרים שמחכים לכם. התחילו כבר עכשיו לקחת את הצעד
+            הראשון בדרך להגשמת השאיפות האקדמיות שלכם
+          </p>
         </div>
         <div className={classes.login}>
           <h1>כניסה</h1>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleLogin}>
             <input
-              type="text"
-              name="username"
-              id="username"
-              placeholder="username"
-              value={username}
-              onChange={handleUsernameChange}
+              type="email"
+              name="email"
+              id="email"
+              placeholder="אימייל"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
             <input
               type="password"
               name="password"
               id="password"
-              placeholder="password"
+              placeholder="סיסמה"
               value={password}
-              onChange={handlePasswordChange}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
-            
-            <button type="submit">login</button>
+            <button type="submit">התחבר</button>
           </form>
           <div className={classes.warning}>
             <p>שימו לב! פלטפורמה זו הינה כלי עזר ואינה תחליף ללמידה עצמית</p>
@@ -89,6 +104,4 @@ function Login() {
   );
 }
 
-export default Login;
-
-
+export default LoginPage;
