@@ -10,7 +10,7 @@ export default function UserPermissions() {
 
   useEffect(() => {
     axios
-      .get("/api/data/allUsers")
+      .get("/api/generalDataRoutes/users")
       .then((res) => {
         console.log("Fetched users:", res.data);
         setUsers(res.data);

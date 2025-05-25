@@ -22,10 +22,12 @@ const ProtectedRoute = ({ allowedRoles }) => {
   const { user } = useAuth();
 
   if (!user) {
+    console.log("not logged in");
     return <Navigate to="/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
+    console.log("not authorized");
     return <Navigate to="/unauthorized" replace />;
   }
 
