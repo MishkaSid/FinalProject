@@ -1,4 +1,5 @@
 const db = require("../dbConnection");
+const bcrypt = require("bcrypt");
 
 // Get a user by ID
 exports.getUserById = async (req, res) => {
@@ -23,12 +24,14 @@ exports.createUser = async (req, res) => {
   if (Role === "Examinee") {
     Password = UserId.toString();
   }
+  Password = Password.toString().trim();
+  const hashedPassword = await bcrypt.hash(Password, 10);
 
   try {
     const connection = await db.getConnection();
     const [result] = await connection.query(
       "INSERT INTO users (UserId, Name, Email, Password, Role, CourseID) VALUES (?, ?, ?, ?, ?, ?)",
-      [UserId, Name, Email, Password, Role, CourseID]
+      [UserId, Name, Email, hashedPassword, Role, CourseID]
     );
 
     res.json({ UserId, Name, Email, Role, CourseID });
