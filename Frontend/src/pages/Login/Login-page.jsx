@@ -102,7 +102,7 @@ function LoginPage() {
           </div>
         </div>
       </div>
-        <Popup header="שגיאה בהתחברות" text="שגיאה בהתחברות" isOpen={showPopup} onClose={() => setShowPopup(false)}>
+        <Popup header="שגיאה בהתחברות" text="שם המשתמש ו/או הסיסמה שגוים" isOpen={showPopup} onClose={() => setShowPopup(false)}>
           <div className={classes.popupContent}>
             <p>שגיאה בהתחברות</p>
           </div>

@@ -18,7 +18,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route element={<Layout />}>
-            <Route element={<ProtectedRoute allowedRoles={['manager', 'teacher', 'student']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Teacher', 'Examinee']} />}>
               <Route path="/" element={<ManagerDashboard />} />
               <Route path="/manager" element={<ManagerDashboard />} />
               <Route path="/teacher" element={<TeacherDashboard />} />

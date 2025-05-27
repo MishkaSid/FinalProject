@@ -13,7 +13,7 @@ router.post('/login', async (req, res) => {
 
   try {
     // Check if user exists in the database
-    const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    const [rows] = await db.query('SELECT * FROM users WHERE Email = ?', [email]);
     const user = rows[0];
 
     // If user doesn't exist, return error

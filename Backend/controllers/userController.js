@@ -1,4 +1,4 @@
-const db = require('../dbConnection');
+const db = require("../dbConnection");
 
 // Get a user by ID
 exports.getUserById = async (req, res) => {
@@ -6,28 +6,35 @@ exports.getUserById = async (req, res) => {
 
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
+    const [rows] = await connection.query("SELECT * FROM users WHERE id = ?", [
+      id,
+    ]);
     res.json(rows[0]);
   } catch (err) {
-    console.error('Error in getUserById:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error in getUserById:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
+
 // Create a new user
 exports.createUser = async (req, res) => {
-  let { id, name, email, password, role } = req.body;
+  let { UserId, Name, Email, Password, Role, CourseID } = req.body;
 
-  if (role === 'Examinee') {
-    password = id;
+  if (Role === "Examinee") {
+    Password = UserId.toString();
   }
 
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query('INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)', [id, name, email, password, role]);
-    res.json({ id, name, email, role });
+    const [result] = await connection.query(
+      "INSERT INTO users (UserId, Name, Email, Password, Role, CourseID) VALUES (?, ?, ?, ?, ?, ?)",
+      [UserId, Name, Email, Password, Role, CourseID]
+    );
+
+    res.json({ UserId, Name, Email, Role, CourseID });
   } catch (err) {
-    console.error('Error in createUser:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error in createUser:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -38,11 +45,14 @@ exports.updateUser = async (req, res) => {
 
   try {
     const connection = await db.getConnection();
-    await connection.query('UPDATE users SET name = ?, email = ?, password = ?, role = ? WHERE id = ?', [name, email, password, role, id]);
+    await connection.query(
+      "UPDATE users SET name = ?, Email = ?, Password = ?, Role = ? WHERE UserId = ?",
+      [name, email, password, role, id]
+    );
     res.json({ id, name, email, role });
   } catch (err) {
-    console.error('Error in updateUser:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error in updateUser:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -52,10 +62,10 @@ exports.deleteUser = async (req, res) => {
 
   try {
     const connection = await db.getConnection();
-    await connection.query('DELETE FROM users WHERE id = ?', [id]);
+    await connection.query("DELETE FROM users WHERE UserId = ?", [id]);
     res.json({ message: `User with id ${id} deleted` });
   } catch (err) {
-    console.error('Error in deleteUser:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error in deleteUser:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };

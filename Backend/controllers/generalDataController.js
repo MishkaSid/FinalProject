@@ -74,7 +74,7 @@ exports.getPracticeData = async (req, res) => {
 exports.getExamData = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM exam_content");
+    const [rows] = await connection.query("SELECT * FROM exam_questions");
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getPracticeData:", err); // Add this line
@@ -86,7 +86,7 @@ exports.getExamData = async (req, res) => {
 exports.getVideos = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM videos");
+    const [rows] = await connection.query("SELECT * FROM practice_videos");
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getVideos:", err); // Add this line
