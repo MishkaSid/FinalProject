@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import classes from "./login.module.css";
+import Popup from "../../components/popup/Popup";
 
 /**
  * A login page component that handles user authentication.
@@ -15,6 +16,7 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(false);
 
   /**
    * Handles login form submission. Sends a request to the authentication
@@ -43,7 +45,7 @@ function LoginPage() {
       navigate("/dashboard");
     } catch (error) {
       const message = error.response?.data?.message || "שגיאה בהתחברות";
-      alert(message);
+      setShowPopup(true);
     }
   };
 
@@ -100,8 +102,14 @@ function LoginPage() {
           </div>
         </div>
       </div>
+        <Popup header="שגיאה בהתחברות" text="שגיאה בהתחברות" isOpen={showPopup} onClose={() => setShowPopup(false)}>
+          <div className={classes.popupContent}>
+            <p>שגיאה בהתחברות</p>
+          </div>
+        </Popup>
     </div>
   );
 }
 
 export default LoginPage;
+

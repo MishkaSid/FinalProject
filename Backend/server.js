@@ -11,7 +11,7 @@ app.use(express.json());
 app.use("/api/generalData", dataRoutes);
 app.use("/api/specificData", dataRoutes);
 app.use("/api/user", dataRoutes);
-
+app.use("/api/auth/login", require("./routes/auth"));
 
 // Start the server
 const PORT = process.env.PORT || 5000;
