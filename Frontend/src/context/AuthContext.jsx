@@ -6,9 +6,7 @@ const AuthContext = createContext();
 
 /**
  * Provides a React context for user authentication state and actions.
- *
- * ************  IN PROGRESS   ****************
- * 
+ 
  * @param {{children: React.ReactNode}} props
  * @returns {React.ReactElement}
  */

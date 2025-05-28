@@ -8,9 +8,6 @@ import { useAuth } from '../context/AuthContext';
  * redirected to /unauthorized.
  *
  * 
- * ************  IN PROGRESS   ****************
- * 
- * 
  * @param {{ allowedRoles: string[] }} props
  * @param {string[]} props.allowedRoles - The roles that are allowed to access
  *   this route.
