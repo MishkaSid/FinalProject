@@ -6,9 +6,7 @@ import Popup from "../../components/popup/Popup";
 
 /**
  * A login page component that handles user authentication.
- *
- * ************  IN PROGRESS   ****************
- * 
+
  * @returns {JSX.Element} A JSX element representing the login page.
  */
 
@@ -41,8 +39,20 @@ function LoginPage() {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Navigate to dashboard
-      navigate("/dashboard");
+      // Navigate by role
+      switch (user.role) {
+        case "Admin":
+          navigate("/manager");
+          break;
+        case "Teacher":
+          navigate("/teacher");
+          break;
+        case "Examinee":
+          navigate("/student");
+          break;
+        default:
+          navigate("/not-found");
+      }
     } catch (error) {
       const message = error.response?.data?.message || "שגיאה בהתחברות";
       setShowPopup(true);
