@@ -17,10 +17,10 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route path="/" element={<LoginPage/>} />
+          <Route path="/unauthorized" element={<UnauthorizedPage/>} />
           <Route element={<Layout />}>
-            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Teacher', 'Examinee']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Teacher', 'Examinee']}/>}>
               <Route path="/manager" element={<ManagerDashboard />} />
               <Route path="/manager/permissions" element={<UserPermissions/>} />
               <Route path='/manager/manageContent' element={<ManageContent/>} />
