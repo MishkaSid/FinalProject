@@ -10,7 +10,7 @@ export default function UserPermissions() {
 
   useEffect(() => {
     axios
-      .get("/api/generalDataRoutes/users")
+      .get("/api/generalData/users")
       .then((res) => {
         console.log("Fetched users:", res.data);
         setUsers(res.data);
@@ -18,11 +18,9 @@ export default function UserPermissions() {
       .catch((err) => console.error("Error fetching users:", err));
   }, []);
 
-  const filtered = Array.isArray(users)
-    ? users.filter((user) =>
-        user.name.toLowerCase().includes(search.toLowerCase())
-      )
-    : [];
+  const filtered = users.filter((user) =>
+    (user.name || "").toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <>

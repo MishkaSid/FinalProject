@@ -1,7 +1,10 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/header/Header';
-import Navbar from '../components/sidebar/Sidebar';
+import Sidebar from '../components/sidebar/Sidebar';
 import Footer from '../components/footer/Footer';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from '../context/AuthContext';
 
 /**
  * The main layout component for the app.
@@ -11,10 +14,19 @@ import Footer from '../components/footer/Footer';
  * @returns {JSX.Element} The rendered Layout component.
  */
 const Layout = () => {
+  const { user: loggedInUser } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
+  const userType = loggedInUser?.role || location.pathname.includes('admin') ? 'admin' : location.pathname.includes('teacher') ? 'teacher' : 'student';
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <>
-      <Header />
-      <Navbar />
+      <Header toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType={userType} />
       <main>
         <Outlet />
       </main>
@@ -24,3 +36,4 @@ const Layout = () => {
 };
 
 export default Layout;
+

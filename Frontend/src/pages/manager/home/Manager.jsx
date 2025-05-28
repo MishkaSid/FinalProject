@@ -1,8 +1,3 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import Card from "../../../components/card/Card";
-import Sidebar from "../../../components/sidebar/Sidebar";
-import { useState } from "react";
 import "../../pages.css";
 import styles from "./manager.module.css";
 import GradesDistributionChart from "../../../components/charts/GradeDistributionChart";
@@ -18,29 +13,17 @@ import Welcome from "../../../components/welcome/Welcome";
  *
  * @returns {JSX.Element} The rendered Manager component.
  */
+
 function Manager() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const navigate = useNavigate();
-
-  const handleNavigation = (route) => {
-    navigate(route);
-  };
-
   return (
     <div className={styles.adminPage}>
       <Welcome user={{ username: "Shani" }}>
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="admin" />
-
-        <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
-          <div className={styles.background}></div>
-
-          <div className={styles.managerPage}>
-            <div className={styles.chartsGrid}>
-              <QuestionStatsChart />
-              <StudentUsageChart />
-              <GradesDistributionChart />
-            </div>
+        <div className={styles.background} />
+        <div className={styles.managerPage}>
+          <div className={styles.chartsGrid}>
+            <QuestionStatsChart />
+            <StudentUsageChart />
+            <GradesDistributionChart />
           </div>
         </div>
       </Welcome>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FiUsers, FiHome, FiBookOpen,FiBook,FiSidebar, FiMenu } from "react-icons/fi";
+import { FiUsers, FiHome, FiBookOpen, FiBook, FiMenu } from "react-icons/fi";
 import styles from "./sidebar.module.css";
 import { useState } from "react";
 
@@ -18,7 +18,7 @@ import { useState } from "react";
  */
 
 function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(isOpen);
 
   const menuItems = {
     admin: [
@@ -39,7 +39,10 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
 
   return (
     <div className={`${styles.sidebar} ${expanded ? styles.expanded : styles.collapsed}`}>
-      <button className={styles.menuToggle} onClick={() => setExpanded(!expanded)}>
+      <button className={styles.menuToggle} onClick={() => {
+        setIsOpen(!isOpen);
+        setExpanded(!expanded);
+      }}>
         <FiMenu size={30} />
       </button>
 
@@ -58,3 +61,4 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
 }
 
 export default Sidebar;
+
