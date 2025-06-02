@@ -1,8 +1,7 @@
-// src/context/AuthContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode }from "jwt-decode";
 
 const AuthContext = createContext();
-
 
 /**
  * Provides a React context for user authentication state and actions.
@@ -13,21 +12,28 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // user = { name, role }
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+ useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      setUser(decoded);
+    } catch (err) {
+      localStorage.removeItem('token');
     }
-  }, []);
+  }
+}, []);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+
+  const login = (token) => {
+    localStorage.setItem("token", token);
+    const decoded = jwtDecode(token);
+    setUser(decoded);
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
   };
 
   return (

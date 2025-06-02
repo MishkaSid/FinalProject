@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Header from '../components/header/Header';
 import Sidebar from '../components/sidebar/Sidebar';
 import Footer from '../components/footer/Footer';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from '../context/AuthContext';
 
@@ -13,12 +13,13 @@ import { useAuth } from '../context/AuthContext';
 
  * @returns {JSX.Element} The rendered Layout component.
  */
+
 const Layout = () => {
   const { user: loggedInUser } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const userType = loggedInUser?.role || location.pathname.includes('admin') ? 'admin' : location.pathname.includes('teacher') ? 'teacher' : 'student';
-
+  const userType = loggedInUser?.role || location.pathname.includes('manager') ? 'Admin' : location.pathname.includes('teacher') ? 'Teacher' : 'Examinee';
+console.log(userType);
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };

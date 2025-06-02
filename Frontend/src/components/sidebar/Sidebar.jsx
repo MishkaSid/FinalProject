@@ -21,16 +21,16 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
   const [expanded, setExpanded] = useState(isOpen);
 
   const menuItems = {
-    admin: [
+    Admin: [
       { to: "/manager", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
       { to: "/manager/permissions", icon: <FiUsers size={30} className={styles.icon} />, label: "הרשאות משתמשים" },
       { to: "/manager/manageContent", icon: <FiBookOpen size={30} className={styles.icon} />, label: "ניהול תכנים" }
     ],
-    teacher: [
+    Teacher: [
       { to: "/teacher", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
       { to: "/teacher/manageContent", icon: <FiBookOpen size={30} className={styles.icon} />, label: "שיעורים" }
     ],
-    student: [
+    Examinee: [
       { to: "/student", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
       { to: "/practice", icon: <FiBook size={30} className={styles.icon} />, label: "תרגול" }
     ],
