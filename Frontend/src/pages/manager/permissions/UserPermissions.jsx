@@ -13,15 +13,15 @@ export default function UserPermissions() {
       .get("/api/generalData/users")
       .then((res) => {
         console.log("Fetched users:", res.data);
-        setUsers(res.data);
+        setUsers(res.data || []); // Ensure only users are set
       })
       .catch((err) => console.error("Error fetching users:", err));
   }, []);
 
-  const filtered = users.filter((user) =>
+  const filtered = users[0].filter((user) =>
     (user.name || "").toLowerCase().includes(search.toLowerCase())
   );
-
+  console.log("filtered users:", filtered);
   return (
     <>
       <Sidebar userType="admin" />
@@ -41,9 +41,9 @@ export default function UserPermissions() {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th>ת.ז</th>
               <th>שם משתמש</th>
               <th>תפקיד</th>
-              <th>הרשאה</th>
               <th>אימייל</th>
               <th>פעולות</th>
             </tr>
@@ -51,9 +51,9 @@ export default function UserPermissions() {
           <tbody>
             {filtered.map((user) => (
               <tr key={user.id}>
+                <td>{user.id}</td>
                 <td>{user.name}</td>
-                <td>{user.role}</td>
-                <td>{user.access || "---"}</td>
+                <td>{user.role || "---"}</td>
                 <td>{user.email}</td>
                 <td>
                   <button
@@ -80,3 +80,4 @@ export default function UserPermissions() {
     </>
   );
 }
+

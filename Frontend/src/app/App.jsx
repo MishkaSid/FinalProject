@@ -18,14 +18,14 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
-          <Route element={<Layout />}>
-            <Route
-              element={
-                <ProtectedRoute
-                  allowedRoles={["Admin", "Teacher", "Examinee"]}
-                />
-              }
-            >
+          {/* Protected Routes */}
+          <Route
+            element={
+              <ProtectedRoute allowedRoles={["Admin", "Teacher", "Examinee"]} />
+            }
+          >
+            {/* Layout section */}
+            <Route element={<Layout />}>
               <Route path="/manager" element={<ManagerDashboard />} />
               <Route
                 path="/manager/permissions"

@@ -19,14 +19,14 @@ const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const userType = loggedInUser?.role || location.pathname.includes('manager') ? 'Admin' : location.pathname.includes('teacher') ? 'Teacher' : 'Examinee';
-console.log(userType);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
     <>
-      <Header toggleSidebar={toggleSidebar} />
+      <Header/>
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType={userType} />
       <main>
         <Outlet />
