@@ -23,7 +23,7 @@ export default function UserPermissions() {
           (user.name || "").toLowerCase().includes((search || "").toLowerCase())
       )
     : [];
-      console.log(filtered)
+    
   return (
     <>
       <div className={styles.adminPage}>
@@ -50,9 +50,9 @@ export default function UserPermissions() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((user) => (
-              <tr key={user.UserId}>
-                <td>{user.UserId}</td>
+            {filtered.map((user,index) => (
+              <tr key={index}>
+                <td>{user.UserID}</td>
                 <td>{user.Name}</td>
                 <td>{user.Role || "---"}</td>
                 <td>{user.Email}</td>

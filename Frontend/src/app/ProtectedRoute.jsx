@@ -1,26 +1,24 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Loading from "../components/loading spinner/Loading";
+import { useState, useEffect } from "react";
 
-/**
- * A route that only allows access if the user is logged in and has one of the
- * allowed roles. If the user is not logged in, they will be redirected to
- * /login. If the user is logged in but lacks the required role, they will be
- * redirected to /unauthorized.
- *
- *
- * @param {{ allowedRoles: string[] }} props
- * @param {string[]} props.allowedRoles - The roles that are allowed to access
- *   this route.
- * @returns {ReactElement} The element to render if the user is allowed to
- *   access this route.
- */
+const ProtectedRoute = ({ allowedRoles }) => {
+  const { user, loading } = useAuth();
+  const [showLoader, setShowLoader] = useState(true);
 
-const ProtectedRoute = ({ allowedRoles}) => {
-  const { user ,loading } = useAuth();
-  
-  if (loading) return <div>Loading...</div>;
+  // Delay showing content for 1.5s even if loading is fast
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setShowLoader(false);
+    }, 1000); 
+
+    return () => clearTimeout(delay);
+  }, []);
+
+  if (loading || showLoader) return <Loading />;
+
   if (!user) return <Navigate to="/" />;
-
   if (!allowedRoles.includes(user.role)) return <Navigate to="/unauthorized" />;
 
   return <Outlet />;
