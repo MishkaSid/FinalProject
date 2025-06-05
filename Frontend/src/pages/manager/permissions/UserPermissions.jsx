@@ -1,30 +1,31 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "../adminPages.module.css";
 import Upload from "../../../components/upload/UploadStudentTable";
-import Sidebar from "../../../components/sidebar/Sidebar";
 import axios from "axios";
 
 export default function UserPermissions() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
-
   useEffect(() => {
     axios
       .get("/api/generalData/users")
       .then((res) => {
-        console.log("Fetched users:", res.data);
-        setUsers(res.data || []); // Ensure only users are set
+        const fetchedUsers = res.data[0] || []; // Ensure only users are set
+        setUsers(fetchedUsers);
       })
       .catch((err) => console.error("Error fetching users:", err));
   }, []);
 
-  const filtered = users[0].filter((user) =>
-    (user.name || "").toLowerCase().includes(search.toLowerCase())
-  );
-  console.log("filtered users:", filtered);
+  const filtered = Array.isArray(users)
+    ? users.filter(
+        (user) =>
+          user &&
+          (user.name || "").toLowerCase().includes((search || "").toLowerCase())
+      )
+    : [];
+      console.log(filtered)
   return (
     <>
-      <Sidebar userType="admin" />
       <div className={styles.adminPage}>
         <h1 className={styles.pageTitle}>ניהול הרשאות</h1>
         <input
@@ -50,11 +51,11 @@ export default function UserPermissions() {
           </thead>
           <tbody>
             {filtered.map((user) => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.name}</td>
-                <td>{user.role || "---"}</td>
-                <td>{user.email}</td>
+              <tr key={user.UserId}>
+                <td>{user.UserId}</td>
+                <td>{user.Name}</td>
+                <td>{user.Role || "---"}</td>
+                <td>{user.Email}</td>
                 <td>
                   <button
                     className={`${styles.actionButton} ${styles.editButton}`}
@@ -80,4 +81,3 @@ export default function UserPermissions() {
     </>
   );
 }
-
