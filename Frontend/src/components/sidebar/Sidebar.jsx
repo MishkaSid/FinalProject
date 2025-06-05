@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
-import { FiUsers, FiHome, FiBookOpen, FiBook, FiMenu } from "react-icons/fi";
+import { Link , useNavigate } from "react-router-dom";
+import { FiUsers, FiHome, FiBookOpen, FiBook, FiMenu, FiLogOut } from "react-icons/fi";
 import styles from "./sidebar.module.css";
 import { useState } from "react";
-
+import { useAuth } from "../../context/AuthContext";
 /**
  * Sidebar component for navigation.
  *
@@ -18,6 +18,10 @@ import { useState } from "react";
  */
 
 function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
+  
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const [expanded, setExpanded] = useState(isOpen);
 
   const menuItems = {
@@ -36,6 +40,11 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
     ],
     guest: []
   };
+
+  function hadleLogout() {
+    logout();
+    navigate("/");
+  }
 
   return (
     <div className={`${styles.sidebar} ${expanded ? styles.expanded : styles.collapsed}`}>
@@ -56,6 +65,10 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
           </li>
         ))}
       </ul>
+      <button className={styles.logoutButton} onClick={hadleLogout}>
+        <FiLogOut size={30} />
+        {expanded && <span>התנתק/י</span>}
+      </button>
     </div>
   );
 }
