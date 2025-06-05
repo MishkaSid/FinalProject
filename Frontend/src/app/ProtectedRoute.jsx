@@ -1,5 +1,5 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 /**
  * A route that only allows access if the user is logged in and has one of the
@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
  * /login. If the user is logged in but lacks the required role, they will be
  * redirected to /unauthorized.
  *
- * 
+ *
  * @param {{ allowedRoles: string[] }} props
  * @param {string[]} props.allowedRoles - The roles that are allowed to access
  *   this route.
@@ -15,21 +15,14 @@ import { useAuth } from '../context/AuthContext';
  *   access this route.
  */
 
-const ProtectedRoute = ({ allowedRoles }) => {
+const ProtectedRoute = ({ allowedRoles}) => {
   const { user } = useAuth();
 
-  if (!user) {
-    console.log("not logged in");
-    return <Navigate to="/login" replace />;
-  }
+  if (!user) return <Navigate to="/" />;
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    console.log("not authorized");
-    return <Navigate to="/unauthorized" replace />;
-  }
+  if (!allowedRoles.includes(user.role)) return <Navigate to="/unauthorized" />;
 
   return <Outlet />;
 };
 
 export default ProtectedRoute;
-
