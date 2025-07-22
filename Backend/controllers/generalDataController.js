@@ -10,7 +10,13 @@ const db = require("../dbConnection");
  */
 
 
-//fetching all users
+/**
+ * @function getUsers
+ * @description Fetches all users from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
 exports.getUsers = async (req, res) => {
   try {
     const connection = await db.getConnection();
@@ -22,7 +28,13 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-//fetching all admins
+/**
+ * @function getAdmins
+ * @description Fetches all users with the 'Admin' role from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
 exports.getAdmins = async (req, res) => {
   try {
     const connection = await db.getConnection();
@@ -34,7 +46,13 @@ exports.getAdmins = async (req, res) => {
   }
 }
 
-//fetching all teachers
+/**
+ * @function getTeachers
+ * @description Fetches all users with the 'Teacher' role from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
 exports.getTeachers = async (req,res ) => {
   try {
     const connection = await db.getConnection();
@@ -46,7 +64,13 @@ exports.getTeachers = async (req,res ) => {
   }
 }
 
-//fetching all examinees
+/**
+ * @function getExaminees
+ * @description Fetches all users with the 'Examinee' role from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
 exports.getExaminees = async (req, res) => {
   try {
     const connection = await db.getConnection();
@@ -58,38 +82,56 @@ exports.getExaminees = async (req, res) => {
   }
 }
 
-//fetching all practice data
+/**
+ * @function getPracticeData
+ * @description Fetches all practice content from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
 exports.getPracticeData = async (req, res) => {
   try {
     const connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM practice_content");
     res.json(rows);
   } catch (err) {
-    console.error("❌ Error in getPracticeData:", err); // Add this line
+    console.error("❌ Error in getPracticeData:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-// fetch all exam data
+/**
+ * @function getExamData
+ * @description Fetches all exam questions from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
 exports.getExamData = async (req, res) => {
   try {
     const connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM exam_questions");
     res.json(rows);
   } catch (err) {
-    console.error("❌ Error in getPracticeData:", err); // Add this line
+    console.error("❌ Error in getPracticeData:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-// fetching all videos
+/**
+ * @function getVideos
+ * @description Fetches all practice videos from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
 exports.getVideos = async (req, res) => {
   try {
     const connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM practice_videos");
     res.json(rows);
   } catch (err) {
-    console.error("❌ Error in getVideos:", err); // Add this line
+    console.error("❌ Error in getVideos:", err);
     res.status(500).json({ error: "Server error" });
   }
 };

@@ -3,6 +3,14 @@ require("dotenv").config();
 
 let connection;
 
+/**
+ * @function getConnection
+ * @description Establishes a connection to the database if one does not already exist,
+ * and returns the existing connection if it does. This function uses a singleton pattern
+ * to ensure that only one database connection is created and used throughout the application.
+ * The connection details are read from environment variables.
+ * @returns {Promise<mysql.Connection>} A promise that resolves to the database connection object.
+ */
 async function getConnection() {
   if (!connection) {
     connection = await mysql.createConnection({

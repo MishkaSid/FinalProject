@@ -1,17 +1,26 @@
+//Michael sidoruk, Nadav sayag class 49/1
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const dataRoutes = require("./routes/dataRoutes");
-const authRoutes = require("./auth/auth");
+const path = require("path");
 const app = express();
 
+const generalDataRoutes = require("./routes/generalDataRoutes");
+const userRoutes = require("./routes/userRoutes");
+const coursesRoutes = require("./routes/coursesRoutes");
+const topicRoutes = require("./routes/topicRoutes");
+const practiceContentRoutes = require("./routes/practiceContentRoutes");
+const authRoutes = require("./auth/auth");
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/api/generalData", dataRoutes);
-app.use("/api/specificData", dataRoutes);
-app.use("/api/user", dataRoutes);
+app.use("/api/general", generalDataRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/courses", coursesRoutes);
+app.use("/api/topics", topicRoutes);
+app.use("/api/practice", practiceContentRoutes);
 app.use("/api/auth", authRoutes);
 
 // Start the server
