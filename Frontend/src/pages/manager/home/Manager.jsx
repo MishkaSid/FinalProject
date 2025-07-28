@@ -4,6 +4,7 @@ import GradesDistributionChart from "../../../components/charts/GradeDistributio
 import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
 import StudentUsageChart from "../../../components/charts/StudentUsageChart";
 import Welcome from "../../../components/welcome/Welcome";
+import { useAuth } from "../../../context/AuthContext";
 
 /**
  * The Manager component renders the main page for managers.
@@ -16,11 +17,10 @@ import Welcome from "../../../components/welcome/Welcome";
 
 function Manager() {
 
-  const userToken = localStorage.getItem("user");
-
+  const {user} = useAuth();
   return (
     <div className={styles.adminPage}>
-      <Welcome user={{ username:JSON.parse(userToken).name}}>
+      <Welcome user={{ username:user?.name || "Manager"}}>
         <div className={styles.background} />
         <div className={styles.managerPage}>
           <div className={styles.chartsGrid}>

@@ -7,7 +7,7 @@
   z-index: 1;
   backdrop-filter: blur(3px);
   direction: rtl;
-  margin-left:4rem;
+  margin-left: 4rem;
 }
 
 /* Background */
@@ -71,19 +71,70 @@
 
 /* ✅ Restored your nice add button */
 .addButton {
-  background-color: var(--clr-blue-2);
-  color: white;
-  padding: 2rem;
+  padding: 1.8rem 2.5rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 0.9rem;
+  background-color: var(--clr-blue-2);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.5rem;
   cursor: pointer;
-  font-weight: bold;
-  box-shadow: 4px 8px 10px -3px rgba(0, 0, 0, 0.356);
-  transition: background-color 0.3s ease;
+  margin-bottom: 1rem;
+  margin-right: 0.5rem;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.12);
+  letter-spacing: 0.5px;
 }
 
 .addButton:hover {
-  background-color: #1e63d5;
+  background-color: #2563eb;
+  box-shadow: 0 4px 16px rgba(79,140,255,0.18);
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  padding: 1rem;
+}
+
+.sort select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem 2rem 1.5rem 3rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.3rem;
+  background-color: var(--clr-blue-2);
+  color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  width: 22rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: left 1rem center;
+  background-size: 1.2rem;
+}
+
+.sort select:hover,
+.sort select:focus {
+  background-color: var(--clr-blue-4);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+
+.note{
+  background-color: #f47521;
+  opacity: 0.4;
+  border-radius: 5px;
 }
 
 /* Table */
@@ -99,6 +150,7 @@
 
 .table th,
 .table td {
+  font-size: medium;
   padding: 16px 20px;
   border-bottom: 1px solid #eee;
   text-align: center;
@@ -123,8 +175,8 @@
   max-width: 20rem;
   text-align: center;
   text-decoration: none;
-  
 }
+
 .noResults {
   font-size: 3rem;
   color: var(--clr-blue-5);
@@ -134,14 +186,15 @@
   background-color: #e0e0e0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
 noResults td {
   border: none;
-  
 }
 
 .editButton {
   background-color: var(--clr-blue-2);
 }
+
 .editButton:hover {
   background-color: #1e63d5;
 }
@@ -149,8 +202,28 @@ noResults td {
 .deleteButton {
   background-color: #960101da;
 }
+
 .deleteButton:hover {
-  background-color:#b90000da;
+  background-color: #b90000da;
+}
+
+.smallButton {
+  padding: 0.32rem 1.1rem;
+  font-size: 1.05rem;
+  border-radius: 6px;
+  border: none;
+  background-color: var(--clr-blue-2);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  margin-right: 2px;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+}
+.smallButton:hover {
+  background-color: #1e63d5;
+  box-shadow: 0 4px 16px rgba(79,140,255,0.12);
 }
 
 @media (max-width: 768px) {
@@ -172,3 +245,171 @@ noResults td {
     align-items: stretch;
   }
 }
+
+.topicsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.2rem;
+  margin-bottom: 2.5rem;
+}
+.topicCardContainer {
+  min-width: 320px;
+  max-width: 370px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: #f7faff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(79,140,255,0.08);
+  padding: 1.2rem 1rem 0.7rem 1rem;
+  transition: box-shadow 0.2s;
+}
+.topicCardContainer:hover {
+  box-shadow: 0 6px 24px rgba(79,140,255,0.16);
+}
+.topicActions {
+  margin-top: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 18px;
+  justify-content: flex-end;
+}
+.editButtonLarge {
+  padding: 0.7rem 2.1rem;
+  font-size: 1.15rem;
+  border-radius: 0.7rem;
+  border: none;
+  background-color: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+}
+.editButtonLarge:hover {
+  background-color: #174ea6;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+}
+.deleteButtonLarge {
+  padding: 0.7rem 2.1rem;
+  font-size: 1.15rem;
+  border-radius: 0.7rem;
+  border: none;
+  background-color: #e53935;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(229,57,53,0.08);
+}
+.deleteButtonLarge:hover {
+  background-color: #b71c1c;
+  box-shadow: 0 4px 16px rgba(229,57,53,0.12);
+}
+.tableWrapper {
+  margin-bottom: 12px;
+}
+.tableFullWidth {
+  width: 100%;
+}
+
+.prominentPopup {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px rgba(79,140,255,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 540px;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
+.popupLarge {
+  min-width: 540px;
+  max-width: 900px;
+}
+
+.coursesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  margin-top: 1.5rem;
+}
+.courseItem {
+  display: flex;
+  align-items: center;
+  background: #f7faff;
+  border-radius: 0.8rem;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+  padding: 0.7rem 1.2rem;
+  min-width: 220px;
+  max-width: 350px;
+  gap: 1.2rem;
+}
+.courseName {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #2563eb;
+  flex: 1;
+  text-align: right;
+}
+
+.mainActions {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 2.2rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@media (max-width: 900px) {
+  .mainActions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .addButton, .deleteButtonLarge, .editButtonLarge {
+    width: 100%;
+    min-width: 0;
+    font-size: 1.1rem;
+    padding: 1.1rem 0.5rem;
+  }
+  .topicsList {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .topicCardContainer {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 0.7rem 0.5rem;
+  }
+  .tableWrapper {
+    overflow-x: auto;
+  }
+  .tableFullWidth {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mainActions {
+    gap: 0.7rem;
+    margin-bottom: 1.2rem;
+  }
+  .addButton, .deleteButtonLarge, .editButtonLarge {
+    font-size: 1rem;
+    padding: 0.8rem 0.3rem;
+  }
+  .topicsList {
+    gap: 0.7rem;
+  }
+  .topicCardContainer {
+    padding: 0.5rem 0.2rem;
+  }
+  .tableFullWidth {
+    min-width: 400px;
+  }
+}
+

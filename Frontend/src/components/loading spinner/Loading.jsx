@@ -3,8 +3,8 @@ import "./loading.css";
 export default function Loading() {
   return (
     <>
-    <div class="background"/>
-      <div class="loader">
+    <div className="background"/>
+      <div className="loader">
         <div>
           <ul>
             <li>
