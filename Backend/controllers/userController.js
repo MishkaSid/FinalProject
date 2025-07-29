@@ -1,5 +1,7 @@
+const ExcelJS = require("exceljs");
 const db = require("../dbConnection");
 const bcrypt = require("bcrypt");
+const { sendInvitation } = require("../utils/mailer");
 
 // Get a user by ID
 exports.getUserById = async (req, res) => {
@@ -7,7 +9,10 @@ exports.getUserById = async (req, res) => {
 
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM users WHERE UserID = ?", [id]);
+    const [rows] = await connection.query(
+      "SELECT * FROM users WHERE UserID = ?",
+      [id]
+    );
     res.json(rows[0]);
   } catch (err) {
     console.error("Error in getUserById:", err);
@@ -46,6 +51,11 @@ exports.createUser = async (req, res) => {
     const [result] = await connection.query(
       "INSERT INTO users (UserID, Name, Email, Password, Role, CourseID) VALUES (?, ?, ?, ?, ?, ?)",
       [UserID, Name, Email, hashedPassword, Role, CourseID]
+    );
+
+    // send invitation email (fire-and-forget)
+    sendInvitation(Email, Name).catch((err) =>
+      console.error("Failed sending email to", Email, err)
     );
 
     res.status(201).json({ UserID, Name, Email, Role, CourseID });
@@ -100,7 +110,6 @@ exports.updateUser = async (req, res) => {
     );
 
     res.json({ UserID: newId, Name, Email, Role });
-
   } catch (err) {
     console.error("Error in updateUser:", err);
     res.status(500).json({ error: "Server error" });
@@ -119,4 +128,87 @@ exports.deleteUser = async (req, res) => {
     console.error("Error in deleteUser:", err);
     res.status(500).json({ error: "Server error" });
   }
+};
+
+/**
+ * Bulk‑upload users from an Excel file.
+ * Expects req.file.buffer to be an .xlsx with header row: [id, email, name].
+ * Creates each user with Role="Examinee", CourseID=NULL, Password=UserID.
+ */
+exports.bulkUploadUsers = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded." });
+  }
+
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(req.file.buffer);
+  const sheet = workbook.worksheets[0];
+
+  const results = {
+    added: 0,
+    errors: [],
+  };
+
+  // start at row 2 to skip header
+  for (let i = 2; i <= sheet.rowCount; i++) {
+    const row = sheet.getRow(i);
+    const UserID = row.getCell(1).value?.toString().trim();
+    const Email = row.getCell(2).value?.toString().trim();
+    const Name = row.getCell(3).value?.toString().trim();
+    const Role = "Examinee";
+    const CourseID = null;
+    const rawPassword = UserID;
+
+    if (!UserID || !Email || !Name) {
+      results.errors.push({ row: i, message: "Missing id/email/name." });
+      continue;
+    }
+
+    try {
+      const connection = await db.getConnection();
+
+      // duplicate ID?
+      const [idRows] = await connection.query(
+        "SELECT 1 FROM users WHERE UserID = ?",
+        [UserID]
+      );
+      if (idRows.length) {
+        throw new Error("UserID already exists");
+      }
+
+      // duplicate Email?
+      const [emailRows] = await connection.query(
+        "SELECT 1 FROM users WHERE Email = ?",
+        [Email]
+      );
+      if (emailRows.length) {
+        throw new Error("Email already exists");
+      }
+
+      // hash password = UserID
+      const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+      // insert
+      await connection.query(
+        `INSERT INTO users
+         (UserID, Name, Email, Password, Role, CourseID)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [UserID, Name, Email, hashedPassword, Role, CourseID]
+      );
+
+      // send welcome email
+      sendInvitation(Email, Name).catch((err) =>
+        console.error(`Email error row ${i}:`, err)
+      );
+      
+      results.added++;
+    } catch (err) {
+      results.errors.push({ row: i, message: err.message });
+    }
+  }
+
+  res.json({
+    message: `Bulk upload complete: ${results.added} added, ${results.errors.length} errors.`,
+    errors: results.errors,
+  });
 };

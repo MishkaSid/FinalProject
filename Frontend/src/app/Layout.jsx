@@ -18,7 +18,9 @@ const Layout = () => {
   const { user: loggedInUser } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const userType = loggedInUser?.role || location.pathname.includes('manager') ? 'Admin' : location.pathname.includes('teacher') ? 'Teacher' : 'Examinee';
+  const userType = loggedInUser?.role || (location.pathname.includes('manager') ? 'Admin' 
+  : location.pathname.includes('teacher') ? 'Teacher' 
+  : 'Examinee');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
