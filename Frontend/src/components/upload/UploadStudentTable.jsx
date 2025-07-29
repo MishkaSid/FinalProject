@@ -1,23 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./uploadStudentTable.module.css";
 
-/**
- * A styled button for uploading a student table file.
- *
- * @returns {React.ReactElement} A styled button with an SVG icon and a file input.
- */
 export default function UploadStudentTable() {
+  const [status, setStatus] = useState(null);
+  const [isUploading, setUploading] = useState(false);
+
+  const handleFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setStatus(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/user/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus(`✅ ${data.message}`);
+        // optionally: console.log(data.errors);
+      } else {
+        setStatus(`❌ ${data.error || JSON.stringify(data.errors)}`);
+      }
+    } catch (err) {
+      setStatus(`❌ Upload failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+      // clear the file input so same file can be re‑selected if needed
+      e.target.value = "";
+    }
+  };
+
   return (
-    <button className={styles.container}>
-      <svg
-        fill="#fff"
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 50 50"
+    <div className={styles.wrapper}>
+      <button
+        className={styles.container}
+        disabled={isUploading}
+        style={{ position: "relative", overflow: "hidden" }}
       >
-        <path
-          d="M28.8125 .03125L.8125 5.34375C.339844 
+        {/* SVG icon */}
+        <svg
+          fill="#fff"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 50 50"
+        >
+          <path
+            d="M28.8125 .03125L.8125 5.34375C.339844 
     5.433594 0 5.863281 0 6.34375L0 43.65625C0 
     44.136719 .339844 44.566406 .8125 44.65625L28.8125 
     49.96875C28.875 49.980469 28.9375 50 29 50C29.230469 
@@ -35,10 +70,35 @@ export default function UploadStudentTable() {
     27.03125L14.875 27.03125C14.8125 27.316406 14.664063 27.761719 
     14.4375 28.34375L11.1875 34.375L6.1875 34.375L12.15625 25.03125ZM36 
     20L44 20L44 22L36 22ZM36 27L44 27L44 29L36 29ZM36 35L44 35L44 37L36 37Z"
-        ></path>
-      </svg>
-      Upload File
-      <input className="file" name="text" type="file" />
-    </button>
+          ></path>
+        </svg>
+        {isUploading ? "Uploading…" : "Upload File"}
+        <input
+          type="file"
+          accept=".xlsx"
+          name="file"
+          onChange={handleFile}
+          disabled={isUploading}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            opacity: 0,
+            cursor: "pointer",
+          }}
+        />
+      </button>
+
+      {status && (
+        <div
+          className={styles.status}
+          style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}
+        >
+          {status}
+        </div>
+      )}
+    </div>
   );
 }
