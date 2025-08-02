@@ -152,9 +152,18 @@ exports.bulkUploadUsers = async (req, res) => {
   // start at row 2 to skip header
   for (let i = 2; i <= sheet.rowCount; i++) {
     const row = sheet.getRow(i);
-    const UserID = row.getCell(1).value?.toString().trim();
-    const Email = row.getCell(2).value?.toString().trim();
-    const Name = row.getCell(3).value?.toString().trim();
+
+    const UserID = row.getCell(1).text?.trim();
+    const Email = row.getCell(2).text?.trim();
+    const Name = row.getCell(3).text?.trim();
+
+    // if the entire row is empty, stop processing further
+    if (!UserID && !Email && !Name) break;
+
+    if (!Email || Email.includes("[object")) {
+      console.log(`Row ${i} raw value:`, row.getCell(2).value);
+    }
+
     const Role = "Examinee";
     const CourseID = null;
     const rawPassword = UserID;
@@ -172,8 +181,11 @@ exports.bulkUploadUsers = async (req, res) => {
         "SELECT 1 FROM users WHERE UserID = ?",
         [UserID]
       );
+     
       if (idRows.length) {
-        throw new Error("UserID already exists");
+        results.warnings = results.warnings || [];
+        results.warnings.push({ row: i, message: "Skipped duplicate UserID." });
+        continue;
       }
 
       // duplicate Email?
@@ -200,15 +212,22 @@ exports.bulkUploadUsers = async (req, res) => {
       sendInvitation(Email, Name).catch((err) =>
         console.error(`Email error row ${i}:`, err)
       );
-      
+
       results.added++;
     } catch (err) {
       results.errors.push({ row: i, message: err.message });
+      console.error(`Row ${i} failed:`, err);
     }
   }
 
   res.json({
-    message: `Bulk upload complete: ${results.added} added, ${results.errors.length} errors.`,
+    added: results.added,
     errors: results.errors,
+    warnings: results.warnings || [],
+    // optional: a combined message string if you still want it
+    message:
+      `Bulk upload complete: ${results.added} added, ` +
+      `${(results.warnings || []).length} skipped, ` +
+      `${results.errors.length} errors.`,
   });
 };

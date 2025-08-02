@@ -20,10 +20,16 @@ export default function UploadStudentTable() {
         method: "POST",
         body: formData,
       });
+
       const data = await res.json();
       if (res.ok) {
-        setStatus(`✅ ${data.message}`);
-        // optionally: console.log(data.errors);
+        const { added, warnings = [], errors = [] } = data;
+        let msg = `✅ Bulk upload complete: ${added} added`;
+        if (warnings.length) msg += `, ${warnings.length} skipped`;
+        msg += `, ${errors.length} errors.`;
+        setStatus(msg);
+        // (optional) inspect details:
+        console.log("Skipped rows:", warnings);
       } else {
         setStatus(`❌ ${data.error || JSON.stringify(data.errors)}`);
       }
