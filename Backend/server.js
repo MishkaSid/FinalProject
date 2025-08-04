@@ -10,6 +10,7 @@ const userRoutes = require("./routes/userRoutes");
 const coursesRoutes = require("./routes/coursesRoutes");
 const topicRoutes = require("./routes/topicRoutes");
 const practiceContentRoutes = require("./routes/practiceContentRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 const authRoutes = require("./auth/auth");
 
 app.use(cors());
@@ -21,6 +22,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/courses", coursesRoutes);
 app.use("/api/topics", topicRoutes);
 app.use("/api/practice", practiceContentRoutes);
+app.use("/api/student", studentRoutes);
 app.use("/api/auth", authRoutes);
 
 // Start the server

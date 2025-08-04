@@ -24,7 +24,7 @@ function Manager() {
         <div className={styles.background} />
         <div className={styles.managerPage}>
           <div className={styles.chartsGrid}>
-            <QuestionStatsChart />
+            {user?.role === "Teacher" && <QuestionStatsChart />}
             <StudentUsageChart />
             <GradesDistributionChart />
           </div>
