@@ -145,7 +145,7 @@ export default function StudentDashboard() {
             description="כאן תמיד יהיו תרגולים למתמטיקה"
             icon={<FiBook size={30} />}
             to="/student/practice"
-            size="medium"
+            size="large"
             layout="horizontal"
           />
           <Card
@@ -153,15 +153,7 @@ export default function StudentDashboard() {
             description="כאן תוכלו לדמות מבחן אמיתי"
             icon={<LuNotebookPen size={30} />}
             to="/exams"
-            size="medium"
-            layout="horizontal"
-          />
-          <Card
-            title="סרטוני הסברה"
-            description="כאן תוכלו לראות סרטוני הסברה"
-            icon={<CgPlayButtonO size={30} />}
-            to="/videos"
-            size="medium"
+            size="large"
             layout="horizontal"
           />
         </div>

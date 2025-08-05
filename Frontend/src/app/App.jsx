@@ -10,6 +10,7 @@ import TeacherDashboard from "../pages/teacher/Teacher";
 import StudentDashboard from "../pages/student/dashboard/Student";
 import UnauthorizedPage from "../pages/unauthorize/Unauthorize";
 import NotFound from "../pages/not found/NotFound";
+import Practice from "../pages/student/practice/practice questions/practice";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
               />
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route path="/student" element={<StudentDashboard />} />
+              <Route path ="/student/practice" element={<Practice />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
