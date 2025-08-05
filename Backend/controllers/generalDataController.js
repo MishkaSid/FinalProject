@@ -135,3 +135,14 @@ exports.getVideos = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+exports.getTopics = async (req, res) => {
+  try {
+    const connection = await db.getConnection();
+    const [rows] = await connection.query("SELECT * FROM topics");
+    res.json(rows);
+  } catch (err) {
+    console.error("❌ Error in getTopics:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};

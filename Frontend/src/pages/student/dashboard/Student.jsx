@@ -4,8 +4,9 @@ import Card from "../../../components/card/Card";
 import { FiBook } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";
 import { CgPlayButtonO } from "react-icons/cg";
-import { FiUser, FiAward, FiTrendingUp } from "react-icons/fi";
+import { FiUser, FiAward, FiTrendingUp, FiX, FiCheck } from "react-icons/fi";
 import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 /**
  * The StudentDashboard component renders the main page for students.
@@ -16,9 +17,14 @@ import { useAuth } from "../../../context/AuthContext";
  */
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showSubjectModal, setShowSubjectModal] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [subjects, setSubjects] = useState([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -97,6 +103,63 @@ export default function StudentDashboard() {
     averageGrade: 78
   };
 
+  // Fetch subjects from backend using general data endpoint
+  const fetchSubjects = async () => {
+    try {
+      setSubjectsLoading(true);
+      const response = await fetch('http://localhost:5000/api/topics/getTopics');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch subjects');
+      }
+      
+      const data = await response.json();
+      // Transform the data to match our component structure
+      const transformedSubjects = data.map(topic => ({
+        id: topic.TopicID,
+        name: topic.TopicName,
+        description: `נושא: ${topic.TopicName}`,
+        courseName: topic.CourseName || "מתמטיקה"
+      }));
+      setSubjects(transformedSubjects);
+    } catch (err) {
+      console.error('Error fetching subjects:', err);
+      // Fallback to mock data
+      const mockSubjects = [
+        { id: 1, name: "אלגברה ליניארית", description: "נושא: אלגברה ליניארית", courseName: "מתמטיקה" },
+        { id: 2, name: "חשבון דיפרנציאלי", description: "נושא: חשבון דיפרנציאלי", courseName: "מתמטיקה" },
+        { id: 3, name: "גאומטריה", description: "נושא: גאומטריה", courseName: "מתמטיקה" },
+        { id: 4, name: "סטטיסטיקה", description: "נושא: סטטיסטיקה", courseName: "מתמטיקה" },
+        { id: 5, name: "טריגונומטריה", description: "נושא: טריגונומטריה", courseName: "מתמטיקה" }
+      ];
+      setSubjects(mockSubjects);
+    } finally {
+      setSubjectsLoading(false);
+    }
+  };
+
+  const handlePracticeClick = () => {
+    setShowSubjectModal(true);
+    fetchSubjects(); // Fetch subjects when modal opens
+  };
+
+  const handleSubjectSelect = (subject) => {
+    setSelectedSubject(subject);
+  };
+
+  const handleStartPractice = () => {
+    if (selectedSubject) {
+      navigate(`/student/practice-dashboard/`);
+      setShowSubjectModal(false);
+      setSelectedSubject(null);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowSubjectModal(false);
+    setSelectedSubject(null);
+  };
+
   return (
     <div className={styles.studentPage}>
       {/* Hero Section */}
@@ -144,7 +207,7 @@ export default function StudentDashboard() {
             title="תרגול שאלות"
             description="כאן תמיד יהיו תרגולים למתמטיקה"
             icon={<FiBook size={30} />}
-            to="/student/practice"
+            onClick={handlePracticeClick}
             size="large"
             layout="horizontal"
           />
@@ -158,6 +221,72 @@ export default function StudentDashboard() {
           />
         </div>
       </div>
+
+      {/* Subject Selection Modal */}
+      {showSubjectModal && (
+        <div className={styles.modalOverlay} onClick={handleCloseModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>בחר נושא לתרגול</h2>
+              <button className={styles.closeButton} onClick={handleCloseModal}>
+                <FiX />
+              </button>
+            </div>
+            
+                         <div className={styles.modalContent}>
+               <p className={styles.modalDescription}>
+                 בחר את הנושא שברצונך לתרגל היום
+               </p>
+               
+               {subjectsLoading ? (
+                 <div className={styles.loadingContainer}>
+                   <div className={styles.loadingSpinner}></div>
+                   <p>טוען נושאים...</p>
+                 </div>
+               ) : subjects.length > 0 ? (
+                 <div className={styles.subjectsGrid}>
+                   {subjects.map((subject) => (
+                     <div
+                       key={subject.id}
+                       className={`${styles.subjectCard} ${
+                         selectedSubject?.id === subject.id ? styles.selected : ''
+                       }`}
+                       onClick={() => handleSubjectSelect(subject)}
+                     >
+                       <div className={styles.subjectInfo}>
+                         <h3>{subject.name}</h3>
+                         <p>{subject.description}</p>
+                       </div>
+                       {selectedSubject?.id === subject.id && (
+                         <div className={styles.checkIcon}>
+                           <FiCheck />
+                         </div>
+                       )}
+                     </div>
+                   ))}
+                 </div>
+               ) : (
+                 <div className={styles.noSubjects}>
+                   <p>לא נמצאו נושאים זמינים</p>
+                 </div>
+               )}
+             </div>
+            
+            <div className={styles.modalFooter}>
+              <button
+                className={`${styles.startButton} ${
+                  selectedSubject ? styles.active : styles.disabled
+                }`}
+                onClick={handleStartPractice}
+                disabled={!selectedSubject}
+              >
+                <FiBook />
+                התחל תרגול
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

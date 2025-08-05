@@ -8,6 +8,7 @@ import UserPermissions from "../pages/manager/permissions/UserPermissions";
 import ManageContent from "../pages/manager/manageContent/ManageContent";
 import TeacherDashboard from "../pages/teacher/Teacher";
 import StudentDashboard from "../pages/student/dashboard/Student";
+import PracticeDashboard from "../pages/student/practice/practice dashboard/PracticeDashboard"
 import UnauthorizedPage from "../pages/unauthorize/Unauthorize";
 import NotFound from "../pages/not found/NotFound";
 import Practice from "../pages/student/practice/practice questions/practice";
@@ -38,6 +39,7 @@ function App() {
               />
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/student/practice-dashboard" element={<PracticeDashboard />} />
               <Route path ="/student/practice" element={<Practice />} />
             </Route>
           </Route>
