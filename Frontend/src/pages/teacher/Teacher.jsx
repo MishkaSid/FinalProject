@@ -7,6 +7,7 @@ import "../pages.css";
 import GradesDistributionChart from "../../components/charts/GradeDistributionChart";
 import QuestionStatsChart from "../../components/charts/QuestionStatsChart";
 import Welcome from "../../components/welcome/Welcome";
+import { useAuth } from "../../context/AuthContext";
 
 /**
  * The TeacherDashboard component renders the main page for teachers.
@@ -23,7 +24,7 @@ import Welcome from "../../components/welcome/Welcome";
 
 const TeacherDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleNavigation = (route) => {
@@ -31,14 +32,14 @@ const TeacherDashboard = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <Welcome user={{ username: "Dr. haim" }}>
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="teacher" />
+    <div className={styles.teacherPage}>
+      <Welcome user={{ username: user?.name || "Teacher" }}>
+        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="Teacher" />
 
         <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
           <div className={styles.background}></div>
 
-          <div className={styles.teacherPage}>
+          <div className={styles.teacherContent}>
             <div className={styles.chartsGrid}>
               <QuestionStatsChart />
               <GradesDistributionChart />

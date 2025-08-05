@@ -38,6 +38,10 @@ function App() {
                 element={<ManageContent />}
               />
               <Route path="/teacher" element={<TeacherDashboard />} />
+              <Route
+                path="/teacher/manageContent"
+                element={<ManageContent />}
+              />
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/student/practice-dashboard" element={<PracticeDashboard />} />
               <Route path ="/student/practice" element={<Practice />} />

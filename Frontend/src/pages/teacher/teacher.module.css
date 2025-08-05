@@ -1,5 +1,5 @@
 /* General styling */
-.container {
+.teacherPage {
   display: flex;
   flex-direction: column;
   position: relative;
@@ -16,7 +16,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('../.././assets/images/managerBackground.jpg'), linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+  background-image: url('../../assets/images/managerBackground.jpg'), linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -24,7 +24,7 @@
 }
 
 /* Main Content */
-.teacherPage {
+.teacherContent {
   flex-grow: 1;
   padding: 2rem;
   margin-left: 4%;
@@ -33,7 +33,7 @@
 /* charts Grid */
 .chartsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
   gap: 24px;
   width: 100%;
   margin-top: 16px;
@@ -83,17 +83,42 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+  .chartsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
-  .admin-page {
+  .teacherPage {
     flex-direction: column;
+  }
+
+  .teacherContent {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .chartsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 8px;
+    padding: 4px;
   }
 
   .sidebar {
     width: 100%;
     text-align: center;
   }
+}
 
-  .card-container {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+@media (max-width: 480px) {
+  .teacherContent {
+    padding: 0.5rem;
+  }
+
+  .chartsGrid {
+    gap: 12px;
+    margin-top: 4px;
   }
 }
