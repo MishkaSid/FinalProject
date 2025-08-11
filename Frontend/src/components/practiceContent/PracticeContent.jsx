@@ -33,7 +33,7 @@ function getDefaultContent() {
  * @param {Function} props.onClose - The function to call to close the main popup.
  * @returns {JSX.Element} The rendered practice content component.
  */
-export default function PracticeContent({ topic, isOpen, onClose }) {
+export default function PracticeContent({ topic, isOpen, onClose, onContentAdded }) {
   const [topicExercises, setTopicExercises] = useState([]);
   const [isAddContentOpen, setIsAddContentOpen] = useState(false);
   const [newContent, setNewContent] = useState(getDefaultContent());
@@ -78,6 +78,10 @@ export default function PracticeContent({ topic, isOpen, onClose }) {
     axios.post("/api/practice/practiceExercise", payload)
       .then(res => {
         setTopicExercises(prev => [...prev, res.data]);
+        // Call the callback to notify parent component
+        if (onContentAdded) {
+          onContentAdded(topic.TopicID, res.data);
+        }
         setIsAddContentOpen(false);
         setNewContent(getDefaultContent());
         setUploadError("");

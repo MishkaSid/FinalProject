@@ -239,15 +239,29 @@ export default function ManageContent() {
   /**
    * @function handleContentAdded
    * @description A callback function that updates the practice content in the state after a new
-   * piece of content has been successfully added.
+   * piece of content has been successfully added. It also refreshes the data from the server
+   * to ensure the table shows the most up-to-date information.
    * @param {number} topicId - The ID of the topic the content was added to.
    * @param {object} newContent - The new practice content object that was added.
    */
   const handleContentAdded = (topicId, newContent) => {
+    // Update local state immediately for better UX
     setPracticeContent((prev) => ({
       ...prev,
       [topicId]: [...(prev[topicId] || []), newContent],
     }));
+    
+    // Refresh practice content data from server to ensure consistency
+    axios.get("/api/practice/practiceExercises").then((res) => {
+      const allContent = res.data || [];
+      const map = {};
+      topics.forEach((topic) => {
+        map[topic.TopicID] = allContent.filter(
+          (c) => c.TopicID === topic.TopicID
+        );
+      });
+      setPracticeContent(map);
+    });
   };
 
   return (
@@ -409,6 +423,7 @@ export default function ManageContent() {
             topic={selectedTopic}
             isOpen={isAddContentPopupOpen}
             onClose={() => setIsAddContentPopupOpen(false)}
+            onContentAdded={handleContentAdded}
           />
         </div>
       </Popup>

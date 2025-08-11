@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import styles from "./uploadStudentTable.module.css";
 
-export default function UploadStudentTable() {
-  const [status, setStatus] = useState(null);
+export default function UploadStudentTable({ onUsersAdded, onUploadStatus }) {
   const [isUploading, setUploading] = useState(false);
 
   const handleFile = async (e) => {
@@ -10,7 +9,6 @@ export default function UploadStudentTable() {
     if (!file) return;
 
     setUploading(true);
-    setStatus(null);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -27,14 +25,46 @@ export default function UploadStudentTable() {
         let msg = `✅ Bulk upload complete: ${added} added`;
         if (warnings.length) msg += `, ${warnings.length} skipped`;
         msg += `, ${errors.length} errors.`;
-        setStatus(msg);
+        
+        // Call the callback to notify parent component about upload status
+        if (onUploadStatus) {
+          onUploadStatus({
+            type: 'success',
+            message: msg,
+            details: { added, warnings, errors }
+          });
+        }
+        
+        // Call the callback to notify parent component that users were added
+        if (onUsersAdded && added > 0) {
+          onUsersAdded();
+        }
+        
         // (optional) inspect details:
         console.log("Skipped rows:", warnings);
       } else {
-        setStatus(`❌ ${data.error || JSON.stringify(data.errors)}`);
+        const errorMsg = `❌ ${data.error || JSON.stringify(data.errors)}`;
+        
+        // Call the callback to notify parent component about upload error
+        if (onUploadStatus) {
+          onUploadStatus({
+            type: 'error',
+            message: errorMsg,
+            details: data
+          });
+        }
       }
     } catch (err) {
-      setStatus(`❌ Upload failed: ${err.message}`);
+      const errorMsg = `❌ Upload failed: ${err.message}`;
+      
+      // Call the callback to notify parent component about upload error
+      if (onUploadStatus) {
+        onUploadStatus({
+          type: 'error',
+          message: errorMsg,
+          details: { error: err.message }
+        });
+      }
     } finally {
       setUploading(false);
       // clear the file input so same file can be re‑selected if needed
@@ -97,14 +127,7 @@ export default function UploadStudentTable() {
         />
       </button>
 
-      {status && (
-        <div
-          className={styles.status}
-          style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}
-        >
-          {status}
-        </div>
-      )}
+
     </div>
   );
 }

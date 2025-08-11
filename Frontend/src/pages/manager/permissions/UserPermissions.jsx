@@ -28,6 +28,7 @@ export default function UserPermissions() {
   const [popupConfig, setPopupConfig] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
   const [originalId, setOriginalId] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null);
 
   /**
    * @effect
@@ -129,6 +130,30 @@ export default function UserPermissions() {
   }
 
   /**
+   * @function refreshUsers
+   * @description Refreshes the users list by fetching the latest data from the server.
+   * This is called after bulk uploads to ensure the table shows the most up-to-date information.
+   */
+  function refreshUsers() {
+    axios
+      .get("/api/general/users")
+      .then((res) => {
+        const fetchedUsers = res.data[0] || [];
+        setUsers(fetchedUsers);
+      })
+      .catch((err) => console.error("Error refreshing users:", err));
+  }
+
+  /**
+   * @function handleUploadStatus
+   * @description Handles the upload status from the Excel upload component and displays it as a popup.
+   * @param {object} status - The upload status object containing type, message, and details.
+   */
+  function handleUploadStatus(status) {
+    setUploadStatus(status);
+  }
+
+  /**
    * @function handleSubmitUser
    * @description Handles the submission of the user form (for both adding and editing).
    * It performs client-side validation before sending the data to the server.
@@ -165,7 +190,7 @@ export default function UserPermissions() {
       return;
     }
 
-    if (!isEditMode && !passwordIsValid) {
+    if (!isEditMode && !passwordIsValid && values.Role !== "Examinee") {
       setPopupConfig({
         title: "שגיאה",
         message:
@@ -233,7 +258,7 @@ export default function UserPermissions() {
           <button className={styles.addButton} onClick={handleAddUser}>
             הוסף משתמש
           </button>
-          <Upload />
+          <Upload onUsersAdded={refreshUsers} onUploadStatus={handleUploadStatus} />
           <div className={styles.sort}>
             <select
               id="role-select"
@@ -323,6 +348,52 @@ export default function UserPermissions() {
           <button onClick={popupConfig.onConfirm}>
             {popupConfig.confirmLabel}
           </button>
+        </Popup>
+      )}
+      
+      {/* Upload Status Popup */}
+      {uploadStatus && (
+        <Popup
+          header={uploadStatus.type === 'success' ? 'העלאה הושלמה בהצלחה' : 'שגיאה בהעלאה'}
+          isOpen={true}
+          onClose={() => setUploadStatus(null)}
+        >
+          <div style={{ padding: "1.5rem", textAlign: "center" }}>
+            <div style={{ 
+              fontSize: 18, 
+              marginBottom: 18,
+              color: uploadStatus.type === 'success' ? '#28a745' : '#dc3545'
+            }}>
+              {uploadStatus.message}
+            </div>
+            
+            {uploadStatus.details && uploadStatus.type === 'success' && (
+              <div style={{ 
+                fontSize: 14, 
+                marginBottom: 18,
+                padding: "1rem",
+                backgroundColor: "#f8f9fa",
+                borderRadius: "8px",
+                textAlign: "right"
+              }}>
+                <div><strong>פרטים:</strong></div>
+                <div>נוספו: {uploadStatus.details.added} משתמשים</div>
+                {uploadStatus.details.warnings && uploadStatus.details.warnings.length > 0 && (
+                  <div>דילוג: {uploadStatus.details.warnings.length} שורות</div>
+                )}
+                {uploadStatus.details.errors && uploadStatus.details.errors.length > 0 && (
+                  <div>שגיאות: {uploadStatus.details.errors.length}</div>
+                )}
+              </div>
+            )}
+            
+            <button 
+              className={styles.submitButton}
+              onClick={() => setUploadStatus(null)}
+            >
+              סגור
+            </button>
+          </div>
         </Popup>
       )}
     </>
