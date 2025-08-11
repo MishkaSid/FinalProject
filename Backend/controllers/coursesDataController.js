@@ -1,19 +1,19 @@
 const db = require("../dbConnection");
 
 // Fetch all courses
-exports.getAllCourses = async (req, res, next) => {
+exports.getAllCourses = async (req, res) => {
   try {
     const connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM course");
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllCourses:", err);
-    next({ error: "Server error" }, 500);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
 // Fetch a specific course by ID
-exports.getCourseById = async (req, res, next) => {
+exports.getCourseById = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -22,12 +22,12 @@ exports.getCourseById = async (req, res, next) => {
     res.json(rows[0]);
   } catch (err) {
     console.error("Error in getCourseById:", err);
-    next({ error: "Server error" }, 500);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
 // Create a new course
-exports.createCourse = async (req, res, next) => {
+exports.createCourse = async (req, res) => {
   const { CourseName } = req.body;
 
   try {
@@ -40,12 +40,12 @@ exports.createCourse = async (req, res, next) => {
     res.json({ CourseID: result.insertId, CourseName });
   } catch (err) {
     console.error("Error in createCourse:", err);
-    next({ error: "Server error" }, 500);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
 // Update a course
-exports.updateCourse = async (req, res, next) => {
+exports.updateCourse = async (req, res) => {
   const { id } = req.params;
   const { CourseName } = req.body;
 
@@ -58,12 +58,12 @@ exports.updateCourse = async (req, res, next) => {
     res.json({ CourseID: id, CourseName });
   } catch (err) {
     console.error("Error in updateCourse:", err);
-    next({ error: "Server error" }, 500);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
 // Delete a course
-exports.deleteCourse = async (req, res, next) => {
+exports.deleteCourse = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -72,7 +72,7 @@ exports.deleteCourse = async (req, res, next) => {
     res.json({ message: `Course with CourseID ${id} deleted` });
   } catch (err) {
     console.error("Error in deleteCourse:", err);
-    next({ error: "Server error" }, 500);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
