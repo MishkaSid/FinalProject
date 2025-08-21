@@ -374,10 +374,11 @@
 
 .modalHeader {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #e1e5e9;
+  position: relative;
 }
 
 .modalHeader h2 {
@@ -390,12 +391,15 @@
 .closeButton {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 0.8rem;
   color: #6c757d;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+  padding: 0.2rem;
+  border-radius: 0.2rem;
   transition: all 0.2s ease;
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
 }
 
 .closeButton:hover {
@@ -460,7 +464,7 @@
 .checkIcon {
   position: absolute;
   top: 1rem;
-  right: 1rem;
+  left: 1rem;
   background: #2196f3;
   color: white;
   border-radius: 50%;
@@ -517,6 +521,7 @@
 
   .modalHeader {
     padding: 1rem 1.5rem;
+    position: relative;
   }
 
   .modalHeader h2 {
@@ -548,6 +553,22 @@
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
   }
+
+  .closeButton {
+    top: 0.5rem;
+    left: 0.5rem;
+    position: absolute;
+    width: auto;
+    font-size: 0.8rem;
+  }
+
+  .checkIcon {
+    top: 0.8rem;
+    left: 0.8rem;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
 }
 
 .noSubjects {
@@ -559,5 +580,23 @@
 .noSubjects p {
   font-size: 1.1rem;
   margin: 0;
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .closeButton {
+    top: 0.4rem;
+    left: 0.4rem;
+    font-size: 0.7rem;
+    padding: 0.15rem;
+  }
+
+  .checkIcon {
+    top: 0.6rem;
+    left: 0.6rem;
+    width: 18px;
+    height: 18px;
+    font-size: 0.6rem;
+  }
 }
 

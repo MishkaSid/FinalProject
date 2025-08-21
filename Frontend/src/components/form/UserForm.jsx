@@ -6,7 +6,7 @@ const FIELD_CONFIG = {
   UserID: { label: "ת.ז", type: "text" },
   Name: { label: "שם", type: "text" },
   Email: { label: "אימייל", type: "email" },
-  Password: { label: "סיסמה", type: "password" },
+  Password: { label: "סיסמה (אופציונלי לסטודנטים)", type: "password" },
   Role: { label: "תפקיד", type: "select", options: ["Admin", "Teacher", "Examinee"] },
 };
 
@@ -43,12 +43,16 @@ function validate(fields, values, mode) {
     }
   }
   if (fields.includes("Password") && mode !== "edit") {
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,8}$/.test(values.Password || "")) {
+    // Skip password validation for Examinee users (password is auto-reset to ID in backend)
+    if (values.Role !== "Examinee" && !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,8}$/.test(values.Password || "")) {
       return "הסיסמה חייבת להכיל לפחות אות אחת, מספר אחד, ואורכה בין 3 ל-8 תווים.";
     }
   }
-  // All required fields must be filled
+  // All required fields must be filled (except password for Examinee users)
   for (const field of fields) {
+    if (field === "Password" && values.Role === "Examinee") {
+      continue; // Skip password validation for Examinee users
+    }
     if (!values[field]) {
       return `יש למלא את שדה ${FIELD_CONFIG[field].label}`;
     }
@@ -109,8 +113,13 @@ export default function UserForm({
    */
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Form submitted with values:", values);
+    console.log("Form mode:", mode);
+    console.log("Form fields:", fields);
+    
     const error = validate(fields, values, mode);
     if (error) {
+      console.log("Validation error:", error);
       if (onValidationError) {
         onValidationError(error);
       } else {
@@ -119,6 +128,9 @@ export default function UserForm({
       }
       return;
     }
+    
+    console.log("Validation passed, calling onSubmit with:", values);
+    
     // For login, only send Email and Password
     if (mode === "login") {
       onSubmit({ email: values.Email, password: values.Password });
@@ -166,6 +178,21 @@ export default function UserForm({
         <button className={styles.submitButton} type="submit">
           {mode === "login" ? "התחבר" : mode === "add" ? "הוסף" : "שמור"}
         </button>
+        
+        {/* Show note for Examinee users */}
+        {mode === "add" && values.Role === "Examinee" && (
+          <div style={{ 
+            marginTop: "1rem", 
+            padding: "0.75rem", 
+            backgroundColor: "#e3f2fd", 
+            borderRadius: "8px", 
+            fontSize: "0.9rem",
+            color: "#1976d2",
+            textAlign: "center"
+          }}>
+            <strong>הערה:</strong> עבור סטודנטים, הסיסמה תותאם אוטומטית למספר תעודת הזהות
+          </div>
+        )}
       </form>
       <Popup
         header="שגיאה"

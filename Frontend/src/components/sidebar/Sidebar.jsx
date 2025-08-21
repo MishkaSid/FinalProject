@@ -1,5 +1,6 @@
 import { Link , useNavigate } from "react-router-dom";
 import { FiUsers, FiHome, FiBookOpen, FiBook, FiMenu, FiLogOut } from "react-icons/fi";
+import { LuNotebookPen } from "react-icons/lu";
 import styles from "./sidebar.module.css";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -27,7 +28,7 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
   const menuItems = {
     Admin: [
       { to: "/manager", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
-      { to: "/manager/permissions", icon: <FiUsers size={30} className={styles.icon} />, label: "הרשאות משתמשים" },
+      { to: "/manager/permissions", icon: <FiUsers size={30} className={styles.icon} />, label: "ניהול משתמשים" },
       { to: "/manager/manageContent", icon: <FiBookOpen size={30} className={styles.icon} />, label: "ניהול תכנים" }
     ],
     Teacher: [
@@ -36,7 +37,8 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
     ],
     Examinee: [
       { to: "/student", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
-      { to: "/practice", icon: <FiBook size={30} className={styles.icon} />, label: "תרגול" }
+      { to: "/practice", icon: <FiBook size={30} className={styles.icon} />, label: "תרגול" },
+      { to: "/exams", icon: <LuNotebookPen size={30} className={styles.icon} />, label: "מבחנים" }
     ],
     guest: []
   };

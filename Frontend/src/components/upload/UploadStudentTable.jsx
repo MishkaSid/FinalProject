@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "./uploadStudentTable.module.css";
 
-export default function UploadStudentTable({ onUsersAdded, onUploadStatus }) {
+export default function UploadStudentTable({ onUsersAdded }) {
   const [isUploading, setUploading] = useState(false);
 
   const handleFile = async (e) => {
@@ -26,14 +26,7 @@ export default function UploadStudentTable({ onUsersAdded, onUploadStatus }) {
         if (warnings.length) msg += `, ${warnings.length} skipped`;
         msg += `, ${errors.length} errors.`;
         
-        // Call the callback to notify parent component about upload status
-        if (onUploadStatus) {
-          onUploadStatus({
-            type: 'success',
-            message: msg,
-            details: { added, warnings, errors }
-          });
-        }
+
         
         // Call the callback to notify parent component that users were added
         if (onUsersAdded && added > 0) {
@@ -45,26 +38,12 @@ export default function UploadStudentTable({ onUsersAdded, onUploadStatus }) {
       } else {
         const errorMsg = `❌ ${data.error || JSON.stringify(data.errors)}`;
         
-        // Call the callback to notify parent component about upload error
-        if (onUploadStatus) {
-          onUploadStatus({
-            type: 'error',
-            message: errorMsg,
-            details: data
-          });
-        }
+
       }
     } catch (err) {
       const errorMsg = `❌ Upload failed: ${err.message}`;
       
-      // Call the callback to notify parent component about upload error
-      if (onUploadStatus) {
-        onUploadStatus({
-          type: 'error',
-          message: errorMsg,
-          details: { error: err.message }
-        });
-      }
+
     } finally {
       setUploading(false);
       // clear the file input so same file can be re‑selected if needed

@@ -28,20 +28,26 @@ export default function UserPermissions() {
   const [popupConfig, setPopupConfig] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
   const [originalId, setOriginalId] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState(null);
+
 
   /**
    * @effect
    * @description Fetches all users from the server when the component mounts.
    */
   useEffect(() => {
+    // Test backend connectivity first
+    console.log("Testing backend connectivity...");
     axios
       .get("/api/general/users")
       .then((res) => {
+        console.log("Backend response:", res.data);
         const fetchedUsers = res.data[0] || [];
         setUsers(fetchedUsers);
       })
-      .catch((err) => console.error("Error fetching users:", err));
+      .catch((err) => {
+        console.error("Error fetching users:", err);
+        console.error("Error details:", err.response?.data);
+      });
   }, []);
 
   // Filter users based on the search input (name or ID).
@@ -108,7 +114,7 @@ export default function UserPermissions() {
       UserID: "",
       Name: "",
       Email: "",
-      Password: "",
+      Password: "", // Will be auto-reset to ID for Examinee users
       Role: "Examinee",
       CourseID: null,
     });
@@ -144,14 +150,7 @@ export default function UserPermissions() {
       .catch((err) => console.error("Error refreshing users:", err));
   }
 
-  /**
-   * @function handleUploadStatus
-   * @description Handles the upload status from the Excel upload component and displays it as a popup.
-   * @param {object} status - The upload status object containing type, message, and details.
-   */
-  function handleUploadStatus(status) {
-    setUploadStatus(status);
-  }
+
 
   /**
    * @function handleSubmitUser
@@ -162,11 +161,13 @@ export default function UserPermissions() {
    * @param {object} values - The form values.
    */
   function handleSubmitUser(values) {
-    const { UserID, Name, Password } = values;
+    const { UserID, Name, Password, Role, Email } = values;
 
     const idIsValid = /^\d{9}$/.test(UserID);
     const nameIsValid = /^[A-Za-z\u0590-\u05FF\s]{2,}$/.test(Name);
-    const passwordIsValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,10}$/.test(
+    
+    // For Examinee users, password is optional (will be auto-reset to ID in backend)
+    const passwordIsValid = Role === "Examinee" ? true : /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,10}$/.test(
       Password
     );
 
@@ -190,6 +191,7 @@ export default function UserPermissions() {
       return;
     }
 
+    // Skip password validation for Examinee users (password is auto-reset to ID in backend)
     if (!isEditMode && !passwordIsValid && values.Role !== "Examinee") {
       setPopupConfig({
         title: "שגיאה",
@@ -207,7 +209,23 @@ export default function UserPermissions() {
 
     const axiosMethod = isEditMode ? axios.put : axios.post;
 
-    axiosMethod(endpoint, values)
+    // Debug: Log what we're sending
+    console.log("Sending user data:", values);
+    console.log("Endpoint:", endpoint);
+    
+    // Ensure all required fields are present
+    const userData = {
+      UserID: values.UserID,
+      Name: values.Name,
+      Email: values.Email,
+      Password: values.Password || "", // Ensure password is never undefined
+      Role: values.Role,
+      CourseID: values.CourseID || null
+    };
+    
+    console.log("Processed user data:", userData);
+
+    axiosMethod(endpoint, userData)
       .then((res) => {
         if (isEditMode) {
           setUsers((prev) =>
@@ -247,6 +265,7 @@ export default function UserPermissions() {
     <>
       <div className={styles.adminPage}>
         <h1 className={styles.pageTitle}>ניהול הרשאות</h1>
+        {/* Search input */}
         <input
           type="text"
           className={styles.searchInput}
@@ -254,11 +273,12 @@ export default function UserPermissions() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        {/* Adding line */}
         <div className={styles.addingLine}>
           <button className={styles.addButton} onClick={handleAddUser}>
             הוסף משתמש
           </button>
-          <Upload onUsersAdded={refreshUsers} onUploadStatus={handleUploadStatus} />
+          <Upload onUsersAdded={refreshUsers} />
           <div className={styles.sort}>
             <select
               id="role-select"
@@ -351,51 +371,7 @@ export default function UserPermissions() {
         </Popup>
       )}
       
-      {/* Upload Status Popup */}
-      {uploadStatus && (
-        <Popup
-          header={uploadStatus.type === 'success' ? 'העלאה הושלמה בהצלחה' : 'שגיאה בהעלאה'}
-          isOpen={true}
-          onClose={() => setUploadStatus(null)}
-        >
-          <div style={{ padding: "1.5rem", textAlign: "center" }}>
-            <div style={{ 
-              fontSize: 18, 
-              marginBottom: 18,
-              color: uploadStatus.type === 'success' ? '#28a745' : '#dc3545'
-            }}>
-              {uploadStatus.message}
-            </div>
-            
-            {uploadStatus.details && uploadStatus.type === 'success' && (
-              <div style={{ 
-                fontSize: 14, 
-                marginBottom: 18,
-                padding: "1rem",
-                backgroundColor: "#f8f9fa",
-                borderRadius: "8px",
-                textAlign: "right"
-              }}>
-                <div><strong>פרטים:</strong></div>
-                <div>נוספו: {uploadStatus.details.added} משתמשים</div>
-                {uploadStatus.details.warnings && uploadStatus.details.warnings.length > 0 && (
-                  <div>דילוג: {uploadStatus.details.warnings.length} שורות</div>
-                )}
-                {uploadStatus.details.errors && uploadStatus.details.errors.length > 0 && (
-                  <div>שגיאות: {uploadStatus.details.errors.length}</div>
-                )}
-              </div>
-            )}
-            
-            <button 
-              className={styles.submitButton}
-              onClick={() => setUploadStatus(null)}
-            >
-              סגור
-            </button>
-          </div>
-        </Popup>
-      )}
+
     </>
   );
 }

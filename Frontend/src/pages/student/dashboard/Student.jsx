@@ -7,6 +7,7 @@ import { CgPlayButtonO } from "react-icons/cg";
 import { FiUser, FiAward, FiTrendingUp, FiX, FiCheck } from "react-icons/fi";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Popup from "../../../components/popup/Popup";
 
 /**
  * The StudentDashboard component renders the main page for students.
@@ -31,45 +32,48 @@ export default function StudentDashboard() {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Use user.id if available, otherwise use a default value or skip API call
-        const userId = user?.id || user?.UserID || '1';
-        
+        const userId = user?.id || user?.UserID || "1";
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-        
-        const response = await fetch(`http://localhost:5000/api/student/dashboard/${userId}`, {
-          signal: controller.signal
-        });
-        
+
+        const response = await fetch(
+          `http://localhost:5000/api/student/dashboard/${userId}`,
+          {
+            signal: controller.signal,
+          }
+        );
+
         clearTimeout(timeoutId);
-        
+
         if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data');
+          throw new Error("Failed to fetch dashboard data");
         }
-        
+
         const data = await response.json();
         setDashboardData(data);
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        
-        if (err.name === 'AbortError') {
-          setError('Request timeout - using demo data');
+        console.error("Error fetching dashboard data:", err);
+
+        if (err.name === "AbortError") {
+          setError("Request timeout - using demo data");
         } else {
           setError(err.message);
         }
-        
+
         // Fallback to mock data if API fails
         setDashboardData({
           user: {
             name: user?.name || "סטודנט",
-            course: user?.course || "מתמטיקה"
+            course: user?.course || "מתמטיקה",
           },
           lastTest: {
             name: "מבחן שברים",
-            grade: 85
+            grade: 85,
           },
-          averageGrade: 78
+          averageGrade: 78,
         });
       } finally {
         setLoading(false);
@@ -94,43 +98,70 @@ export default function StudentDashboard() {
   const studentData = dashboardData || {
     user: {
       name: user?.name || "סטודנט",
-      course: user?.course || "מתמטיקה"
+      course: user?.course || "מתמטיקה",
     },
     lastTest: {
       name: "מבחן שברים",
-      grade: 85
+      grade: 85,
     },
-    averageGrade: 78
+    averageGrade: 78,
   };
 
   // Fetch subjects from backend using general data endpoint
   const fetchSubjects = async () => {
     try {
       setSubjectsLoading(true);
-      const response = await fetch('http://localhost:5000/api/topics/getTopics');
-      
+      const response = await fetch(
+        "http://localhost:5000/api/topics/getTopics"
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to fetch subjects');
+        throw new Error("Failed to fetch subjects");
       }
-      
+
       const data = await response.json();
       // Transform the data to match our component structure
-      const transformedSubjects = data.map(topic => ({
+      const transformedSubjects = data.map((topic) => ({
         id: topic.TopicID,
         name: topic.TopicName,
         description: `נושא: ${topic.TopicName}`,
-        courseName: topic.CourseName || "מתמטיקה"
+        courseName: topic.CourseName || "מתמטיקה",
       }));
       setSubjects(transformedSubjects);
     } catch (err) {
-      console.error('Error fetching subjects:', err);
+      console.error("Error fetching subjects:", err);
       // Fallback to mock data
       const mockSubjects = [
-        { id: 1, name: "אלגברה ליניארית", description: "נושא: אלגברה ליניארית", courseName: "מתמטיקה" },
-        { id: 2, name: "חשבון דיפרנציאלי", description: "נושא: חשבון דיפרנציאלי", courseName: "מתמטיקה" },
-        { id: 3, name: "גאומטריה", description: "נושא: גאומטריה", courseName: "מתמטיקה" },
-        { id: 4, name: "סטטיסטיקה", description: "נושא: סטטיסטיקה", courseName: "מתמטיקה" },
-        { id: 5, name: "טריגונומטריה", description: "נושא: טריגונומטריה", courseName: "מתמטיקה" }
+        {
+          id: 1,
+          name: "אלגברה ליניארית",
+          description: "נושא: אלגברה ליניארית",
+          courseName: "מתמטיקה",
+        },
+        {
+          id: 2,
+          name: "חשבון דיפרנציאלי",
+          description: "נושא: חשבון דיפרנציאלי",
+          courseName: "מתמטיקה",
+        },
+        {
+          id: 3,
+          name: "גאומטריה",
+          description: "נושא: גאומטריה",
+          courseName: "מתמטיקה",
+        },
+        {
+          id: 4,
+          name: "סטטיסטיקה",
+          description: "נושא: סטטיסטיקה",
+          courseName: "מתמטיקה",
+        },
+        {
+          id: 5,
+          name: "טריגונומטריה",
+          description: "נושא: טריגונומטריה",
+          courseName: "מתמטיקה",
+        },
       ];
       setSubjects(mockSubjects);
     } finally {
@@ -182,7 +213,8 @@ export default function StudentDashboard() {
               <div className={styles.statInfo}>
                 <span className={styles.statLabel}>מבחן אחרון:</span>
                 <span className={styles.statValue}>
-                  {studentData.lastTest?.name || "מבחן שברים"} - {studentData.lastTest?.grade || 85}%
+                  {studentData.lastTest?.name || "מבחן שברים"} -{" "}
+                  {studentData.lastTest?.grade || 85}%
                 </span>
               </div>
             </div>
@@ -190,13 +222,13 @@ export default function StudentDashboard() {
               <FiTrendingUp className={styles.statIcon} />
               <div className={styles.statInfo}>
                 <span className={styles.statLabel}>ממוצע ציונים:</span>
-                <span className={styles.statValue}>{studentData.averageGrade || 78}%</span>
+                <span className={styles.statValue}>
+                  {studentData.averageGrade || 78}%
+                </span>
               </div>
             </div>
           </div>
         </div>
-        
-        
       </div>
 
       {/* Dashboard Section */}
@@ -224,70 +256,67 @@ export default function StudentDashboard() {
 
       {/* Subject Selection Modal */}
       {showSubjectModal && (
-        <div className={styles.modalOverlay} onClick={handleCloseModal}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>בחר נושא לתרגול</h2>
-              <button className={styles.closeButton} onClick={handleCloseModal}>
-                <FiX />
-              </button>
-            </div>
-            
-                         <div className={styles.modalContent}>
-               <p className={styles.modalDescription}>
-                 בחר את הנושא שברצונך לתרגל היום
-               </p>
-               
-               {subjectsLoading ? (
-                 <div className={styles.loadingContainer}>
-                   <div className={styles.loadingSpinner}></div>
-                   <p>טוען נושאים...</p>
-                 </div>
-               ) : subjects.length > 0 ? (
-                 <div className={styles.subjectsGrid}>
-                   {subjects.map((subject) => (
-                     <div
-                       key={subject.id}
-                       className={`${styles.subjectCard} ${
-                         selectedSubject?.id === subject.id ? styles.selected : ''
-                       }`}
-                       onClick={() => handleSubjectSelect(subject)}
-                     >
-                       <div className={styles.subjectInfo}>
-                         <h3>{subject.name}</h3>
-                         <p>{subject.description}</p>
-                       </div>
-                       {selectedSubject?.id === subject.id && (
-                         <div className={styles.checkIcon}>
-                           <FiCheck />
-                         </div>
-                       )}
-                     </div>
-                   ))}
-                 </div>
-               ) : (
-                 <div className={styles.noSubjects}>
-                   <p>לא נמצאו נושאים זמינים</p>
-                 </div>
-               )}
-             </div>
-            
-            <div className={styles.modalFooter}>
-              <button
-                className={`${styles.startButton} ${
-                  selectedSubject ? styles.active : styles.disabled
-                }`}
-                onClick={handleStartPractice}
-                disabled={!selectedSubject}
-              >
-                <FiBook />
-                התחל תרגול
-              </button>
-            </div>
+        <Popup
+          isOpen={showSubjectModal}
+          onClose={handleCloseModal}
+          header="בחר נושא לתרגול"
+        >
+          <div className={styles.modalContent}>
+            <p className={styles.modalDescription}>
+              בחר את הנושא שברצונך לתרגל היום
+            </p>
+
+            {subjectsLoading ? (
+              <div className={styles.loadingContainer}>
+                <div className={styles.loadingSpinner}></div>
+                <p>טוען נושאים...</p>
+              </div>
+            ) : subjects.length > 0 ? (
+              <div className={styles.subjectsGrid}>
+                {subjects.map((subject) => (
+                  <div
+                    key={subject.id}
+                    className={`${styles.subjectCard} ${
+                      selectedSubject?.id === subject.id
+                        ? styles.selected
+                        : ""
+                    }`}
+                    onClick={() => handleSubjectSelect(subject)}
+                  >
+                    <div className={styles.subjectInfo}>
+                      <h3>{subject.name}</h3>
+                      <p>{subject.description}</p>
+                    </div>
+                    {selectedSubject?.id === subject.id && (
+                      <div className={styles.checkIcon}>
+                        <FiCheck />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.noSubjects}>
+                <p>לא נמצאו נושאים זמינים</p>
+              </div>
+            )}
           </div>
-        </div>
+
+          <div className={styles.modalFooter}>
+            <button
+              className={`${styles.startButton} ${
+                selectedSubject ? styles.active : styles.disabled
+              }`}
+              onClick={handleStartPractice}
+              disabled={!selectedSubject}
+            >
+              <FiBook />
+              התחל תרגול
+            </button>
+          </div>
+        </Popup>
       )}
     </div>
+    
   );
 }
-
