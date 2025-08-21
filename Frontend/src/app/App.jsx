@@ -11,7 +11,8 @@ import StudentDashboard from "../pages/student/dashboard/Student";
 import PracticeDashboard from "../pages/student/practice/practice dashboard/PracticeDashboard"
 import UnauthorizedPage from "../pages/unauthorize/Unauthorize";
 import NotFound from "../pages/not found/NotFound";
-import Practice from "../pages/student/practice/practice questions/practice";
+import PracticeQuestions from "../pages/student/practice/practice questions/PracticeQuestions";
+import Exam from "../pages/student/exam/Exam";
 
 function App() {
   return (
@@ -43,8 +44,9 @@ function App() {
                 element={<ManageContent />}
               />
               <Route path="/student" element={<StudentDashboard />} />
-              <Route path="/student/practice-dashboard" element={<PracticeDashboard />} />
-              <Route path ="/student/practice" element={<Practice />} />
+              <Route path="/student/practice-dashboard/:topicId" element={<PracticeDashboard />} />
+              <Route path="/student/practice-questions/:topicId" element={<PracticeQuestions />} />
+              <Route path="/student/exam/:topicId" element={<Exam />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />

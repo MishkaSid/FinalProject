@@ -1,7 +1,7 @@
 .adminPage {
   position: relative;
   padding: 32px;
-  min-height: 100vh;
+  min-height:70vh;
   display: flex;
   flex-direction: column;
   z-index: 1;

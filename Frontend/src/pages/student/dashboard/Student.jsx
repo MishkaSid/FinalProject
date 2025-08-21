@@ -180,7 +180,7 @@ export default function StudentDashboard() {
 
   const handleStartPractice = () => {
     if (selectedSubject) {
-      navigate(`/student/practice-dashboard/`);
+      navigate(`/student/practice-dashboard/${selectedSubject.id}`);
       setShowSubjectModal(false);
       setSelectedSubject(null);
     }
@@ -243,14 +243,21 @@ export default function StudentDashboard() {
             size="large"
             layout="horizontal"
           />
-          <Card
-            title="הדמיית מבחן"
-            description="כאן תוכלו לדמות מבחן אמיתי"
-            icon={<LuNotebookPen size={30} />}
-            to="/exams"
-            size="large"
-            layout="horizontal"
-          />
+                     <Card
+             title="הדמיית מבחן"
+             description="כאן תוכלו לדמות מבחן אמיתי"
+             icon={<LuNotebookPen size={30} />}
+             onClick={() => {
+               if (selectedSubject) {
+                 navigate(`/student/exam/${selectedSubject.id}`);
+               } else {
+                 setShowSubjectModal(true);
+                 fetchSubjects();
+               }
+             }}
+             size="large"
+             layout="horizontal"
+           />
         </div>
       </div>
 

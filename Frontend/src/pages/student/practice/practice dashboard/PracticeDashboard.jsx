@@ -59,7 +59,7 @@ export default function PracticeDashboard() {
   }, [topicId]);
 
   const handlePracticeClick = () => {
-    navigate('/student/practice');
+    navigate(`/student/practice-questions/${topicId}`);
   };
 
   const handleBackClick = () => {
