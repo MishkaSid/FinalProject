@@ -36,14 +36,14 @@ router.post('/login', async (req, res) => {
 
     // Generate a JWT for the authenticated user
     const token = jwt.sign(
-      { id: user.UserId, role: user.Role, name: user.Name },
+      { id: user.UserID, role: user.Role, name: user.Name },
       JWT_SECRET,
       { expiresIn: '2h' }
     );
     console.log('Generated JWT:', token);
 
     // Send token and user info to the client
-    const userInfo = { id: user.UserId, email: user.Email, name: user.Name, role: user.Role };
+    const userInfo = { id: user.UserID, email: user.Email, name: user.Name, role: user.Role };
     return res.json({ token, user: userInfo });
   } catch (error) {
     console.error('Login error:', error);

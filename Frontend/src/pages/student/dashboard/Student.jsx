@@ -65,15 +65,16 @@ export default function StudentDashboard() {
 
         // Fallback to mock data if API fails
         setDashboardData({
-          user: {
+          student: {
             name: user?.name || "סטודנט",
-            course: user?.course || "מתמטיקה",
+            role: user?.role || "student",
           },
-          lastTest: {
-            name: "מבחן שברים",
-            grade: 85,
+          lastExam: {
+            examId: 1,
+            date: new Date().toISOString(),
+            averageGrade: 85,
           },
-          averageGrade: 78,
+          overallAverage: 78,
         });
       } finally {
         setLoading(false);
@@ -96,15 +97,16 @@ export default function StudentDashboard() {
   }
 
   const studentData = dashboardData || {
-    user: {
+    student: {
       name: user?.name || "סטודנט",
-      course: user?.course || "מתמטיקה",
+      role: user?.role || "student",
     },
-    lastTest: {
-      name: "מבחן שברים",
-      grade: 85,
+    lastExam: {
+      examId: 1,
+      date: new Date().toISOString(),
+      averageGrade: 85,
     },
-    averageGrade: 78,
+    overallAverage: 78,
   };
 
   // Fetch subjects from backend using general data endpoint
@@ -198,8 +200,8 @@ export default function StudentDashboard() {
         <div className={styles.heroBackground} />
         {/* Content on the right */}
         <div className={styles.heroContent}>
-          <h1 className={styles.title}>שלום, {studentData.user.name}</h1>
-          <p className={styles.subTitle}>{studentData.user.course}</p>
+          <h1 className={styles.title}>שלום, {studentData.student.name}</h1>
+          <p className={styles.subTitle}>מתמטיקה</p>
         </div>
         {/* Profile Section on the left */}
         <div className={styles.heroProfile}>
@@ -213,8 +215,8 @@ export default function StudentDashboard() {
               <div className={styles.statInfo}>
                 <span className={styles.statLabel}>מבחן אחרון:</span>
                 <span className={styles.statValue}>
-                  {studentData.lastTest?.name || "מבחן שברים"} -{" "}
-                  {studentData.lastTest?.grade || 85}%
+                  {studentData.lastExam ? `מבחן ${studentData.lastExam.examId}` : "מבחן שברים"} -{" "}
+                  {studentData.lastExam?.averageGrade || 85}%
                 </span>
               </div>
             </div>
@@ -223,7 +225,7 @@ export default function StudentDashboard() {
               <div className={styles.statInfo}>
                 <span className={styles.statLabel}>ממוצע ציונים:</span>
                 <span className={styles.statValue}>
-                  {studentData.averageGrade || 78}%
+                  {studentData.overallAverage || 78}%
                 </span>
               </div>
             </div>
