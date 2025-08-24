@@ -18,7 +18,10 @@ exports.getTopicById = async (req, res) => {
 
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM topic WHERE TopicID = ?", [id]);
+    const [rows] = await connection.query(
+      "SELECT * FROM topic WHERE TopicID = ?",
+      [id]
+    );
     res.json(rows[0]);
   } catch (err) {
     console.error("Error in getTopicById:", err);
@@ -53,13 +56,13 @@ exports.createTopic = async (req, res) => {
 // Update a topic
 exports.updateTopic = async (req, res) => {
   const { id } = req.params;
-  const { TopicName, CourseID } = req.body;
+  const { TopicName, CourseID, TopicDescription } = req.body;
 
   try {
     const connection = await db.getConnection();
     await connection.query(
       "UPDATE topic SET TopicName = ?, CourseID = ? WHERE TopicID = ?",
-      [TopicName, CourseID, id]
+      [TopicName, CourseID, TopicDescription, id]
     );
     res.json({ TopicID: id, TopicName, CourseID });
   } catch (err) {
@@ -74,17 +77,22 @@ exports.deleteTopic = async (req, res) => {
 
   try {
     const connection = await db.getConnection();
-    
+
     try {
       // First, delete all related practice exercises
-      await connection.query("DELETE FROM practice_exercise WHERE TopicID = ?", [id]);
-      
+      await connection.query(
+        "DELETE FROM practice_exercise WHERE TopicID = ?",
+        [id]
+      );
+
       // Then, delete all related practice videos
-      await connection.query("DELETE FROM practice_video WHERE TopicID = ?", [id]);
-      
+      await connection.query("DELETE FROM practice_video WHERE TopicID = ?", [
+        id,
+      ]);
+
       // Finally, delete the topic
       await connection.query("DELETE FROM topic WHERE TopicID = ?", [id]);
-      
+
       res.json({ message: `Topic with TopicID ${id} deleted successfully` });
     } catch (queryErr) {
       console.error("Error in deleteTopic queries:", queryErr);
@@ -95,23 +103,23 @@ exports.deleteTopic = async (req, res) => {
     console.error("Error code:", err.code);
     console.error("Error message:", err.message);
     console.error("Error sqlMessage:", err.sqlMessage);
-    
+
     // Check if it's a foreign key constraint error
-    if (err.code === 'ER_ROW_IS_REFERENCED_2') {
-      res.status(400).json({ 
-        error: "Cannot delete topic. It has related practice content that needs to be removed first." 
+    if (err.code === "ER_ROW_IS_REFERENCED_2") {
+      res.status(400).json({
+        error:
+          "Cannot delete topic. It has related practice content that needs to be removed first.",
       });
-    } else if (err.code === 'ER_NO_SUCH_TABLE') {
-      res.status(500).json({ 
-        error: "Database table not found. Please check your database setup." 
+    } else if (err.code === "ER_NO_SUCH_TABLE") {
+      res.status(500).json({
+        error: "Database table not found. Please check your database setup.",
       });
     } else {
-      res.status(500).json({ 
-        error: "Server error", 
+      res.status(500).json({
+        error: "Server error",
         details: err.message,
-        code: err.code 
+        code: err.code,
       });
     }
   }
 };
-

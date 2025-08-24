@@ -1,179 +1,162 @@
 const db = require("../dbConnection");
 
-// Get practice videos by topic
+/** GET /api/practice-dashboard/topics
+ *  מחזיר את כל הנושאים עם שם הקורס
+ */
+exports.getAllTopics = async (req, res) => {
+  let connection;
+  try {
+    connection = await db.getConnection();
+
+    const [rows] = await connection.query(
+      `
+      SELECT
+        t.TopicID,
+        t.TopicName,
+        c.CourseName
+      FROM topic t
+      LEFT JOIN course c ON c.CourseID = t.CourseID
+      ORDER BY c.CourseName, t.TopicName
+      `
+    );
+
+    return res.json(rows); // גם אם ריק – נחזיר []
+  } catch (err) {
+    console.error("Error in getAllTopics:", err);
+    return res.status(500).json({ error: "DB error" });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+/** GET /api/practice-dashboard/topic/:topicId
+ *  מחזיר מידע על נושא יחיד + שם קורס
+ */
+exports.getTopicInfo = async (req, res) => {
+  const { topicId } = req.params;
+
+  if (!/^\d+$/.test(String(topicId))) {
+    return res.status(400).json({ error: "invalid topicId" });
+  }
+
+  let connection;
+  try {
+    connection = await db.getConnection();
+
+    const [rows] = await connection.query(
+      `
+      SELECT 
+        t.TopicID,
+        t.TopicName,
+        COALESCE(t.TopicDescription, '') AS TopicDescription,
+        c.CourseID,
+        c.CourseName
+      FROM topic t
+      LEFT JOIN course c ON t.CourseID = c.CourseID
+      WHERE t.TopicID = ?
+      LIMIT 1
+      `,
+      [topicId]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: "Topic not found", topicId });
+    }
+
+    return res.json(rows[0]);
+  } catch (err) {
+    console.error("getTopicInfo error:", {
+      topicId,
+      code: err.code,
+      errno: err.errno,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage,
+    });
+    return res.status(500).json({
+      error: "DB error",
+      code: err.code,
+      sqlMessage: err.sqlMessage,
+    });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+/** GET /api/practice-dashboard/videos/:topicId
+ *  מחזיר את כל הסרטונים לנושא מסוים, מסודרים: intro -> easy -> medium -> exam
+ *  דורש שבטבלת practice_video יהיו העמודות: VideoUrl (VARCHAR) ו- Difficulty (ENUM)
+ */
 exports.getPracticeVideos = async (req, res) => {
   const { topicId } = req.params;
-  
+
+  if (!/^\d+$/.test(String(topicId))) {
+    return res.status(400).json({ error: "invalid topicId" });
+  }
+
+  let connection;
   try {
-    const connection = await db.getConnection();
-    
-    // Get practice videos for the topic
-    const [rows] = await connection.query(`
+    connection = await db.getConnection();
+
+    const [rows] = await connection.query(
+      `
       SELECT 
         pv.VideoID,
         pv.TopicID,
         pv.VideoTopic,
-        t.TopicName
+        pv.VideoUrl,
+        pv.Difficulty
       FROM practice_video pv
-      LEFT JOIN topics t ON pv.TopicID = t.TopicID
       WHERE pv.TopicID = ?
-      ORDER BY pv.VideoID DESC
-    `, [topicId]);
-    
-    res.json(rows);
+      ORDER BY FIELD(pv.Difficulty, 'intro','easy','medium','exam'), pv.VideoID
+      `,
+      [topicId]
+    );
+
+    return res.json(rows); // מערך (יכול להיות ריק)
   } catch (err) {
     console.error("Error in getPracticeVideos:", err);
-    // Return mock data if database fails
-    const mockVideos = [
-      {
-        VideoID: 1,
-        TopicID: topicId,
-        VideoTopic: "מבוא לאלגברה ליניארית",
-        TopicName: "אלגברה ליניארית"
-      },
-      {
-        VideoID: 2,
-        TopicID: topicId,
-        VideoTopic: "פתרון מערכות משוואות",
-        TopicName: "אלגברה ליניארית"
-      }
-    ];
-    res.json(mockVideos);
+    return res.status(500).json({ error: "DB error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
-// Get practice exercises by topic
+/** GET /api/practice-dashboard/exercises/:topicId
+ *  מחזיר תרגילים לנושא (בסיסי, כמו שהיה אצלך – עם תיקון שם טבלה)
+ */
 exports.getPracticeExercises = async (req, res) => {
   const { topicId } = req.params;
-  
+
+  if (!/^\d+$/.test(String(topicId))) {
+    return res.status(400).json({ error: "invalid topicId" });
+  }
+
+  let connection;
   try {
-    const connection = await db.getConnection();
-    
-    // Get practice exercises for the topic
-    const [rows] = await connection.query(`
+    connection = await db.getConnection();
+
+    const [rows] = await connection.query(
+      `
       SELECT 
         pe.ExerciseID,
         pe.TopicID,
         pe.AnswerOptions,
         pe.CorrectAnswer,
         pe.ContentType,
-        pe.ContentValue,
-        t.TopicName
+        pe.ContentValue
       FROM practice_exercise pe
-      LEFT JOIN topics t ON pe.TopicID = t.TopicID
       WHERE pe.TopicID = ?
       ORDER BY pe.ExerciseID DESC
       LIMIT 10
-    `, [topicId]);
-    
-    res.json(rows);
+      `,
+      [topicId]
+    );
+
+    return res.json(rows);
   } catch (err) {
     console.error("Error in getPracticeExercises:", err);
-    // Return mock data if database fails
-    const mockExercises = [
-      {
-        ExerciseID: 1,
-        TopicID: topicId,
-        AnswerOptions: JSON.stringify(["א", "ב", "ג", "ד"]),
-        CorrectAnswer: "א",
-        ContentType: "question",
-        ContentValue: "מהו הפתרון של המשוואה 2x + 3 = 7?",
-        TopicName: "אלגברה ליניארית"
-      },
-      {
-        ExerciseID: 2,
-        TopicID: topicId,
-        AnswerOptions: JSON.stringify(["1", "2", "3", "4"]),
-        CorrectAnswer: "2",
-        ContentType: "question",
-        ContentValue: "פתור את המשוואה: x² - 4 = 0",
-        TopicName: "אלגברה ליניארית"
-      }
-    ];
-    res.json(mockExercises);
+    return res.status(500).json({ error: "DB error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
-
-// Get topic information
-exports.getTopicInfo = async (req, res) => {
-  const { topicId } = req.params;
-  
-  try {
-    const connection = await db.getConnection();
-    
-    // Get topic information
-    const [rows] = await connection.query(`
-      SELECT 
-        t.TopicID,
-        t.TopicName,
-        c.CourseName
-      FROM topics t
-      LEFT JOIN courses c ON t.CourseID = c.CourseID
-      WHERE t.TopicID = ?
-    `, [topicId]);
-    
-    if (rows.length === 0) {
-      // Return mock data if topic not found
-      const mockTopic = {
-        TopicID: topicId,
-        TopicName: "אלגברה ליניארית",
-        CourseName: "מתמטיקה"
-      };
-      res.json(mockTopic);
-    } else {
-      res.json(rows[0]);
-    }
-  } catch (err) {
-    console.error("Error in getTopicInfo:", err);
-    // Return mock data if database fails
-    const mockTopic = {
-      TopicID: topicId,
-      TopicName: "אלגברה ליניארית",
-      CourseName: "מתמטיקה"
-    };
-    res.json(mockTopic);
-  }
-};
-
-// Get all available topics for subject selection
-exports.getAllTopics = async (req, res) => {
-  try {
-    const connection = await db.getConnection();
-    
-    // Get all topics with course information
-    const [rows] = await connection.query(`
-      SELECT 
-        t.TopicID,
-        t.TopicName,
-        c.CourseName
-      FROM topics t
-      LEFT JOIN courses c ON t.CourseID = c.CourseID
-      ORDER BY t.TopicID
-    `);
-    
-    if (rows.length === 0) {
-      // Return mock data if no topics found
-      const mockTopics = [
-        { TopicID: 1, TopicName: "אלגברה ליניארית", CourseName: "מתמטיקה" },
-        { TopicID: 2, TopicName: "חשבון דיפרנציאלי", CourseName: "מתמטיקה" },
-        { TopicID: 3, TopicName: "גאומטריה", CourseName: "מתמטיקה" },
-        { TopicID: 4, TopicName: "סטטיסטיקה", CourseName: "מתמטיקה" },
-        { TopicID: 5, TopicName: "טריגונומטריה", CourseName: "מתמטיקה" }
-      ];
-      res.json(mockTopics);
-    } else {
-      res.json(rows);
-    }
-  } catch (err) {
-    console.error("Error in getAllTopics:", err);
-    // Return mock data if database fails
-    const mockTopics = [
-      { TopicID: 1, TopicName: "אלגברה ליניארית", CourseName: "מתמטיקה" },
-      { TopicID: 2, TopicName: "חשבון דיפרנציאלי", CourseName: "מתמטיקה" },
-      { TopicID: 3, TopicName: "גאומטריה", CourseName: "מתמטיקה" },
-      { TopicID: 4, TopicName: "סטטיסטיקה", CourseName: "מתמטיקה" },
-      { TopicID: 5, TopicName: "טריגונומטריה", CourseName: "מתמטיקה" }
-    ];
-    res.json(mockTopics);
-  }
-}; 
