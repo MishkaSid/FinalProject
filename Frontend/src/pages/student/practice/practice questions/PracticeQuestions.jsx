@@ -15,6 +15,9 @@ export default function PracticeQuestions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Server URL for images
+  const SERVER_URL = "http://localhost:5000";
+
   useEffect(() => {
     fetchPracticeData();
   }, [topicId]);
@@ -22,7 +25,7 @@ export default function PracticeQuestions() {
   const fetchPracticeData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/student/practice/topic/${topicId}`);
+      const response = await fetch(`${SERVER_URL}/api/student/practice/topic/${topicId}`);
       
       if (!response.ok) {
         throw new Error("Failed to fetch practice data");
@@ -47,7 +50,20 @@ export default function PracticeQuestions() {
     if (!selectedAnswer) return;
     
     const currentExercise = exercises[currentExerciseIndex];
-    const isCorrect = selectedAnswer === currentExercise.CorrectAnswer;
+    
+    // Debug logging to see what we're comparing
+    console.log('Selected Answer:', selectedAnswer);
+    console.log('Correct Answer:', currentExercise.CorrectAnswer);
+    console.log('Answer Options:', answerOptions);
+    console.log('Types - Selected:', typeof selectedAnswer, 'Correct:', typeof currentExercise.CorrectAnswer);
+    
+    // Ensure both values are strings for comparison
+    const selectedAnswerStr = String(selectedAnswer).trim();
+    const correctAnswerStr = String(currentExercise.CorrectAnswer).trim();
+    
+    const isCorrect = selectedAnswerStr === correctAnswerStr;
+    
+    console.log('Comparison result:', isCorrect);
     
     if (isCorrect) {
       setScore(score + 1);
@@ -72,6 +88,15 @@ export default function PracticeQuestions() {
 
   const handleBackToDashboard = () => {
     navigate(`/student/practice-dashboard/${topicId}`);
+  };
+
+  // Helper function to get image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http')) return imagePath;
+    // If it's a relative path, add server URL
+    return `${SERVER_URL}${imagePath}`;
   };
 
   if (loading) {
@@ -119,6 +144,28 @@ export default function PracticeQuestions() {
   const isLastExercise = currentExerciseIndex === exercises.length - 1;
   const progress = ((currentExerciseIndex + 1) / exercises.length) * 100;
 
+  // Parse answer options safely
+  let answerOptions = [];
+  try {
+    if (currentExercise.AnswerOptions) {
+      answerOptions = typeof currentExercise.AnswerOptions === 'string' 
+        ? JSON.parse(currentExercise.AnswerOptions) 
+        : currentExercise.AnswerOptions;
+    }
+  } catch (error) {
+    console.warn('Failed to parse AnswerOptions:', error);
+    answerOptions = [];
+  }
+
+  // Debug: Log the current exercise data
+  console.log('Current Exercise Data:', {
+    ContentType: currentExercise.ContentType,
+    ContentValue: currentExercise.ContentValue,
+    AnswerOptions: currentExercise.AnswerOptions,
+    CorrectAnswer: currentExercise.CorrectAnswer,
+    ParsedAnswerOptions: answerOptions
+  });
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -155,9 +202,13 @@ export default function PracticeQuestions() {
           {currentExercise.ContentType === 'image' && (
             <div className={styles.imageContainer}>
               <img 
-                src={currentExercise.ContentValue} 
+                src={getImageUrl(currentExercise.ContentValue)} 
                 alt="Question content"
                 className={styles.questionImage}
+                onError={(e) => {
+                  console.error('Failed to load image:', currentExercise.ContentValue);
+                  e.target.style.display = 'none';
+                }}
               />
             </div>
           )}
@@ -170,30 +221,33 @@ export default function PracticeQuestions() {
 
           <div className={styles.answerOptions}>
             <h3>בחר תשובה:</h3>
-            {JSON.parse(currentExercise.AnswerOptions).map((option, index) => (
-              <button
-                key={index}
-                className={`${styles.answerOption} ${
-                  selectedAnswer === option ? styles.selected : ""
-                } ${
-                  showResult && option === currentExercise.CorrectAnswer
-                    ? styles.correct
-                    : showResult && selectedAnswer === option && option !== currentExercise.CorrectAnswer
-                    ? styles.incorrect
-                    : ""
-                }`}
-                onClick={() => !showResult && handleAnswerSelect(option)}
-                disabled={showResult}
-              >
-                {option}
-                {showResult && option === currentExercise.CorrectAnswer && (
-                  <FiCheck className={styles.correctIcon} />
-                )}
-                {showResult && selectedAnswer === option && option !== currentExercise.CorrectAnswer && (
-                  <FiX className={styles.incorrectIcon} />
-                )}
-              </button>
-            ))}
+            <div className={styles.answerOptionsGrid}>
+              {answerOptions.map((option, index) => (
+                <button
+                  key={index}
+                  className={`${styles.answerOption} ${
+                    selectedAnswer === option ? styles.selected : ""
+                  } ${
+                    showResult && option === currentExercise.CorrectAnswer
+                      ? styles.correct
+                      : showResult && selectedAnswer === option && option !== currentExercise.CorrectAnswer
+                      ? styles.incorrect
+                      : ""
+                  }`}
+                  onClick={() => !showResult && handleAnswerSelect(option)}
+                  disabled={showResult}
+                >
+                  <span className={styles.optionLetter}>{String.fromCharCode(65 + index)}.</span>
+                  <span className={styles.optionText}>{option}</span>
+                  {showResult && option === currentExercise.CorrectAnswer && (
+                    <FiCheck className={styles.correctIcon} />
+                  )}
+                  {showResult && selectedAnswer === option && option !== currentExercise.CorrectAnswer && (
+                    <FiX className={styles.incorrectIcon} />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -234,11 +288,11 @@ export default function PracticeQuestions() {
         {showResult && (
           <div className={styles.resultDisplay}>
             <div className={`${styles.resultMessage} ${
-              selectedAnswer === currentExercise.CorrectAnswer 
+              String(selectedAnswer).trim() === String(currentExercise.CorrectAnswer).trim()
                 ? styles.correctMessage 
                 : styles.incorrectMessage
             }`}>
-              {selectedAnswer === currentExercise.CorrectAnswer ? (
+              {String(selectedAnswer).trim() === String(currentExercise.CorrectAnswer).trim() ? (
                 <>
                   <FiCheck />
                   תשובה נכונה!
