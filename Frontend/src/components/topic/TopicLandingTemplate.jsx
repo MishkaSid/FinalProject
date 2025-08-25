@@ -2,61 +2,47 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./topicLanding.module.css";
-import { FiBook, FiVideo, FiTarget } from "react-icons/fi";
+import {
+  FiBook,
+  FiVideo,
+  FiTarget,
+  FiChevronDown,
+  FiPlay,
+} from "react-icons/fi";
 
-/** Convert a YouTube full URL or raw ID into an embeddable URL (handles /shorts too) */
 function toYoutubeEmbed(urlOrId) {
   if (!urlOrId) return null;
   const raw = String(urlOrId).trim();
-
-  // If it's a plain ID (no protocol/domain)
   if (!/^https?:\/\//i.test(raw)) {
     const idOnly = raw.replace(/[^\w-]/g, "");
     return `https://www.youtube.com/embed/${idOnly}`;
   }
-
   try {
     const u = new URL(raw);
-
-    // youtu.be/<id>
     if (u.hostname.includes("youtu.be")) {
       const id = u.pathname.replace(/\//g, "");
       return id ? `https://www.youtube.com/embed/${id}` : null;
     }
-
-    // youtube.com/shorts/<id>
     if (u.pathname.startsWith("/shorts/")) {
       const id = u.pathname.split("/shorts/")[1]?.split(/[/?#]/)[0] || "";
       return id ? `https://www.youtube.com/embed/${id}` : null;
     }
-
-    // youtube.com/embed/<id>
-    if (u.pathname.includes("/embed/")) {
-      return raw;
-    }
-
-    // youtube.com/watch?v=<id>
+    if (u.pathname.includes("/embed/")) return raw;
     const id = u.searchParams.get("v");
     if (id) return `https://www.youtube.com/embed/${id}`;
-
-    // Fallback: last path segment
     const last = u.pathname.split("/").filter(Boolean).pop();
     if (last) return `https://www.youtube.com/embed/${last}`;
   } catch {
     const idOnly = String(raw).replace(/[^\w-]/g, "");
     return idOnly ? `https://www.youtube.com/embed/${idOnly}` : null;
   }
-
   return null;
 }
 
-/** Arrange into exactly one intro + up to 3 levels (easy, medium, exam) with robust fallbacks */
 function arrangeVideos(videos) {
   if (!Array.isArray(videos) || videos.length === 0) {
     return { intro: null, levels: [] };
   }
-
-  // Normalize
   const norm = videos
     .filter(Boolean)
     .map((v) => ({
@@ -69,7 +55,6 @@ function arrangeVideos(videos) {
     .filter((v) => v.VideoUrl.length > 0);
 
   const pickFirstBy = (key) => norm.find((v) => v.Difficulty === key) || null;
-
   const intro = pickFirstBy("intro");
   const easy = pickFirstBy("easy");
   const medium = pickFirstBy("medium");
@@ -79,10 +64,8 @@ function arrangeVideos(videos) {
     return { intro, levels: [easy, medium, exam] };
   }
 
-  // Fallbacks
   let chosenIntro = intro;
   let remaining = norm.slice();
-
   if (!chosenIntro) {
     chosenIntro = remaining[0] || null;
     if (chosenIntro) remaining = remaining.filter((v) => v !== chosenIntro);
@@ -115,15 +98,17 @@ export default function TopicLandingTemplate() {
   const [videos, setVideos] = useState([]);
   const [error, setError] = useState(null);
 
+  const [openLevels, setOpenLevels] = useState([false, false, false]);
+  const toggleLevel = (idx) =>
+    setOpenLevels((prev) => prev.map((v, i) => (i === idx ? !v : v)));
+
   useEffect(() => {
     let cancelled = false;
-
     async function load() {
       try {
         setLoading(true);
         setError(null);
 
-        // Topic info
         const tRes = await fetch(
           `http://localhost:5000/api/practice-dashboard/topic/${topicId}`
         );
@@ -133,14 +118,11 @@ export default function TopicLandingTemplate() {
         }
         const tJson = await tRes.json();
 
-        // Videos
         const vRes = await fetch(
           `http://localhost:5000/api/practice-dashboard/videos/${topicId}`
         );
         let vJson = [];
-        if (vRes.ok) {
-          vJson = await vRes.json();
-        }
+        if (vRes.ok) vJson = await vRes.json();
 
         if (!cancelled) {
           setTopic(tJson);
@@ -157,7 +139,6 @@ export default function TopicLandingTemplate() {
         if (!cancelled) setLoading(false);
       }
     }
-
     load();
     return () => {
       cancelled = true;
@@ -186,6 +167,10 @@ export default function TopicLandingTemplate() {
 
   const handlePractice = () => {
     navigate(`/student/practice-questions/${topicId}`);
+  };
+
+  const handlePracticeLevel = (difficulty) => {
+    navigate(`/student/practice-questions/${topicId}?level=${difficulty}`);
   };
 
   if (loading) {
@@ -218,14 +203,9 @@ export default function TopicLandingTemplate() {
         </div>
       </header>
 
+     
       {/* Description */}
-      <section
-        className={styles.descSection}
-        aria-labelledby="topic-desc-title"
-      >
-        <h2 id="topic-desc-title" className={styles.visuallyHidden}>
-          תיאור הנושא
-        </h2>
+      <section className={styles.descSection}>
         <div className={styles.descCard}>
           <p className={styles.descText}>{subjectDescription}</p>
         </div>
@@ -234,10 +214,7 @@ export default function TopicLandingTemplate() {
       {/* Intro video */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
-          <span aria-hidden="true" className={styles.titleIcon}>
-            <FiVideo />
-          </span>
-          סרטון פתיחה
+          <FiVideo /> סרטון הסבר קצר מהדוקטור
         </h2>
         <article className={styles.introCard}>
           <div className={styles.introFrame}>
@@ -245,7 +222,7 @@ export default function TopicLandingTemplate() {
               <iframe
                 className={styles.videoFrame}
                 src={toYoutubeEmbed(intro.VideoUrl)}
-                title={intro.VideoTopic || "סרטון פתיחה"}
+                title={intro?.VideoTopic || "סרטון פתיחה"}
                 loading="lazy"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -254,51 +231,73 @@ export default function TopicLandingTemplate() {
               <div className={styles.placeholder}>אין כתובת וידאו להצגה</div>
             )}
           </div>
-          <div className={styles.introInfo}>
-            <h3 className={styles.videoTitle}>
-              {intro?.VideoTopic || "סרטון פתיחה"}
-            </h3>
-            <p className={styles.videoDesc}>{topic?.TopicName || ""}</p>
-          </div>
+          
         </article>
       </section>
 
-      {/* Levels videos */}
+      {/* Levels */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
-          <span aria-hidden="true" className={styles.titleIcon}>
-            <FiTarget />
-          </span>
-          סרטונים לפי רמה
+          <FiTarget /> סרטונים לפי רמה
         </h2>
         <div className={styles.levelsGrid}>
           {["קל", "בינוני", "רמת מבחן"].map((label, i) => {
             const v = levels[i];
+            const isOpen = openLevels[i];
+            const diffKey = i === 0 ? "easy" : i === 1 ? "medium" : "exam";
+
             return (
               <article key={v?.VideoID ?? i} className={styles.levelCard}>
                 <div className={styles.levelHeader}>
                   <span className={styles.levelBadge}>{label}</span>
+                  <button
+                    type="button"
+                    className={`${styles.levelToggleBtn} ${
+                      isOpen ? styles.levelToggleBtnOpen : ""
+                    }`}
+                    onClick={() => toggleLevel(i)}
+                  >
+                    <FiChevronDown />
+                  </button>
                 </div>
-                <div className={styles.levelFrame}>
-                  {v?.VideoUrl ? (
-                    <iframe
-                      className={styles.videoFrame}
-                      src={toYoutubeEmbed(v.VideoUrl)}
-                      title={v.VideoTopic || label}
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <div className={styles.placeholder}>
-                      אין כתובת וידאו להצגה
-                    </div>
-                  )}
+
+                <div
+                  className={`${styles.levelCollapse} ${
+                    isOpen ? styles.levelCollapseOpen : ""
+                  }`}
+                >
+                  <div className={styles.levelFrame}>
+                    {v?.VideoUrl ? (
+                      <iframe
+                        className={styles.videoFrame}
+                        src={toYoutubeEmbed(v.VideoUrl)}
+                        title={v?.VideoTopic || label}
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className={styles.placeholder}>
+                        אין כתובת וידאו להצגה
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.levelInfo}>
+                    <h3 className={styles.videoTitle}>
+                      {v?.VideoTopic || `סרטון ${label}`}
+                    </h3>
+                  </div>
                 </div>
-                <div className={styles.levelInfo}>
-                  <h3 className={styles.videoTitle}>
-                    {v?.VideoTopic || `סרטון ${label}`}
-                  </h3>
+
+                {/* כפתור התרגול תמיד גלוי, גם כשהסרטון סגור */}
+                <div className={styles.practiceRow}>
+                  <button
+                    className={styles.practiceBtn}
+                    onClick={() => handlePracticeLevel(diffKey)}
+                  >
+                    <FiPlay /> לתרגול ברמה זו
+                  </button>
                 </div>
               </article>
             );
@@ -306,11 +305,10 @@ export default function TopicLandingTemplate() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Final CTA */}
       <div className={styles.ctaRow}>
         <button className={styles.ctaBtn} onClick={handlePractice}>
-          <FiBook aria-hidden="true" />
-          <span>עבור לתרגול שאלות</span>
+          <FiBook /> תרגול רנדומלי מכל הרמות
         </button>
       </div>
     </div>
