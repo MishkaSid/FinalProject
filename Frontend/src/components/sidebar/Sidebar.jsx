@@ -37,8 +37,8 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
     ],
     Examinee: [
       { to: "/student", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
-      { to: "/practice", icon: <FiBook size={30} className={styles.icon} />, label: "תרגול" },
-      { to: "/exams", icon: <LuNotebookPen size={30} className={styles.icon} />, label: "מבחנים" }
+      { to: "/student/practice", icon: <FiBook size={30} className={styles.icon} />, label: "תרגול כללי" },
+      { to: "/student/exam", icon: <LuNotebookPen size={30} className={styles.icon} />, label: "מבחן כללי" }
     ],
     guest: []
   };

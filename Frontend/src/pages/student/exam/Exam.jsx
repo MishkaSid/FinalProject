@@ -1,105 +1,207 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiCheck, FiX, FiClock, FiFlag } from "react-icons/fi";
+import { FiArrowLeft, FiCheck, FiX, FiClock, FiAlertTriangle, FiSave } from "react-icons/fi";
 import styles from "./exam.module.css";
 
 export default function Exam() {
-  const { topicId } = useParams();
   const navigate = useNavigate();
-  const [topicData, setTopicData] = useState(null);
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(3600); // 1 hour in seconds
+  const [exercises, setExercises] = useState([]);
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [showResults, setShowResults] = useState(false);
+  const [examCompleted, setExamCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [examStarted, setExamStarted] = useState(false);
-  const [examSubmitted, setExamSubmitted] = useState(false);
+
+  const [examStats, setExamStats] = useState({
+    totalQuestions: 0,
+    answeredQuestions: 0,
+    timeRemaining: 0,
+    startTime: null
+  });
+
+  // Server URL for images
+  const SERVER_URL = "http://localhost:5000";
+
+  // Exam duration in minutes
+  const EXAM_DURATION_MINUTES = 60;
+  const MAX_QUESTIONS = 12;
 
   useEffect(() => {
     fetchExamData();
-  }, [topicId]);
+  }, []);
 
   useEffect(() => {
-    if (examStarted && timeLeft > 0) {
+    if (examStats.startTime && !examCompleted) {
       const timer = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            handleAutoSubmit();
-            return 0;
-          }
-          return prev - 1;
-        });
+        const now = new Date().getTime();
+        const elapsed = Math.floor((now - examStats.startTime) / 1000);
+        const remaining = (EXAM_DURATION_MINUTES * 60) - elapsed;
+        
+        if (remaining <= 0) {
+          // Time's up! Auto-submit exam
+          handleTimeUp();
+        } else {
+          setExamStats(prev => ({
+            ...prev,
+            timeRemaining: remaining
+          }));
+        }
       }, 1000);
+
       return () => clearInterval(timer);
     }
-  }, [examStarted, timeLeft]);
+  }, [examStats.startTime, examCompleted]);
 
   const fetchExamData = async () => {
     try {
       setLoading(true);
       
-      // Fetch topic information
-      const topicResponse = await fetch(`/api/student/topics/${topicId}`);
-      const topicInfo = await topicResponse.json();
-      setTopicData(topicInfo);
+      // Fetch all practice exercises from all topics
+      const response = await fetch(`${SERVER_URL}/api/practice/practiceExercises`);
       
-      // Fetch exam questions
-      const questionsResponse = await fetch(`/api/student/exams/questions/${topicId}`);
-      const questionsData = await questionsResponse.json();
-      setQuestions(questionsData);
+      if (!response.ok) {
+        throw new Error("Failed to fetch exam data");
+      }
+      
+      const allExercises = await response.json();
+      
+      // Shuffle the exercises and limit to MAX_QUESTIONS
+      const shuffledExercises = shuffleArray([...allExercises]).slice(0, MAX_QUESTIONS);
+      
+      setExercises(shuffledExercises);
+      setExamStats({
+        totalQuestions: shuffledExercises.length,
+        answeredQuestions: 0,
+        timeRemaining: EXAM_DURATION_MINUTES * 60,
+        startTime: new Date().getTime()
+      });
       
     } catch (err) {
-      console.error('Error fetching exam data:', err);
+      console.error("Error fetching exam data:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const startExam = () => {
-    setExamStarted(true);
+  // Fisher-Yates shuffle algorithm for randomizing questions
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   };
 
-  const handleAnswerSelect = (questionId, answer) => {
-    setAnswers(prev => ({
+  const handleAnswerSelect = (answer) => {
+    const questionId = exercises[currentExerciseIndex].ExerciseID;
+    const newAnswers = { ...selectedAnswers, [questionId]: answer };
+    setSelectedAnswers(newAnswers);
+    
+    // Update answered questions count
+    const answeredCount = Object.keys(newAnswers).length;
+    setExamStats(prev => ({
       ...prev,
-      [questionId]: answer
+      answeredQuestions: answeredCount
     }));
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    if (currentExerciseIndex < exercises.length - 1) {
+      setCurrentExerciseIndex(currentExerciseIndex + 1);
     }
   };
 
   const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    if (currentExerciseIndex > 0) {
+      setCurrentExerciseIndex(currentExerciseIndex - 1);
     }
   };
 
-  const handleFlagQuestion = (questionId) => {
-    // Toggle flag for review
-    setAnswers(prev => ({
+  const handleSubmitExam = () => {
+    if (window.confirm("האם אתה בטוח שברצונך להגיש את המבחן? לא תוכל לשנות תשובות לאחר ההגשה.")) {
+      calculateResults();
+      setExamCompleted(true);
+      setShowResults(true);
+    }
+  };
+
+  const handleTimeUp = () => {
+    alert("הזמן נגמר! המבחן יוגש אוטומטית.");
+    calculateResults();
+    setExamCompleted(true);
+    setShowResults(true);
+  };
+
+  const calculateResults = () => {
+    let correctAnswers = 0;
+    const results = {};
+
+    exercises.forEach((exercise) => {
+      const questionId = exercise.ExerciseID;
+      const selectedAnswer = selectedAnswers[questionId];
+      
+      if (selectedAnswer) {
+        // Parse answer options
+        let answerOptions = [];
+        try {
+          if (exercise.AnswerOptions) {
+            answerOptions = typeof exercise.AnswerOptions === 'string' 
+              ? JSON.parse(exercise.AnswerOptions) 
+              : exercise.AnswerOptions;
+          }
+        } catch (error) {
+          console.warn('Failed to parse AnswerOptions:', error);
+          answerOptions = [];
+        }
+
+        // Get correct answer text
+        let correctAnswerText = exercise.CorrectAnswer;
+        if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(exercise.CorrectAnswer).trim())) {
+          const letterIndex = String(exercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65;
+          if (letterIndex >= 0 && letterIndex < answerOptions.length) {
+            correctAnswerText = answerOptions[letterIndex];
+          }
+        }
+
+        const isCorrect = String(selectedAnswer).trim() === String(correctAnswerText).trim();
+        if (isCorrect) {
+          correctAnswers++;
+        }
+
+        results[questionId] = {
+          selected: selectedAnswer,
+          correct: correctAnswerText,
+          isCorrect: isCorrect
+        };
+      }
+    });
+
+    const finalScore = ((correctAnswers / exercises.length) * 100).toFixed(1);
+    
+    // Save exam results
+    saveExamResults(finalScore, results);
+    
+    setExamStats(prev => ({
       ...prev,
-      [questionId]: { ...prev[questionId], flagged: !prev[questionId]?.flagged }
+      finalScore: finalScore,
+      correctAnswers: correctAnswers,
+      results: results
     }));
   };
 
-  const handleSubmitExam = async () => {
+  const saveExamResults = async (finalScore, results) => {
     try {
       const examData = {
-        topicId: parseInt(topicId),
-        answers: Object.entries(answers).map(([questionId, answer]) => ({
-          questionId: parseInt(questionId),
-          selectedAnswer: answer.selectedAnswer || answer,
-          grade: 0 // Will be calculated on backend
-        }))
+        score: finalScore,
+        answers: results,
+        timeSpent: (EXAM_DURATION_MINUTES * 60) - examStats.timeRemaining,
+        completedAt: new Date().toISOString()
       };
 
-      const response = await fetch('/api/student/exams/submit', {
+      const response = await fetch(`${SERVER_URL}/api/student/exam/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,29 +210,39 @@ export default function Exam() {
       });
 
       if (response.ok) {
-        setExamSubmitted(true);
+        console.log('Exam results saved successfully');
       } else {
-        throw new Error('Failed to submit exam');
+        console.error('Failed to save exam results');
       }
-    } catch (err) {
-      console.error('Error submitting exam:', err);
-      setError('Failed to submit exam');
+    } catch (error) {
+      console.error('Error saving exam results:', error);
     }
-  };
-
-  const handleAutoSubmit = () => {
-    handleSubmitExam();
-  };
-
-  const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleBackToDashboard = () => {
     navigate('/student');
+  };
+
+  const handleRetakeExam = () => {
+    if (window.confirm("האם אתה בטוח שברצונך לקחת את המבחן שוב?")) {
+      window.location.reload();
+    }
+  };
+
+
+
+  // Helper function to get image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
+    return `${SERVER_URL}${imagePath}`;
+  };
+
+  // Format time display
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   if (loading) {
@@ -159,44 +271,14 @@ export default function Exam() {
     );
   }
 
-  if (!examStarted) {
+  if (!exercises || exercises.length === 0) {
     return (
       <div className={styles.container}>
-        <div className={styles.examIntro}>
-          <h1>מבחן: {topicData?.TopicName}</h1>
-          <div className={styles.examInfo}>
-            <h2>פרטי המבחן:</h2>
-            <ul>
-              <li>מספר שאלות: {questions.length}</li>
-              <li>זמן: שעה אחת</li>
-              <li>נושא: {topicData?.TopicName}</li>
-              <li>קורס: {topicData?.CourseName}</li>
-            </ul>
-            <div className={styles.examInstructions}>
-              <h3>הוראות:</h3>
-              <ul>
-                <li>יש לענות על כל השאלות</li>
-                <li>ניתן לחזור לשאלות קודמות</li>
-                <li>המבחן יישלח אוטומטית בסיום הזמן</li>
-                <li>לא ניתן לצאת מהמבחן לאחר התחלתו</li>
-              </ul>
-            </div>
-          </div>
-          <button onClick={startExam} className={styles.startExamButton}>
-            התחל מבחן
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (examSubmitted) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.examComplete}>
-          <h1>המבחן הושלם בהצלחה!</h1>
-          <p>תשובותיך נשלחו למערכת</p>
+        <div className={styles.noExercisesContainer}>
+          <h2>אין שאלות במבחן</h2>
+          <p>לא נמצאו שאלות למבחן זה</p>
           <button onClick={handleBackToDashboard} className={styles.backButton}>
+            <FiArrowLeft />
             חזור לדשבורד
           </button>
         </div>
@@ -204,32 +286,57 @@ export default function Exam() {
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const answeredQuestions = Object.keys(answers).length;
+  const currentExercise = exercises[currentExerciseIndex];
+  const progress = ((currentExerciseIndex + 1) / exercises.length) * 100;
+  const isLastQuestion = currentExerciseIndex === exercises.length - 1;
+  const isFirstQuestion = currentExerciseIndex === 0;
+
+  // Parse answer options safely
+  let answerOptions = [];
+  try {
+    if (currentExercise.AnswerOptions) {
+      answerOptions = typeof currentExercise.AnswerOptions === 'string' 
+        ? JSON.parse(currentExercise.AnswerOptions) 
+        : currentExercise.AnswerOptions;
+    }
+  } catch (error) {
+    console.warn('Failed to parse AnswerOptions:', error);
+    answerOptions = [];
+  }
+
+  // Get the correct answer text
+  let correctAnswerText = currentExercise.CorrectAnswer;
+  if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(currentExercise.CorrectAnswer).trim())) {
+    const letterIndex = String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65;
+    if (letterIndex >= 0 && letterIndex < answerOptions.length) {
+      correctAnswerText = answerOptions[letterIndex];
+    }
+  }
+
+  const currentQuestionId = currentExercise.ExerciseID;
+  const currentSelectedAnswer = selectedAnswers[currentQuestionId];
 
   return (
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <button onClick={handleBackToDashboard} className={styles.backButton}>
-            <FiArrowLeft />
-            חזור לדשבורד
-          </button>
-          <div className={styles.examTitle}>
-            <h1>{topicData?.TopicName}</h1>
-            <p>מבחן</p>
-          </div>
+        <button onClick={handleBackToDashboard} className={styles.backButton}>
+          <FiArrowLeft />
+          חזור לדשבורד
+        </button>
+        <div className={styles.headerInfo}>
+          <h1>מבחן כללי - כל הנושאים</h1>
+          <p>בדוק את הידע שלך בכל הנושאים</p>
         </div>
-        
-        <div className={styles.headerRight}>
-          <div className={styles.timer}>
-            <FiClock />
-            <span>{formatTime(timeLeft)}</span>
+        <div className={styles.examInfo}>
+          <div className={styles.timeDisplay}>
+            <FiClock className={styles.timeIcon} />
+            <span className={examStats.timeRemaining <= 300 ? styles.timeWarning : ''}>
+              {formatTime(examStats.timeRemaining)}
+            </span>
           </div>
           <div className={styles.progressInfo}>
-            <span>{currentQuestionIndex + 1} מתוך {questions.length}</span>
+            <span>{currentExerciseIndex + 1} מתוך {exercises.length}</span>
             <div className={styles.progressBar}>
               <div 
                 className={styles.progressFill} 
@@ -240,97 +347,175 @@ export default function Exam() {
         </div>
       </div>
 
-      {/* Question Navigation */}
-      <div className={styles.questionNavigation}>
-        <div className={styles.navButtons}>
-          <button
-            onClick={handlePreviousQuestion}
-            disabled={currentQuestionIndex === 0}
-            className={styles.navButton}
-          >
-            שאלה קודמת
-          </button>
-          <button
-            onClick={handleNextQuestion}
-            disabled={currentQuestionIndex === questions.length - 1}
-            className={styles.navButton}
-          >
-            שאלה הבאה
-          </button>
-        </div>
-        
-        <div className={styles.questionGrid}>
-          {questions.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentQuestionIndex(index)}
-              className={`${styles.questionNumber} ${
-                index === currentQuestionIndex ? styles.current : ""
-              } ${
-                answers[questions[index]?.QuestionID] ? styles.answered : ""
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Question Content */}
-      <div className={styles.questionContainer}>
-        <div className={styles.questionHeader}>
-          <h2>שאלה {currentQuestionIndex + 1}</h2>
-          <button
-            onClick={() => handleFlagQuestion(currentQuestion.QuestionID)}
-            className={`${styles.flagButton} ${
-              answers[currentQuestion.QuestionID]?.flagged ? styles.flagged : ""
-            }`}
-          >
-            <FiFlag />
-          </button>
+      {/* Exam Content */}
+      <div className={styles.examContainer}>
+        <div className={styles.examHeader}>
+          <h2>שאלה {currentExerciseIndex + 1}</h2>
+          <div className={styles.questionStatus}>
+            {currentSelectedAnswer ? (
+              <span className={styles.answered}>ענית</span>
+            ) : (
+              <span className={styles.unanswered}>לא ענית</span>
+            )}
+          </div>
         </div>
 
-        <div className={styles.questionContent}>
-          {currentQuestion.QuestionPicURL && (
+        <div className={styles.examContent}>
+          {currentExercise.ContentType === 'image' && (
             <div className={styles.imageContainer}>
               <img 
-                src={currentQuestion.QuestionPicURL} 
+                src={getImageUrl(currentExercise.ContentValue)} 
                 alt="Question content"
                 className={styles.questionImage}
+                onError={(e) => {
+                  console.error('Failed to load image:', currentExercise.ContentValue);
+                  e.target.style.display = 'none';
+                }}
               />
             </div>
           )}
           
+          {currentExercise.ContentType === 'text' && (
+            <div className={styles.textContainer}>
+              <p>{currentExercise.ContentValue}</p>
+            </div>
+          )}
+
           <div className={styles.answerOptions}>
             <h3>בחר תשובה:</h3>
-            {JSON.parse(currentQuestion.AnswerOptions).map((option, index) => (
-              <button
-                key={index}
-                className={`${styles.answerOption} ${
-                  answers[currentQuestion.QuestionID] === option ? styles.selected : ""
-                }`}
-                onClick={() => handleAnswerSelect(currentQuestion.QuestionID, option)}
-              >
-                {option}
-              </button>
-            ))}
+            <div className={styles.answerOptionsGrid}>
+              {answerOptions.map((option, index) => {
+                const isSelected = currentSelectedAnswer === option;
+                
+                return (
+                  <button
+                    key={index}
+                    className={`${styles.answerOption} ${
+                      isSelected ? styles.selected : ""
+                    }`}
+                    onClick={() => !examCompleted && handleAnswerSelect(option)}
+                    disabled={examCompleted}
+                  >
+                    <span className={styles.optionLetter}>{String.fromCharCode(65 + index)}.</span>
+                    <span className={styles.optionText}>{option}</span>
+                                         {examCompleted && showResults && (
+                       <>
+                         {/* Show correct icon only for the correct answer */}
+                         {examStats.results?.[currentQuestionId]?.correct === option && (
+                           <FiCheck className={styles.correctIcon} />
+                         )}
+                         {/* Show incorrect icon only for selected wrong answer */}
+                         {examStats.results?.[currentQuestionId]?.selected === option && 
+                          !examStats.results?.[currentQuestionId]?.isCorrect && (
+                           <FiX className={styles.incorrectIcon} />
+                         )}
+                       </>
+                     )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
+
+        {/* Navigation Buttons */}
+        <div className={styles.navigationButtons}>
+          <button
+            className={`${styles.navButton} ${isFirstQuestion ? styles.disabled : ''}`}
+            onClick={handlePreviousQuestion}
+            disabled={isFirstQuestion}
+          >
+            שאלה קודמת
+          </button>
+          
+          <button
+            className={`${styles.navButton} ${isLastQuestion ? styles.disabled : ''}`}
+            onClick={handleNextQuestion}
+            disabled={isLastQuestion}
+          >
+            שאלה הבאה
+          </button>
+        </div>
+
+        {/* Submit Button */}
+        {!examCompleted && (
+          <div className={styles.submitSection}>
+            <div className={styles.submitInfo}>
+              <FiAlertTriangle className={styles.warningIcon} />
+              <span>ענית על {examStats.answeredQuestions} מתוך {examStats.totalQuestions} שאלות</span>
+            </div>
+            <button
+              className={styles.submitExamButton}
+              onClick={handleSubmitExam}
+            >
+              <FiSave />
+              הגש מבחן
+            </button>
+          </div>
+        )}
+
+        {/* Results Display */}
+        {examCompleted && showResults && (
+          <div className={styles.resultsContainer}>
+            <div className={styles.resultsHeader}>
+              <h2>תוצאות המבחן</h2>
+              <div className={styles.finalScore}>
+                ציון סופי: {examStats.finalScore}%
+              </div>
+            </div>
+            
+            <div className={styles.resultsSummary}>
+              <div className={styles.resultStat}>
+                <span>שאלות נכונות:</span>
+                <span className={styles.correctCount}>{examStats.correctAnswers}</span>
+              </div>
+              <div className={styles.resultStat}>
+                <span>סה"כ שאלות:</span>
+                <span>{examStats.totalQuestions}</span>
+              </div>
+              <div className={styles.resultStat}>
+                <span>זמן שהושקע:</span>
+                <span>{formatTime((EXAM_DURATION_MINUTES * 60) - examStats.timeRemaining)}</span>
+              </div>
+            </div>
+
+            <div className={styles.resultActions}>
+              <button onClick={handleBackToDashboard} className={styles.backToDashboardButton}>
+                חזור לדף הבית
+              </button>
+              <button onClick={handleRetakeExam} className={styles.retakeButton}>
+              מבחן חוזר
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Footer */}
-      <div className={styles.footer}>
-        <div className={styles.examStats}>
-          <span>ענו: {answeredQuestions}/{questions.length}</span>
-          <span>זמן נותר: {formatTime(timeLeft)}</span>
+
+
+      {/* Question Navigation */}
+      <div className={styles.questionNavigation}>
+        <h3>ניווט בין שאלות:</h3>
+        <div className={styles.questionGrid}>
+          {exercises.map((exercise, index) => {
+            const questionId = exercise.ExerciseID;
+            const isAnswered = selectedAnswers[questionId];
+            const isCurrent = index === currentExerciseIndex;
+            
+            return (
+              <button
+                key={questionId}
+                className={`${styles.questionNavButton} ${
+                  isCurrent ? styles.current : ''
+                } ${isAnswered ? styles.answered : styles.unanswered}`}
+                onClick={() => setCurrentExerciseIndex(index)}
+                disabled={examCompleted}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
         </div>
-        
-        <button
-          onClick={handleSubmitExam}
-          className={styles.submitExamButton}
-        >
-          שלח מבחן
-        </button>
       </div>
     </div>
   );

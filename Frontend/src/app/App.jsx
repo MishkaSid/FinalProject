@@ -12,6 +12,7 @@ import PracticeDashboard from "../pages/student/practice/practice dashboard/Prac
 import UnauthorizedPage from "../pages/unauthorize/Unauthorize";
 import NotFound from "../pages/not found/NotFound";
 import PracticeQuestions from "../pages/student/practice/practice questions/PracticeQuestions";
+import Practice from "../pages/student/practice/practice questions/practice";
 import Exam from "../pages/student/exam/Exam";
 
 function App() {
@@ -46,7 +47,8 @@ function App() {
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/student/practice-dashboard/:topicId" element={<PracticeDashboard />} />
               <Route path="/student/practice-questions/:topicId" element={<PracticeQuestions />} />
-              <Route path="/student/exam/:topicId" element={<Exam />} />
+              <Route path="/student/practice" element={<Practice />} />
+              <Route path="/student/exam" element={<Exam />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />

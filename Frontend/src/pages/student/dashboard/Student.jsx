@@ -188,6 +188,12 @@ export default function StudentDashboard() {
     }
   };
 
+  const handleStartExam = () => {
+    navigate('/student/exam');
+    setShowSubjectModal(false);
+    setSelectedSubject(null);
+  };
+
   const handleCloseModal = () => {
     setShowSubjectModal(false);
     setSelectedSubject(null);
@@ -238,28 +244,29 @@ export default function StudentDashboard() {
         <h2 className={styles.dashboardTitle}>מה תרצו לעשות היום?</h2>
         <div className={styles.cardContainer}>
           <Card
-            title="תרגול שאלות"
-            description="כאן תמיד יהיו תרגולים למתמטיקה"
+            title="תרגול כללי"
+            description="תרגול שאלות מכל הנושאים הזמינים"
+            icon={<FiBook size={30} />}
+            onClick={() => navigate('/student/practice')}
+            size="large"
+            layout="horizontal"
+          />
+          <Card
+            title="תרגול נושא ספציפי"
+            description="תרגול שאלות מנושא מסוים"
             icon={<FiBook size={30} />}
             onClick={handlePracticeClick}
             size="large"
             layout="horizontal"
           />
-                     <Card
-             title="הדמיית מבחן"
-             description="כאן תוכלו לדמות מבחן אמיתי"
-             icon={<LuNotebookPen size={30} />}
-             onClick={() => {
-               if (selectedSubject) {
-                 navigate(`/student/exam/${selectedSubject.id}`);
-               } else {
-                 setShowSubjectModal(true);
-                 fetchSubjects();
-               }
-             }}
-             size="large"
-             layout="horizontal"
-           />
+          <Card
+            title="הדמיית מבחן"
+            description="כאן תוכלו לדמות מבחן אמיתי"
+            icon={<LuNotebookPen size={30} />}
+                         onClick={() => navigate('/student/exam')}
+            size="large"
+            layout="horizontal"
+          />
         </div>
       </div>
 
@@ -312,16 +319,28 @@ export default function StudentDashboard() {
           </div>
 
           <div className={styles.modalFooter}>
-            <button
-              className={`${styles.startButton} ${
-                selectedSubject ? styles.active : styles.disabled
-              }`}
-              onClick={handleStartPractice}
-              disabled={!selectedSubject}
-            >
-              <FiBook />
-              התחל תרגול
-            </button>
+            <div className={styles.modalActions}>
+              <button
+                className={`${styles.startButton} ${styles.practiceButton} ${
+                  selectedSubject ? styles.active : styles.disabled
+                }`}
+                onClick={handleStartPractice}
+                disabled={!selectedSubject}
+              >
+                <FiBook />
+                התחל תרגול
+              </button>
+              <button
+                className={`${styles.startButton} ${styles.examButton} ${
+                  selectedSubject ? styles.active : styles.disabled
+                }`}
+                onClick={handleStartExam}
+                disabled={!selectedSubject}
+              >
+                <LuNotebookPen />
+                התחל מבחן
+              </button>
+            </div>
           </div>
         </Popup>
       )}

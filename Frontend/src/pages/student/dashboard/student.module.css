@@ -512,6 +512,29 @@
   cursor: not-allowed;
 }
 
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.practiceButton {
+  background: #28a745;
+}
+
+.practiceButton:hover {
+  background: #1e7e34;
+}
+
+.examButton {
+  background: #6f42c1;
+}
+
+.examButton:hover {
+  background: #5a32a3;
+}
+
 /* Mobile Responsive for Modal */
 @media (max-width: 768px) {
   .modal {

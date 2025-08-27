@@ -1,42 +1,530 @@
-.practicePage {
+/* Practice Component Styles */
+.container {
   min-height: 100vh;
-  direction: rtl;
-  background: linear-gradient(to bottom right, #eaf0ff, #ffffff);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem;
+  direction: rtl;
 }
 
-.question {
+/* Header Styles */
+.header {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.backButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.backButton:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.headerInfo h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.headerInfo p {
+  margin: 0.5rem 0 0 0;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.progressInfo {
+  text-align: center;
+  min-width: 200px;
+}
+
+.progressInfo span {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #20c997);
+  transition: width 0.3s ease;
+}
+
+/* Exercise Container */
+.exerciseContainer {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.exerciseHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.exerciseHeader h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.scoreDisplay {
+  background: #17a2b8;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Exercise Content */
+.exerciseContent {
   margin-bottom: 2rem;
 }
 
-.question img {
-  width: 100%;
-  max-width: 300px;
+.imageContainer {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 15px;
+  border: 2px dashed #dee2e6;
+}
+
+.questionImage {
+  max-width: 100%;
+  max-height: 500px;
+  border-radius: 15px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.questionImage:hover {
+  transform: scale(1.02);
+}
+
+.textContainer {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  border-right: 4px solid #007bff;
+}
+
+.textContainer p {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #495057;
+}
+
+/* Answer Options */
+.answerOptions h3 {
+  margin: 0 0 1.5rem 0;
+  color: #2c3e50;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.answerOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.question input[type="radio"] {
-  width: 100%;
-  max-width: 300px;
-  padding: 0.5rem;
-  font-size: 1.2rem;
-  border: none;
-  outline: none;
+.answerOption {
+  background: white;
+  border: 3px solid #e9ecef;
+  padding: 1.5rem;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: right;
+  font-size: 1.1rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 80px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: #000000;
 }
 
-.optionsList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  justify-content:space-between;
+.answerOption:hover:not(:disabled) {
+  border-color: #007bff;
+  background: #f8f9ff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.15);
 }
+
+.answerOption.selected {
+  border-color: #007bff;
+  background: #e3f2fd;
+  color: #000000;
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.2);
+}
+
+.answerOption.correct {
+  border-color: #28a745;
+  background: #d4edda;
+  color: #000000;
+  box-shadow: 0 8px 20px rgba(40, 167, 69, 0.2);
+  border-width: 4px;
+  transform: scale(1.02);
+  position: relative;
+}
+
+.answerOption.correct::after {
+  content: '✓ תשובה נכונה';
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.answerOption.incorrect {
+  border-color: #dc3545;
+  background: #f8d7da;
+  color: #000000;
+  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.2);
+  border-width: 4px;
+  position: relative;
+}
+
+.answerOption.incorrect::after {
+  content: '✗ תשובה שגויה';
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: #dc3545;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.answerOption:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.optionLetter {
+  background: #007bff;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.answerOption.selected .optionLetter {
+  background: #0056b3;
+}
+
+.answerOption.correct .optionLetter {
+  background: #28a745;
+}
+
+.answerOption.incorrect .optionLetter {
+  background: #dc3545;
+}
+
+.optionText {
+  flex: 1;
+  text-align: center;
+  font-weight: 500;
+  color: #000000;
+  font-size: 1.1rem;
+}
+
+.correctIcon {
+  color: #28a745;
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.incorrectIcon {
+  color: #dc3545;
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+/* Action Buttons */
+.actionButtons {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.submitButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 1.2rem 2.5rem;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.submitButton.active:hover {
+  background: #0056b3;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+}
+
+.submitButton.disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.resultButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.nextButton, .finishButton {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 1.2rem 2.5rem;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.nextButton:hover, .finishButton:hover {
+  background: #1e7e34;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+.finishButton {
+  background: #6f42c1;
+  box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+}
+
+.finishButton:hover {
+  background: #5a32a3;
+  box-shadow: 0 8px 25px rgba(111, 66, 193, 0.4);
+}
+
+/* Result Display */
+.resultDisplay {
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin-top: 1rem;
+}
+
+.resultMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.correctMessage {
+  background: #d4edda;
+  color: #155724;
+  border: 2px solid #c3e6cb;
+}
+
+.incorrectMessage {
+  background: #f8d7da;
+  color: #721c24;
+  border: 2px solid #f5c6cb;
+}
+
+/* Loading and Error States */
+.loadingContainer, .errorContainer, .noExercisesContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorContainer h2, .noExercisesContainer h2 {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.errorContainer p, .noExercisesContainer p {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .practicePage {
+  .container {
     padding: 1rem;
+  }
+  
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  .headerInfo h1 {
+    font-size: 1.5rem;
+  }
+  
+  .exerciseContainer {
+    padding: 2rem 1.5rem;
+  }
+  
+  .exerciseHeader {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .answerOptionsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .answerOption {
+    padding: 1rem;
+    min-height: 70px;
+    font-size: 1rem;
+  }
+  
+  .submitButton, .nextButton, .finishButton {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    min-width: 150px;
+  }
+  
+  .resultButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .questionImage {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .header {
+    padding: 1.5rem;
+  }
+  
+  .exerciseContainer {
+    padding: 1.5rem 1rem;
+  }
+  
+  .headerInfo h1 {
+    font-size: 1.3rem;
+  }
+  
+  .exerciseHeader h2 {
+    font-size: 1.4rem;
+  }
+  
+  .answerOption {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    min-height: 60px;
+  }
+  
+  .optionLetter {
+    width: 25px;
+    height: 25px;
+    font-size: 0.8rem;
+  }
+  
+  .questionImage {
+    max-height: 250px;
   }
 }
 

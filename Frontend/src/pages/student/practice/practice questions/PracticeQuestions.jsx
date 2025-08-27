@@ -52,18 +52,33 @@ export default function PracticeQuestions() {
     const currentExercise = exercises[currentExerciseIndex];
     
     // Debug logging to see what we're comparing
+    console.log('=== ANSWER SUBMISSION DEBUG ===');
     console.log('Selected Answer:', selectedAnswer);
     console.log('Correct Answer:', currentExercise.CorrectAnswer);
     console.log('Answer Options:', answerOptions);
     console.log('Types - Selected:', typeof selectedAnswer, 'Correct:', typeof currentExercise.CorrectAnswer);
     
+    // Check if CorrectAnswer is a letter (A, B, C, D) and convert to actual answer text
+    let correctAnswerText = currentExercise.CorrectAnswer;
+    if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(currentExercise.CorrectAnswer).trim())) {
+      const letterIndex = String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+      if (letterIndex >= 0 && letterIndex < answerOptions.length) {
+        correctAnswerText = answerOptions[letterIndex];
+        console.log('Converted letter to answer text:', currentExercise.CorrectAnswer, '->', correctAnswerText);
+      }
+    }
+    
     // Ensure both values are strings for comparison
     const selectedAnswerStr = String(selectedAnswer).trim();
-    const correctAnswerStr = String(currentExercise.CorrectAnswer).trim();
+    const correctAnswerStr = String(correctAnswerText).trim();
     
     const isCorrect = selectedAnswerStr === correctAnswerStr;
     
-    console.log('Comparison result:', isCorrect);
+    console.log('String comparison:');
+    console.log('  Selected (trimmed):', `"${selectedAnswerStr}"`);
+    console.log('  Correct (trimmed):', `"${correctAnswerStr}"`);
+    console.log('  Is Correct:', isCorrect);
+    console.log('================================');
     
     if (isCorrect) {
       setScore(score + 1);
@@ -118,7 +133,7 @@ export default function PracticeQuestions() {
           <p>{error}</p>
           <button onClick={handleBackToDashboard} className={styles.backButton}>
             <FiArrowLeft />
-            חזור לדשבורד
+            חזור
           </button>
         </div>
       </div>
@@ -133,7 +148,7 @@ export default function PracticeQuestions() {
           <p>לא נמצאו תרגילים עבור נושא זה</p>
           <button onClick={handleBackToDashboard} className={styles.backButton}>
             <FiArrowLeft />
-            חזור לדשבורד
+            חזור 
           </button>
         </div>
       </div>
@@ -157,12 +172,23 @@ export default function PracticeQuestions() {
     answerOptions = [];
   }
 
+  // Get the correct answer text (handle both letter and text formats)
+  let correctAnswerText = currentExercise.CorrectAnswer;
+  if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(currentExercise.CorrectAnswer).trim())) {
+    const letterIndex = String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+    if (letterIndex >= 0 && letterIndex < answerOptions.length) {
+      correctAnswerText = answerOptions[letterIndex];
+      console.log('Correct answer conversion:', currentExercise.CorrectAnswer, '->', correctAnswerText);
+    }
+  }
+
   // Debug: Log the current exercise data
   console.log('Current Exercise Data:', {
     ContentType: currentExercise.ContentType,
     ContentValue: currentExercise.ContentValue,
     AnswerOptions: currentExercise.AnswerOptions,
     CorrectAnswer: currentExercise.CorrectAnswer,
+    CorrectAnswerText: correctAnswerText,
     ParsedAnswerOptions: answerOptions
   });
 
@@ -222,31 +248,59 @@ export default function PracticeQuestions() {
           <div className={styles.answerOptions}>
             <h3>בחר תשובה:</h3>
             <div className={styles.answerOptionsGrid}>
-              {answerOptions.map((option, index) => (
-                <button
-                  key={index}
-                  className={`${styles.answerOption} ${
-                    selectedAnswer === option ? styles.selected : ""
-                  } ${
-                    showResult && option === currentExercise.CorrectAnswer
-                      ? styles.correct
-                      : showResult && selectedAnswer === option && option !== currentExercise.CorrectAnswer
-                      ? styles.incorrect
-                      : ""
-                  }`}
-                  onClick={() => !showResult && handleAnswerSelect(option)}
-                  disabled={showResult}
-                >
-                  <span className={styles.optionLetter}>{String.fromCharCode(65 + index)}.</span>
-                  <span className={styles.optionText}>{option}</span>
-                  {showResult && option === currentExercise.CorrectAnswer && (
-                    <FiCheck className={styles.correctIcon} />
-                  )}
-                  {showResult && selectedAnswer === option && option !== currentExercise.CorrectAnswer && (
-                    <FiX className={styles.incorrectIcon} />
-                  )}
-                </button>
-              ))}
+              {answerOptions.map((option, index) => {
+                // Get the correct answer text (handle both letter and text formats)
+                let correctAnswerText = currentExercise.CorrectAnswer;
+                if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(currentExercise.CorrectAnswer).trim())) {
+                  const letterIndex = String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+                  if (letterIndex >= 0 && letterIndex < answerOptions.length) {
+                    correctAnswerText = answerOptions[letterIndex];
+                  }
+                }
+                
+                // Use consistent comparison method for all checks
+                const isCorrectAnswer = String(option).trim() === String(correctAnswerText).trim();
+                const isSelectedAnswer = selectedAnswer === option;
+                const isIncorrectSelected = showResult && isSelectedAnswer && !isCorrectAnswer;
+                
+                // Debug logging for visual feedback
+                if (showResult) {
+                  console.log(`Option ${index + 1} (${option}):`, {
+                    isCorrectAnswer,
+                    isSelectedAnswer,
+                    isIncorrectSelected,
+                    optionValue: `"${option}"`,
+                    correctValue: `"${currentExercise.CorrectAnswer}"`,
+                    correctAnswerText: `"${correctAnswerText}"`
+                  });
+                }
+                
+                return (
+                  <button
+                    key={index}
+                    className={`${styles.answerOption} ${
+                      isSelectedAnswer ? styles.selected : ""
+                    } ${
+                      showResult && isCorrectAnswer
+                        ? styles.correct
+                        : isIncorrectSelected
+                        ? styles.incorrect
+                        : ""
+                    }`}
+                    onClick={() => !showResult && handleAnswerSelect(option)}
+                    disabled={showResult}
+                  >
+                    <span className={styles.optionLetter}>{String.fromCharCode(65 + index)}.</span>
+                    <span className={styles.optionText}>{option}</span>
+                    {showResult && isCorrectAnswer && (
+                      <FiCheck className={styles.correctIcon} />
+                    )}
+                    {isIncorrectSelected && (
+                      <FiX className={styles.incorrectIcon} />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -288,11 +342,11 @@ export default function PracticeQuestions() {
         {showResult && (
           <div className={styles.resultDisplay}>
             <div className={`${styles.resultMessage} ${
-              String(selectedAnswer).trim() === String(currentExercise.CorrectAnswer).trim()
+              String(selectedAnswer).trim() === String(correctAnswerText).trim()
                 ? styles.correctMessage 
                 : styles.incorrectMessage
             }`}>
-              {String(selectedAnswer).trim() === String(currentExercise.CorrectAnswer).trim() ? (
+              {String(selectedAnswer).trim() === String(correctAnswerText).trim() ? (
                 <>
                   <FiCheck />
                   תשובה נכונה!
@@ -300,7 +354,7 @@ export default function PracticeQuestions() {
               ) : (
                 <>
                   <FiX />
-                  תשובה שגויה. התשובה הנכונה היא: {currentExercise.CorrectAnswer}
+                  תשובה שגויה. התשובה הנכונה היא: {correctAnswerText}
                 </>
               )}
             </div>
