@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiClock, FiAlertTriangle, FiSave } from "react-icons/fi";
 import styles from "./exam.module.css";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Exam() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [exercises, setExercises] = useState([]);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
@@ -27,9 +29,14 @@ export default function Exam() {
   const EXAM_DURATION_MINUTES = 60;
   const MAX_QUESTIONS = 12;
 
+  // Check if user is authenticated
   useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     fetchExamData();
-  }, []);
+  }, [user, navigate]);
 
   useEffect(() => {
     if (examStats.startTime && !examCompleted) {
@@ -194,7 +201,14 @@ export default function Exam() {
 
   const saveExamResults = async (finalScore, results) => {
     try {
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+      
+      const userId = user?.id || user?.UserID || "1";
       const examData = {
+        userId: userId,
         score: finalScore,
         answers: results,
         timeSpent: (EXAM_DURATION_MINUTES * 60) - examStats.timeRemaining,
@@ -220,7 +234,13 @@ export default function Exam() {
   };
 
   const handleBackToDashboard = () => {
-    navigate('/student');
+    // Navigate to student dashboard
+    navigate('/student', { replace: true });
+    
+    // Trigger a custom event to notify the dashboard to refresh
+    window.dispatchEvent(new CustomEvent('examCompleted', {
+      detail: { userId: user?.id || user?.UserID }
+    }));
   };
 
   const handleRetakeExam = () => {
@@ -347,6 +367,31 @@ export default function Exam() {
         </div>
       </div>
 
+      {/* Question Navigation - Moved to top */}
+      <div className={styles.questionNavigation}>
+        <h3>ניווט בין שאלות:</h3>
+        <div className={styles.questionGrid}>
+          {exercises.map((exercise, index) => {
+            const questionId = exercise.ExerciseID;
+            const isAnswered = selectedAnswers[questionId];
+            const isCurrent = index === currentExerciseIndex;
+            
+            return (
+              <button
+                key={questionId}
+                className={`${styles.questionNavButton} ${
+                  isCurrent ? styles.current : ''
+                } ${isAnswered ? styles.answered : styles.unanswered}`}
+                onClick={() => setCurrentExerciseIndex(index)}
+                disabled={examCompleted}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Exam Content */}
       <div className={styles.examContainer}>
         <div className={styles.examHeader}>
@@ -418,6 +463,23 @@ export default function Exam() {
           </div>
         </div>
 
+        {/* Submit Button */}
+        {!examCompleted && (
+          <div className={styles.submitSection}>
+            <div className={styles.submitInfo}>
+              <FiAlertTriangle className={styles.warningIcon} />
+              <span>ענית על {examStats.answeredQuestions} מתוך {examStats.totalQuestions} שאלות</span>
+            </div>
+            <button
+              className={styles.submitExamButton}
+              onClick={handleSubmitExam}
+            >
+              <FiSave />
+              הגש מבחן
+            </button>
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className={styles.navigationButtons}>
           <button
@@ -436,23 +498,6 @@ export default function Exam() {
             שאלה הבאה
           </button>
         </div>
-
-        {/* Submit Button */}
-        {!examCompleted && (
-          <div className={styles.submitSection}>
-            <div className={styles.submitInfo}>
-              <FiAlertTriangle className={styles.warningIcon} />
-              <span>ענית על {examStats.answeredQuestions} מתוך {examStats.totalQuestions} שאלות</span>
-            </div>
-            <button
-              className={styles.submitExamButton}
-              onClick={handleSubmitExam}
-            >
-              <FiSave />
-              הגש מבחן
-            </button>
-          </div>
-        )}
 
         {/* Results Display */}
         {examCompleted && showResults && (
@@ -493,30 +538,7 @@ export default function Exam() {
 
 
 
-      {/* Question Navigation */}
-      <div className={styles.questionNavigation}>
-        <h3>ניווט בין שאלות:</h3>
-        <div className={styles.questionGrid}>
-          {exercises.map((exercise, index) => {
-            const questionId = exercise.ExerciseID;
-            const isAnswered = selectedAnswers[questionId];
-            const isCurrent = index === currentExerciseIndex;
-            
-            return (
-              <button
-                key={questionId}
-                className={`${styles.questionNavButton} ${
-                  isCurrent ? styles.current : ''
-                } ${isAnswered ? styles.answered : styles.unanswered}`}
-                onClick={() => setCurrentExerciseIndex(index)}
-                disabled={examCompleted}
-              >
-                {index + 1}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+
     </div>
   );
 }

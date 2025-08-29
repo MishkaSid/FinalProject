@@ -1,7 +1,8 @@
 /* Exam Component Styles */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
   padding: 2rem;
   direction: rtl;
 }
@@ -18,6 +19,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .backButton {
@@ -32,24 +35,28 @@
   gap: 0.5rem;
   font-size: 1rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
 .backButton:hover {
   background: #5a6268;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
 }
 
 .headerInfo h1 {
   margin: 0;
   color: #2c3e50;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .headerInfo p {
   margin: 0.5rem 0 0 0;
   color: #6c757d;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 .examInfo {
@@ -64,13 +71,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 0.75rem 1.5rem;
   border-radius: 15px;
-  border: 2px solid #e9ecef;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .timeIcon {
@@ -98,20 +106,23 @@
   margin-bottom: 0.5rem;
   color: #495057;
   font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .progressBar {
   width: 100%;
-  height: 8px;
-  background: #e9ecef;
-  border-radius: 4px;
+  height: 10px;
+  background: rgba(233, 236, 239, 0.5);
+  border-radius: 5px;
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #28a745, #20c997);
+  background: linear-gradient(90deg, #667eea, #764ba2);
   transition: width 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 /* Exam Container */
@@ -122,6 +133,8 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   max-width: 900px;
   margin: 0 auto 2rem auto;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .examHeader {
@@ -136,8 +149,9 @@
 .examHeader h2 {
   margin: 0;
   color: #2c3e50;
-  font-size: 1.8rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .questionStatus {
@@ -172,10 +186,11 @@
 .imageContainer {
   text-align: center;
   margin-bottom: 2rem;
-  padding: 1rem;
-  background: #f8f9fa;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.9), rgba(240, 248, 255, 0.9));
   border-radius: 15px;
   border: 2px dashed #dee2e6;
+  backdrop-filter: blur(10px);
 }
 
 .questionImage {
@@ -191,11 +206,12 @@
 }
 
 .textContainer {
-  background: #f8f9fa;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.9), rgba(240, 248, 255, 0.9));
   padding: 1.5rem;
   border-radius: 10px;
   margin-bottom: 2rem;
   border-right: 4px solid #007bff;
+  backdrop-filter: blur(10px);
 }
 
 .textContainer p {
@@ -209,9 +225,10 @@
 .answerOptions h3 {
   margin: 0 0 1.5rem 0;
   color: #2c3e50;
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .answerOptionsGrid {
@@ -237,20 +254,22 @@
   min-height: 80px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   color: #000000;
+  backdrop-filter: blur(5px);
 }
 
 .answerOption:hover:not(:disabled) {
   border-color: #007bff;
-  background: #f8f9ff;
+  background: linear-gradient(135deg, #f8f9ff, #f0f8ff);
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 123, 255, 0.15);
 }
 
 .answerOption.selected {
   border-color: #007bff;
-  background: #e3f2fd;
+  background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
   color: #000000;
   box-shadow: 0 8px 20px rgba(0, 123, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .answerOption:disabled {
@@ -259,22 +278,24 @@
 }
 
 .optionLetter {
-  background: #007bff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin-left: 1rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .answerOption.selected .optionLetter {
-  background: #0056b3;
+  background: linear-gradient(135deg, #0056b3, #004085);
+  box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
 }
 
 .optionText {
@@ -306,7 +327,7 @@
 }
 
 .navButton {
-  background: #6c757d;
+  background: #007bff;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -316,11 +337,13 @@
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 150px;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
 
 .navButton:hover:not(:disabled) {
-  background: #5a6268;
+  background: #0056b3;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
 }
 
 .navButton.disabled {
@@ -333,10 +356,11 @@
 .submitSection {
   text-align: center;
   padding: 2rem;
-  background: #f8f9fa;
+  background: rgba(248, 249, 250, 0.9);
   border-radius: 15px;
   border: 2px dashed #dee2e6;
   margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
 }
 
 .submitInfo {
@@ -355,7 +379,7 @@
 }
 
 .submitExamButton {
-  background: #dc3545;
+  background: #28a745;
   color: white;
   border: none;
   padding: 1.2rem 2.5rem;
@@ -365,7 +389,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 200px;
-  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -374,18 +398,19 @@
 }
 
 .submitExamButton:hover {
-  background: #c82333;
+  background: #218838;
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
 }
 
 /* Results Container */
 .resultsContainer {
   text-align: center;
   padding: 2rem;
-  background: #f8f9fa;
+  background: rgba(248, 249, 250, 0.9);
   border-radius: 15px;
   border: 2px solid #28a745;
+  backdrop-filter: blur(10px);
 }
 
 .resultsHeader {
@@ -482,22 +507,28 @@
   background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   padding: 2rem;
+  margin-bottom: 2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .questionNavigation h3 {
   text-align: center;
   color: #2c3e50;
   margin-bottom: 1.5rem;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .questionGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
   gap: 0.75rem;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
+  justify-items: center;
 }
 
 .questionNavButton {
@@ -513,6 +544,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .questionNavButton:hover:not(:disabled) {
@@ -525,18 +557,21 @@
   background: #007bff;
   color: white;
   transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
 }
 
 .questionNavButton.answered {
   border-color: #28a745;
   background: #28a745;
   color: white;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
 
 .questionNavButton.unanswered {
   border-color: #dc3545;
   background: #dc3545;
   color: white;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 }
 
   .questionNavButton:disabled {

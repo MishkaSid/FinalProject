@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const studentController = require('../controllers/studentController');
+const examResultController = require('../controllers/examResultController');
 
 // Course routes
 router.get('/courses', studentController.getAllCourses);
@@ -19,10 +20,16 @@ router.get('/practice/videos/:topicId', studentController.getPracticeVideosByTop
 // Exam routes
 router.get('/exams/history/:studentId', studentController.getStudentExamHistory);
 router.get('/exams/:examId/results', studentController.getExamResults);
-router.post('/exams/submit', studentController.submitExamAnswers);
 router.get('/exams/questions/:topicId', studentController.getExamQuestionsByTopic);
 
-// Dashboard route
-router.get('/dashboard/:studentId', studentController.getStudentDashboardData);
+// New exam result routes
+router.post('/exam/submit', examResultController.submitExamResults);
+router.get('/exam/last/:userId', examResultController.getLastExam);
+router.get('/exam/test-table', examResultController.testExamTable);
+router.post('/exam/migrate-grades', examResultController.migrateExamGrades);
+router.get('/metrics/:userId', examResultController.getStudentMetrics);
+
+// Dashboard route - now handled by examResultController
+router.get('/dashboard/:studentId', examResultController.getStudentDashboardData);
 
 module.exports = router; 
