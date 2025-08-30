@@ -143,11 +143,11 @@ export default function Practice() {
     console.log('Topic progress:', practiceStats.topicProgress);
     
     // Navigate back to practice dashboard
-    navigate('/student/practice-dashboard');
+    navigate('/student');
   };
 
   const handleBackToDashboard = () => {
-    navigate('/student/practice-dashboard');
+    navigate('/student');
   };
 
   // Helper function to get image URL

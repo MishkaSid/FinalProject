@@ -14,6 +14,7 @@ export default function Exam() {
   const [examCompleted, setExamCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [submittingExam, setSubmittingExam] = useState(false);
 
   const [examStats, setExamStats] = useState({
     totalQuestions: 0,
@@ -127,22 +128,39 @@ export default function Exam() {
     }
   };
 
-  const handleSubmitExam = () => {
+  const handleSubmitExam = async () => {
     if (window.confirm("האם אתה בטוח שברצונך להגיש את המבחן? לא תוכל לשנות תשובות לאחר ההגשה.")) {
-      calculateResults();
+      try {
+        setSubmittingExam(true);
+        await calculateResults();
+        setExamCompleted(true);
+        setShowResults(true);
+      } catch (error) {
+        console.error('Error calculating results:', error);
+        // Still show results even if save failed
+        setExamCompleted(true);
+        setShowResults(true);
+      } finally {
+        setSubmittingExam(false);
+      }
+    }
+  };
+
+  const handleTimeUp = async () => {
+    alert("הזמן נגמר! המבחן יוגש אוטומטית.");
+    try {
+      await calculateResults();
+      setExamCompleted(true);
+      setShowResults(true);
+    } catch (error) {
+      console.error('Error calculating results on time up:', error);
+      // Still show results even if save failed
       setExamCompleted(true);
       setShowResults(true);
     }
   };
 
-  const handleTimeUp = () => {
-    alert("הזמן נגמר! המבחן יוגש אוטומטית.");
-    calculateResults();
-    setExamCompleted(true);
-    setShowResults(true);
-  };
-
-  const calculateResults = () => {
+  const calculateResults = async () => {
     let correctAnswers = 0;
     const results = {};
 
@@ -188,8 +206,14 @@ export default function Exam() {
 
     const finalScore = ((correctAnswers / exercises.length) * 100).toFixed(1);
     
-    // Save exam results
-    saveExamResults(finalScore, results);
+    // Save exam results and wait for completion
+    const saveSuccess = await saveExamResults(finalScore, results);
+    
+    if (saveSuccess) {
+      console.log('Exam results saved successfully, proceeding to show results');
+    } else {
+      console.error('Failed to save exam results, but showing results anyway');
+    }
     
     setExamStats(prev => ({
       ...prev,
@@ -203,7 +227,7 @@ export default function Exam() {
     try {
       if (!user) {
         console.error('User not authenticated');
-        return;
+        return false;
       }
       
       const userId = user?.id || user?.UserID || "1";
@@ -215,6 +239,9 @@ export default function Exam() {
         completedAt: new Date().toISOString()
       };
 
+      console.log('Submitting exam results to:', `${SERVER_URL}/api/student/exam/submit`);
+      console.log('Exam data:', examData);
+
       const response = await fetch(`${SERVER_URL}/api/student/exam/submit`, {
         method: 'POST',
         headers: {
@@ -224,23 +251,34 @@ export default function Exam() {
       });
 
       if (response.ok) {
-        console.log('Exam results saved successfully');
+        const result = await response.json();
+        console.log('Exam results saved successfully:', result);
+        return true;
       } else {
-        console.error('Failed to save exam results');
+        const errorText = await response.text();
+        console.error('Failed to save exam results:', response.status, errorText);
+        return false;
       }
     } catch (error) {
       console.error('Error saving exam results:', error);
+      return false;
     }
   };
 
   const handleBackToDashboard = () => {
-    // Navigate to student dashboard
-    navigate('/student', { replace: true });
+    console.log('Exam: Navigating back to dashboard and dispatching examCompleted event');
     
     // Trigger a custom event to notify the dashboard to refresh
-    window.dispatchEvent(new CustomEvent('examCompleted', {
+    const event = new CustomEvent('examCompleted', {
       detail: { userId: user?.id || user?.UserID }
-    }));
+    });
+    console.log('Exam: Dispatching examCompleted event with userId:', user?.id || user?.UserID);
+    window.dispatchEvent(event);
+    
+    // Navigate to student dashboard after a short delay to ensure event is processed
+    setTimeout(() => {
+      navigate('/student', { replace: true });
+    }, 100);
   };
 
   const handleRetakeExam = () => {
@@ -473,9 +511,19 @@ export default function Exam() {
             <button
               className={styles.submitExamButton}
               onClick={handleSubmitExam}
+              disabled={submittingExam}
             >
-              <FiSave />
-              הגש מבחן
+              {submittingExam ? (
+                <>
+                  <div className={styles.miniSpinner} style={{marginRight: '8px'}}></div>
+                  מגיש מבחן...
+                </>
+              ) : (
+                <>
+                  <FiSave />
+                  הגש מבחן
+                </>
+              )}
             </button>
           </div>
         )}

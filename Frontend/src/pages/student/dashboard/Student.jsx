@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "./student.module.css";
 import Card from "../../../components/card/Card";
+import { CgPlayButtonO } from "react-icons/cg";
 import { FiBook } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";
-import { CgPlayButtonO } from "react-icons/cg";
-import { FiUser, FiAward, FiTrendingUp, FiX, FiCheck, FiRefreshCw } from "react-icons/fi";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import Popup from "../../../components/popup/Popup";
+
+import ProfileSection from "./ProfileSection";
+import SubjectsModal from "./SubjectsModal";
 
 /**
  * The StudentDashboard component renders the main page for students.
@@ -28,19 +29,21 @@ export default function StudentDashboard() {
   const [subjectsLoading, setSubjectsLoading] = useState(false);
 
   // Debug user data
-  console.log('StudentDashboard rendered with user:', user);
-  console.log('User ID:', user?.id);
-  console.log('User UserID:', user?.UserID);
-  console.log('Current refreshing state:', refreshing);
-  console.log('Current dashboard data:', dashboardData);
+  console.log('StudentDashboard: Component rendered with user data:', user);
+  console.log('StudentDashboard: User ID from user.id:', user?.id);
+  console.log('StudentDashboard: User ID from user.UserID:', user?.UserID);
+  console.log('StudentDashboard: Current refreshing state:', refreshing);
+  console.log('StudentDashboard: Current dashboard data:', dashboardData);
 
   // Fetch dashboard data (includes last exam and average)
   const fetchDashboardData = useCallback(async (forceRefresh = false) => {
-    if (!user?.id && !user?.UserID) {
-      console.log('No user ID available, using default data');
+    const currentUser = user; // Capture current user to avoid stale closure issues
+    
+    if (!currentUser?.id && !currentUser?.UserID) {
+      console.log('StudentDashboard: No user ID available, setting default fallback data');
       setRefreshing(false);
       setDashboardData({
-        user: { name: "סטודנט", role: "student" },
+        user: { name: "משתמש לא מזוהה", role: "student" },
         lastExam: null,
         overallAverage: 0,
         totalExams: 0
@@ -50,30 +53,38 @@ export default function StudentDashboard() {
 
     try {
       if (forceRefresh) {
-        console.log('Setting refreshing to true');
+        console.log('StudentDashboard: Setting refreshing state to true for force refresh');
         setRefreshing(true);
       }
       setError(null);
 
-      const userId = user?.id || user?.UserID;
-      console.log('Fetching dashboard data for user:', userId);
+      const userId = currentUser?.id || currentUser?.UserID;
+      console.log('StudentDashboard: Fetching dashboard data for user ID:', userId);
 
       const response = await fetch(
-        `http://localhost:5000/api/student/dashboard/${userId}`
+        `http://localhost:5000/api/student/dashboard/${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch dashboard data: ${response.status}`);
+        const errorText = await response.text();
+        console.error('StudentDashboard: API response error:', response.status, errorText);
+        throw new Error(`Failed to fetch dashboard data: ${response.status} - ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Dashboard API response:', data);
+      console.log('StudentDashboard: Dashboard API response received:', data);
       
       // Validate and normalize the data structure
       const normalizedData = {
         user: {
           id: data.user?.id || userId,
-          name: data.user?.name || user?.name || "סטודנט",
+          name: data.user?.name || currentUser?.name || "משתמש לא מזוהה",
           email: data.user?.email || "student@example.com",
           course: data.user?.course || "מתמטיקה"
         },
@@ -83,17 +94,17 @@ export default function StudentDashboard() {
       };
       
       setDashboardData(normalizedData);
-      console.log('Dashboard data updated:', normalizedData);
+      console.log('StudentDashboard: Dashboard data updated with normalized data:', normalizedData);
       
     } catch (err) {
-      console.error("Error fetching dashboard data:", err);
+      console.error("StudentDashboard: Error fetching dashboard data from server:", err);
       setError(err.message);
       
-      // Fallback to default data
+      // Fallback to default data with proper error handling
       setDashboardData({
         user: { 
-          id: user?.id || user?.UserID,
-          name: user?.name || "סטודנט", 
+          id: currentUser?.id || currentUser?.UserID,
+          name: currentUser?.name || "משתמש לא מזוהה", 
           role: "student" 
         },
         lastExam: null,
@@ -103,97 +114,153 @@ export default function StudentDashboard() {
     } finally {
       setRefreshing(false);
     }
-  }, [user?.id, user?.UserID, user?.name]);
+  }, [user?.id, user?.UserID]);
 
   // Initial data fetch - only run once when user changes
   useEffect(() => {
-    console.log('Initial data fetch effect triggered with user:', user);
+    console.log('StudentDashboard: Initial data fetch effect triggered with user:', user);
     if (user) {
-      console.log('User available, calling fetchDashboardData');
+      console.log('StudentDashboard: User available, calling fetchDashboardData function');
       fetchDashboardData();
     } else {
-      console.log('No user available, setting default data immediately');
+      console.log('StudentDashboard: No user available, setting default fallback data immediately');
       // If no user, set default data immediately
       setDashboardData({
-        user: { name: "סטודנט", role: "student" },
+        user: { name: "משתמש לא מזוהה", role: "student" },
         lastExam: null,
         overallAverage: 0,
         totalExams: 0
       });
     }
-  }, [user?.id, user?.UserID]); // Only depend on user ID changes, not the function
+  }, [user?.id, user?.UserID]); // Remove fetchDashboardData dependency to prevent loops
 
   // Refresh data when component gains focus (e.g., returning from exam)
   useEffect(() => {
     const handleFocus = () => {
-      console.log('Page focused, refreshing dashboard data');
-      if (user) {
+      console.log('StudentDashboard: Page focused, refreshing dashboard data from server');
+      if (user && !refreshing) {
         fetchDashboardData(true);
       }
     };
 
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, [user, fetchDashboardData]);
+  }, [user, refreshing]);
 
   // Refresh data when navigating back to this page
   useEffect(() => {
     const handlePopState = () => {
-      console.log('Navigation detected, refreshing dashboard data');
-      if (user) {
+      console.log('StudentDashboard: Navigation detected, refreshing dashboard data from server');
+      if (user && !refreshing) {
         fetchDashboardData(true);
       }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [user, fetchDashboardData]);
+  }, [user, refreshing]);
 
   // Listen for exam completion events
   useEffect(() => {
     const handleExamCompleted = (event) => {
-      console.log('Exam completed event received, refreshing dashboard data');
+      console.log('StudentDashboard: Exam completed event received, refreshing dashboard data from server');
       const { userId } = event.detail;
-      if (userId === (user?.id || user?.UserID)) {
+      if (userId === (user?.id || user?.UserID) && !refreshing) {
         // Add a small delay to ensure the exam data is saved
         setTimeout(() => {
-          if (user) {
+          if (user && !refreshing) {
             fetchDashboardData(true);
           }
-        }, 500);
+        }, 1000);
       }
     };
 
     window.addEventListener('examCompleted', handleExamCompleted);
     return () => window.removeEventListener('examCompleted', handleExamCompleted);
-  }, [user, fetchDashboardData]);
+  }, [user, refreshing]);
 
   // Manual refresh function
   const handleRefresh = () => {
-    console.log('Manual refresh triggered');
-    fetchDashboardData(true);
+    console.log('StudentDashboard: Manual refresh button clicked, refreshing data from server');
+    if (!refreshing) {
+      setError(null); // Clear previous errors
+      fetchDashboardData(true);
+    }
   };
+
+  // Retry dashboard data fetch with exponential backoff
+  const retryDashboardFetch = async (attempt = 1) => {
+    if (attempt > 3) {
+      setError('נכשל בטעינת נתונים לאחר 3 ניסיונות. אנא נסה שוב מאוחר יותר');
+      return;
+    }
+
+    try {
+      console.log(`StudentDashboard: Retry attempt ${attempt} for dashboard data`);
+      await fetchDashboardData(true);
+    } catch (err) {
+      console.error(`StudentDashboard: Retry attempt ${attempt} failed:`, err);
+      setTimeout(() => retryDashboardFetch(attempt + 1), Math.pow(2, attempt) * 1000);
+    }
+  };
+
+  // Safety timeout to prevent infinite loading
+  useEffect(() => {
+    if (refreshing) {
+      const timeout = setTimeout(() => {
+        console.log('StudentDashboard: Safety timeout triggered, stopping refresh');
+        setRefreshing(false);
+        setError('Timeout: נסה שוב או פנה למנהל המערכת');
+      }, 30000); // 30 seconds timeout
+
+      return () => clearTimeout(timeout);
+    }
+  }, [refreshing]);
 
   // Always show the dashboard, never show loading
   const studentData = dashboardData || {
-    user: { name: user?.name || "סטודנט", role: "student" },
+    user: { name: user?.name || "משתמש לא מזוהה", role: "student" },
     lastExam: null,
-    overallAverage: 0
+    overallAverage: 0,
+    totalExams: 0
   };
 
+  // Check if we have valid data
+  const hasValidData = dashboardData && dashboardData.user && dashboardData.user.name !== "משתמש לא מזוהה";
+
   // Fetch subjects from backend using general data endpoint
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async (retryCount = 0) => {
     try {
       setSubjectsLoading(true);
+      // Only clear error on fresh fetch, not on retries
+      if (retryCount === 0) {
+        setError(null);
+      }
+      console.log('StudentDashboard: Fetching subjects from server...');
+      
       const response = await fetch(
-        "http://localhost:5000/api/topics/getTopics"
+        "http://localhost:5000/api/topics/getTopics",
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch subjects");
+        const errorText = await response.text();
+        console.error('StudentDashboard: Subjects API error:', response.status, errorText);
+        throw new Error(`Failed to fetch subjects: ${response.status} - ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('StudentDashboard: Subjects API response received:', data);
+      
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received from server');
+      }
+      
       // Transform the data to match our component structure
       const transformedSubjects = data.map((topic) => ({
         id: topic.TopicID,
@@ -201,75 +268,57 @@ export default function StudentDashboard() {
         description: `נושא: ${topic.TopicName}`,
         courseName: topic.CourseName || "מתמטיקה",
       }));
+      
       setSubjects(transformedSubjects);
+      console.log('StudentDashboard: Subjects transformed and set:', transformedSubjects);
     } catch (err) {
-      console.error("Error fetching subjects:", err);
-      // Fallback to mock data
-      const mockSubjects = [
-        {
-          id: 1,
-          name: "אלגברה ליניארית",
-          description: "נושא: אלגברה ליניארית",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 2,
-          name: "חשבון דיפרנציאלי",
-          description: "נושא: חשבון דיפרנציאלי",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 3,
-          name: "גאומטריה",
-          description: "נושא: גאומטריה",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 4,
-          name: "סטטיסטיקה",
-          description: "נושא: סטטיסטיקה",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 5,
-          name: "טריגונומטריה",
-          description: "נושא: טריגונומטריה",
-          courseName: "מתמטיקה",
-        },
-      ];
-      setSubjects(mockSubjects);
+      console.error("StudentDashboard: Error fetching subjects from server:", err);
+      
+      // Retry logic for network errors
+      if (retryCount < 2 && (err.message.includes('Failed to fetch') || err.message.includes('Network'))) {
+        console.log(`StudentDashboard: Retrying subjects fetch, attempt ${retryCount + 1}`);
+        setTimeout(() => fetchSubjects(retryCount + 1), 1000 * (retryCount + 1));
+        return;
+      }
+      
+      // Set empty array instead of mock data
+      setSubjects([]);
+      // Show error in the modal
+      setError(`שגיאה בטעינת נושאים: ${err.message}`);
     } finally {
       setSubjectsLoading(false);
     }
-  };
+  }, []); // Empty dependency array since this function doesn't depend on any props or state
 
-  const handlePracticeClick = () => {
+  const handlePracticeClick = useCallback(() => {
     setShowSubjectModal(true);
+    setError(null); // Clear any previous errors
     fetchSubjects(); // Fetch subjects when modal opens
-  };
+  }, []); // Remove fetchSubjects dependency to prevent loops
 
-  const handleSubjectSelect = (subject) => {
+  const handleSubjectSelect = useCallback((subject) => {
     setSelectedSubject(subject);
-  };
+  }, []);
 
-  const handleStartPractice = () => {
+  const handleStartPractice = useCallback(() => {
     if (selectedSubject) {
       navigate(`/student/practice-dashboard/${selectedSubject.id}`);
       setShowSubjectModal(false);
       setSelectedSubject(null);
     }
-  };
+  }, [selectedSubject, navigate]);
 
-  const handleStartExam = () => {
+  const handleStartExam = useCallback(() => {
     navigate('/student/exam');
     setShowSubjectModal(false);
     setSelectedSubject(null);
-  };
+  }, [navigate]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setShowSubjectModal(false);
     setSelectedSubject(null);
-  };
+    setError(null); // Clear error when modal is closed
+  }, []);
 
   return (
     <div className={styles.studentPage}>
@@ -281,119 +330,27 @@ export default function StudentDashboard() {
           <h1 className={styles.title}>שלום, {studentData.user.name}</h1>
           <p className={styles.subTitle}>מתמטיקה</p>
         </div>
-        {/* Profile Section on the left */}
-                 <div className={styles.heroProfile}>
-          
-          {/* Small loading indicator when refreshing */}
-          {refreshing && (
-            <div style={{background: 'rgba(255,255,255,0.2)', padding: '5px', margin: '5px', borderRadius: '5px', textAlign: 'center'}}>
-              <div className={styles.miniSpinner} style={{margin: '0 auto'}}></div>
-              <span style={{color: 'white', fontSize: '12px'}}>מרענן נתונים...</span>
-            </div>
-          )}
-          
-          {/* Error display in profile area */}
-          {error && (
-            <div style={{background: 'rgba(255,0,0,0.2)', padding: '5px', margin: '5px', borderRadius: '5px', textAlign: 'center', border: '1px solid rgba(255,0,0,0.3)'}}>
-              <span style={{color: 'white', fontSize: '12px'}}>שגיאה: {error}</span>
-              <button 
-                onClick={handleRefresh} 
-                style={{
-                  background: 'rgba(255,255,255,0.2)', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '2px 8px', 
-                  borderRadius: '3px', 
-                  fontSize: '10px', 
-                  marginLeft: '5px',
-                  cursor: 'pointer'
-                }}
-              >
-                נסה שוב
-              </button>
-            </div>
-          )}
-          
-          <h2 className={styles.heroProfileTitle}>
-            <FiUser className={styles.profileIcon} />
-            פרופיל
-          </h2>
-          <div className={styles.heroProfileContent}>
-            <div className={styles.profileStat}>
-              <FiAward className={styles.statIcon} />
-              <div className={styles.statInfo}>
-                <span className={styles.statLabel}>מבחן אחרון:</span>
-                <span className={styles.statValue}>
-                  {(() => {
-                    if (studentData.lastExam) {
-                      try {
-                        const date = new Date(studentData.lastExam.date);
-                        if (isNaN(date.getTime())) {
-                          return `${studentData.lastExam.date} - ${studentData.lastExam.grade || 0}%`;
-                        }
-                        const formattedDate = date.toLocaleDateString('he-IL');
-                        const grade = studentData.lastExam.grade || 0;
-                        return `${formattedDate} - ${grade}%`;
-                      } catch (error) {
-                        return `${studentData.lastExam.date} - ${studentData.lastExam.grade || 0}%`;
-                      }
-                    } else {
-                      return "לא נעשה מבחן עדיין";
-                    }
-                  })()}
-                </span>
-              </div>
-            </div>
-                         <div className={styles.profileStat}>
-               <FiTrendingUp className={styles.statIcon} />
-               <div className={styles.statInfo}>
-                 <span className={styles.statLabel}>ממוצע ציונים:</span>
-                 <span className={styles.statValue}>
-                   {studentData.overallAverage > 0 
-                     ? `${studentData.overallAverage.toFixed(2)}%` 
-                     : "—"
-                   }
-                 </span>
-               </div>
-             </div>
-             <div className={styles.profileStat}>
-               <FiAward className={styles.statIcon} />
-               <div className={styles.statInfo}>
-                 <span className={styles.statLabel}>סה"כ מבחנים:</span>
-                 <span className={styles.statValue}>
-                   {studentData.totalExams > 0 
-                     ? studentData.totalExams 
-                     : "0"
-                   }
-                 </span>
-               </div>
-             </div>
-          </div>
-          
-          {/* Refresh button for manual data refresh */}
-          <button 
-            onClick={handleRefresh} 
-            className={styles.refreshButton}
-            title="רענן נתונים"
-            disabled={refreshing}
-          >
-            {refreshing ? (
-              <div className={styles.miniSpinner}></div>
-            ) : (
-              <FiRefreshCw size={16} />
-            )}
-            {refreshing ? 'מרענן...' : 'רענן'}
-          </button>
-        </div>
+                {/* Profile Section on the left */}
+        <ProfileSection
+          studentData={studentData}
+          refreshing={refreshing}
+          error={error}
+          hasValidData={hasValidData}
+          onRefresh={handleRefresh}
+          onRetryWithBackoff={retryDashboardFetch}
+        />
       </div>
 
       {/* Dashboard Section */}
       <div className={styles.dashboard}>
         <h2 className={styles.dashboardTitle}>מה תרצו לעשות היום?</h2>
+        <p style={{textAlign: 'center', color: '#6c757d', marginBottom: '2rem', fontSize: '1.1rem'}}>
+          בחר מהאפשרויות הבאות כדי להתחיל
+        </p>
         <div className={styles.cardContainer}>
           <Card
             title="תרגול כללי"
-            description="תרגול שאלות מכל הנושאים הזמינים"
+            description="תרגול שאלות מכל הנושאים הזמינים במערכת"
             icon={<FiBook size={30} />}
             onClick={() => navigate('/student/practice')}
             size="large"
@@ -401,7 +358,7 @@ export default function StudentDashboard() {
           />
           <Card
             title="תרגול נושא ספציפי"
-            description="תרגול שאלות מנושא מסוים"
+            description="תרגול שאלות מנושא מסוים לפי בחירתך"
             icon={<FiBook size={30} />}
             onClick={handlePracticeClick}
             size="large"
@@ -409,7 +366,7 @@ export default function StudentDashboard() {
           />
           <Card
             title="הדמיית מבחן"
-            description="כאן תוכלו לדמות מבחן אמיתי"
+            description="כאן תוכלו לדמות מבחן אמיתי עם שאלות מכל הנושאים"
             icon={<LuNotebookPen size={30} />}
                          onClick={() => navigate('/student/exam')}
             size="large"
@@ -419,79 +376,18 @@ export default function StudentDashboard() {
       </div>
 
       {/* Subject Selection Modal */}
-      {showSubjectModal && (
-        <Popup
-          isOpen={showSubjectModal}
-          onClose={handleCloseModal}
-          header="בחר נושא לתרגול"
-        >
-          <div className={styles.modalContent}>
-            <p className={styles.modalDescription}>
-              בחר את הנושא שברצונך לתרגל היום
-            </p>
-
-            {subjectsLoading ? (
-              <div className={styles.loadingContainer}>
-                <div className={styles.loadingSpinner}></div>
-                <p>טוען נושאים...</p>
-              </div>
-            ) : subjects.length > 0 ? (
-              <div className={styles.subjectsGrid}>
-                {subjects.map((subject) => (
-                  <div
-                    key={subject.id}
-                    className={`${styles.subjectCard} ${
-                      selectedSubject?.id === subject.id
-                        ? styles.selected
-                        : ""
-                    }`}
-                    onClick={() => handleSubjectSelect(subject)}
-                  >
-                    <div className={styles.subjectInfo}>
-                      <h3>{subject.name}</h3>
-                      <p>{subject.description}</p>
-                    </div>
-                    {selectedSubject?.id === subject.id && (
-                      <div className={styles.checkIcon}>
-                        <FiCheck />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={styles.noSubjects}>
-                <p>לא נמצאו נושאים זמינים</p>
-              </div>
-            )}
-          </div>
-
-          <div className={styles.modalFooter}>
-            <div className={styles.modalActions}>
-              <button
-                className={`${styles.startButton} ${styles.practiceButton} ${
-                  selectedSubject ? styles.active : styles.disabled
-                }`}
-                onClick={handleStartPractice}
-                disabled={!selectedSubject}
-              >
-                <FiBook />
-                התחל תרגול
-              </button>
-              <button
-                className={`${styles.startButton} ${styles.examButton} ${
-                  selectedSubject ? styles.active : styles.disabled
-                }`}
-                onClick={handleStartExam}
-                disabled={!selectedSubject}
-              >
-                <LuNotebookPen />
-                התחל מבחן
-              </button>
-            </div>
-          </div>
-        </Popup>
-      )}
+      <SubjectsModal
+        isOpen={showSubjectModal}
+        onClose={handleCloseModal}
+        subjects={subjects}
+        subjectsLoading={subjectsLoading}
+        selectedSubject={selectedSubject}
+        error={error}
+        onSubjectSelect={handleSubjectSelect}
+        onStartPractice={handleStartPractice}
+        onStartExam={handleStartExam}
+        onRetryFetch={fetchSubjects}
+      />
     </div>
     
   );

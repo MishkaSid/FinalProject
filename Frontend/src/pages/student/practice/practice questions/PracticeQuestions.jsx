@@ -102,6 +102,9 @@ export default function PracticeQuestions() {
   };
 
   const handleBackToDashboard = () => {
+    if(!topicId) {
+      navigate(`/student`);
+    }
     navigate(`/student/practice-dashboard/${topicId}`);
   };
 
