@@ -7,9 +7,10 @@ import classes from './header.module.css';
  * @return {ReactElement} The header element.
  */
 function Header() {
+  const logo = new URL('../../assets/images/logoBeta.PNG', import.meta.url).href;
   return (
     <header>
-      <img className={classes.logo} src="src/assets/images/logoBeta.PNG" alt="logo" />
+      <img className={classes.logo} src={logo} alt="logo" />
       <img className={classes.schoolLogo} src="https://www.pet.ac.il/images/logo.png" alt="logo" />
     </header>
   )
