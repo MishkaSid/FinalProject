@@ -43,13 +43,20 @@ exports.uploadFile = [
  * @returns {void}
  */
 exports.getAllExercises = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM practice_exercise");
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllExercises:", err);
-    res.status(500).json({ error: "Server error" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Server error" });
+    }
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
 
@@ -62,13 +69,20 @@ exports.getAllExercises = async (req, res) => {
  */
 exports.getExerciseById = async (req, res) => {
   const { id } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM practice_exercise WHERE ExerciseID = ?", [id]);
     res.json(rows[0]);
   } catch (err) {
     console.error("Error in getExerciseById:", err);
-    res.status(500).json({ error: "Server error" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Server error" });
+    }
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
 
@@ -81,8 +95,9 @@ exports.getExerciseById = async (req, res) => {
  */
 exports.createExercise = async (req, res) => {
   const { TopicID, ContentType, ContentValue, AnswerOptions, CorrectAnswer } = req.body;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [result] = await connection.query(
       "INSERT INTO practice_exercise (TopicID, ContentType, ContentValue, AnswerOptions, CorrectAnswer) VALUES (?, ?, ?, ?, ?)",
       [TopicID, ContentType, ContentValue, JSON.stringify(AnswerOptions), CorrectAnswer]
@@ -90,7 +105,13 @@ exports.createExercise = async (req, res) => {
     res.status(201).json({ ExerciseID: result.insertId, TopicID, ContentType, ContentValue, AnswerOptions, CorrectAnswer });
   } catch (err) {
     console.error("Error in createExercise:", err);
-    res.status(500).json({ error: "Server error" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Server error" });
+    }
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
 
@@ -104,8 +125,9 @@ exports.createExercise = async (req, res) => {
 exports.updateExercise = async (req, res) => {
   const { id } = req.params;
   const { TopicID, ContentType, ContentValue, AnswerOptions, CorrectAnswer } = req.body;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     await connection.query(
       "UPDATE practice_exercise SET TopicID = ?, ContentType = ?, ContentValue = ?, AnswerOptions = ?, CorrectAnswer = ? WHERE ExerciseID = ?",
       [TopicID, ContentType, ContentValue, JSON.stringify(AnswerOptions), CorrectAnswer, id]
@@ -113,7 +135,13 @@ exports.updateExercise = async (req, res) => {
     res.json({ ExerciseID: id, TopicID, ContentType, ContentValue, AnswerOptions, CorrectAnswer });
   } catch (err) {
     console.error("Error in updateExercise:", err);
-    res.status(500).json({ error: "Server error" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Server error" });
+    }
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
 
@@ -126,12 +154,19 @@ exports.updateExercise = async (req, res) => {
  */
 exports.deleteExercise = async (req, res) => {
   const { id } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     await connection.query("DELETE FROM practice_exercise WHERE ExerciseID = ?", [id]);
     res.json({ message: `Exercise with ID ${id} deleted` });
   } catch (err) {
     console.error("Error in deleteExercise:", err);
-    res.status(500).json({ error: "Server error" });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Server error" });
+    }
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }; 

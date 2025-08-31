@@ -2,7 +2,7 @@ import React from "react";
 import styles from "../adminPages.module.css";
 
 // Renders a table of practice content exercises.
-export default function PracticeContentTable({ contentList, onDeleteContent }) {
+export default function PracticeContentTable({ contentList, onDeleteContent, onEditContent }) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.tableFullWidth}>
@@ -11,6 +11,7 @@ export default function PracticeContentTable({ contentList, onDeleteContent }) {
             <th>תמונה</th>
             <th>אפשרויות תשובה</th>
             <th>תשובה נכונה</th>
+            <th>עריכה</th>
             <th>מחיקה</th>
           </tr>
         </thead>
@@ -43,13 +44,22 @@ export default function PracticeContentTable({ contentList, onDeleteContent }) {
                 </td>
                 <td>{content.CorrectAnswer}</td>
                 <td>
+                  <button 
+                    className={styles.smallButton} 
+                    onClick={() => onEditContent(content)}
+                    style={{ marginLeft: '5px', backgroundColor: '#007bff', color: 'white' }}
+                  >
+                    ערוך
+                  </button>
+                </td>
+                <td>
                   <button className={styles.smallButton} onClick={() => onDeleteContent(content.ExerciseID)}>מחק</button>
                 </td>
               </tr>
             );
           })}
           {(contentList || []).length === 0 && (
-            <tr><td colSpan="4">אין תוכן</td></tr>
+            <tr><td colSpan="5">אין תוכן</td></tr>
           )}
         </tbody>
       </table>

@@ -32,10 +32,13 @@ export default function ManageContent() {
   });
   const [practiceContent, setPracticeContent] = useState({}); // { [topicId]: [content, ...] }
   const [isAddContentPopupOpen, setIsAddContentPopupOpen] = useState(false);
+  const [isEditContentPopupOpen, setIsEditContentPopupOpen] = useState(false);
+  const [editContent, setEditContent] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({
     open: false,
     topic: null,
   });
+  const [message, setMessage] = useState({ type: '', text: '' });
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
   const [newCourseName, setNewCourseName] = useState("");
   const [deleteCourseConfirm, setDeleteCourseConfirm] = useState({
@@ -221,20 +224,65 @@ export default function ManageContent() {
   };
 
   /**
+   * @function handleEditContent
+   * @description Opens the popup for editing an existing practice content.
+   * @param {object} content - The practice content object to be edited.
+   */
+  const handleEditContent = (content) => {
+    setEditContent(content);
+    setIsEditContentPopupOpen(true);
+  };
+
+  /**
+   * @function handleEditContentSubmit
+   * @description Handles the form submission for editing practice content. It sends the updated data
+   * to the server and updates the local state on success.
+   * @param {object} values - The updated form values for the practice content.
+   */
+  const handleEditContentSubmit = (values) => {
+    axios.put(`/api/practice/practiceExercise/${editContent.ExerciseID}`, values)
+      .then((res) => {
+        setPracticeContent((prev) => ({
+          ...prev,
+          [selectedTopic.TopicID]: prev[selectedTopic.TopicID].map((c) =>
+            c.ExerciseID === editContent.ExerciseID ? { ...c, ...values } : c
+          ),
+        }));
+        setIsEditContentPopupOpen(false);
+        setEditContent(null);
+        setMessage({ type: 'success', text: 'התוכן עודכן בהצלחה!' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      })
+      .catch((err) => {
+        console.error("Error updating practice content:", err);
+        setMessage({ type: 'error', text: 'שגיאה בעדכון התוכן. אנא נסה שוב.' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+      });
+  };
+
+  /**
    * @function handleDeleteContent
    * @description Deletes a specific piece of practice content. It sends a delete request
    * to the server and removes the content from the local state on success.
    * @param {number} exerciseId - The ID of the practice exercise to be deleted.
    */
   const handleDeleteContent = (exerciseId) => {
-    axios.delete(`/api/practice/practiceExercise/${exerciseId}`).then(() => {
-      setPracticeContent((prev) => ({
-        ...prev,
-        [selectedTopic.TopicID]: prev[selectedTopic.TopicID].filter(
-          (c) => c.ExerciseID !== exerciseId
-        ),
-      }));
-    });
+    axios.delete(`/api/practice/practiceExercise/${exerciseId}`)
+      .then(() => {
+        setPracticeContent((prev) => ({
+          ...prev,
+          [selectedTopic.TopicID]: prev[selectedTopic.TopicID].filter(
+            (c) => c.ExerciseID !== exerciseId
+          ),
+        }));
+        setMessage({ type: 'success', text: 'התוכן נמחק בהצלחה!' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      })
+      .catch((err) => {
+        console.error("Error deleting practice content:", err);
+        setMessage({ type: 'error', text: 'שגיאה במחיקת התוכן. אנא נסה שוב.' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+      });
   };
   /**
    * @function handleContentAdded
@@ -267,6 +315,22 @@ export default function ManageContent() {
   return (
     <div className={styles.adminPage}>
       <h1 className={styles.pageTitle}>ניהול תכנים</h1>
+      
+      {/* Message Display */}
+      {message.text && (
+        <div 
+          className={`${styles.message} ${message.type === 'success' ? styles.successMessage : styles.errorMessage}`}
+          style={{
+            padding: '1rem',
+            margin: '1rem 0',
+            borderRadius: '8px',
+            textAlign: 'center',
+            fontWeight: '500'
+          }}
+        >
+          {message.text}
+        </div>
+      )}
       {/* Course Selector */}
       <CourseSelector
         courses={courses}
@@ -412,6 +476,7 @@ export default function ManageContent() {
           <PracticeContentTable
             contentList={practiceContent[selectedTopic?.TopicID] || []}
             onDeleteContent={handleDeleteContent}
+            onEditContent={handleEditContent}
           />
           <button
             className={styles.addButton}
@@ -426,6 +491,28 @@ export default function ManageContent() {
             onContentAdded={handleContentAdded}
           />
         </div>
+      </Popup>
+
+      {/* Edit Content Popup */}
+      <Popup
+        isOpen={isEditContentPopupOpen}
+        onClose={() => {
+          setIsEditContentPopupOpen(false);
+          setEditContent(null);
+        }}
+        header="ערוך תוכן תרגול"
+      >
+        <PracticeContent
+          topic={selectedTopic}
+          isOpen={isEditContentPopupOpen}
+          onClose={() => {
+            setIsEditContentPopupOpen(false);
+            setEditContent(null);
+          }}
+          onContentAdded={handleEditContentSubmit}
+          initialValues={editContent}
+          mode="edit"
+        />
       </Popup>
     </div>
   );

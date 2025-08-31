@@ -33,7 +33,7 @@ function getDefaultContent() {
  * @param {Function} props.onClose - The function to call to close the main popup.
  * @returns {JSX.Element} The rendered practice content component.
  */
-export default function PracticeContent({ topic, isOpen, onClose, onContentAdded }) {
+export default function PracticeContent({ topic, isOpen, onClose, onContentAdded, initialValues, mode = "add" }) {
   const [topicExercises, setTopicExercises] = useState([]);
   const [isAddContentOpen, setIsAddContentOpen] = useState(false);
   const [newContent, setNewContent] = useState(getDefaultContent());
@@ -58,6 +58,32 @@ export default function PracticeContent({ topic, isOpen, onClose, onContentAdded
   }, [topic]);
 
   /**
+   * @effect
+   * @description Initializes the form with existing values when editing content.
+   */
+  useEffect(() => {
+    if (mode === "edit" && initialValues) {
+      // Parse AnswerOptions if it's a JSON string
+      let answerOptions = initialValues.AnswerOptions;
+      if (typeof answerOptions === 'string') {
+        try {
+          answerOptions = JSON.parse(answerOptions);
+        } catch (error) {
+          console.warn('Failed to parse AnswerOptions:', error);
+          answerOptions = ["", ""];
+        }
+      }
+      
+      setNewContent({
+        contentType: initialValues.ContentType || "image",
+        contentValue: initialValues.ContentValue || "",
+        AnswerOptions: answerOptions || ["", ""],
+        CorrectAnswer: initialValues.CorrectAnswer || "A",
+      });
+    }
+  }, [mode, initialValues]);
+
+  /**
    * @function handleAddContent
    * @description Handles the submission of the "add content" form. It performs validation to ensure
    * that all required fields are filled, then sends a POST request to the server to create
@@ -75,17 +101,26 @@ export default function PracticeContent({ topic, isOpen, onClose, onContentAdded
       AnswerOptions: newContent.AnswerOptions,
       CorrectAnswer: newContent.CorrectAnswer,
     };
-    axios.post("/api/practice/practiceExercise", payload)
-      .then(res => {
-        setTopicExercises(prev => [...prev, res.data]);
-        // Call the callback to notify parent component
-        if (onContentAdded) {
-          onContentAdded(topic.TopicID, res.data);
-        }
-        setIsAddContentOpen(false);
-        setNewContent(getDefaultContent());
-        setUploadError("");
-      });
+    
+    if (mode === "edit" && initialValues) {
+      // Edit mode - call the callback with updated data
+      if (onContentAdded) {
+        onContentAdded(payload);
+      }
+    } else {
+      // Add mode - create new content
+      axios.post("/api/practice/practiceExercise", payload)
+        .then(res => {
+          setTopicExercises(prev => [...prev, res.data]);
+          // Call the callback to notify parent component
+          if (onContentAdded) {
+            onContentAdded(topic.TopicID, res.data);
+          }
+          setIsAddContentOpen(false);
+          setNewContent(getDefaultContent());
+          setUploadError("");
+        });
+    }
   };
 
   /**
@@ -114,7 +149,7 @@ export default function PracticeContent({ topic, isOpen, onClose, onContentAdded
   };
 
   return (
-    <Popup isOpen={isOpen} onClose={onClose} header={topic?.TopicName}>
+    <Popup isOpen={isOpen} onClose={onClose} header={mode === "edit" ? "ערוך תוכן תרגול" : topic?.TopicName}>
       <form
         className={styles.form}
         onSubmit={e => {
@@ -183,7 +218,7 @@ export default function PracticeContent({ topic, isOpen, onClose, onContentAdded
           <div className={styles.optionHint}>בחר את התשובה הנכונה (עיגול ימני)</div>
         </div>
         <button className={styles.submitButton} type="submit" disabled={uploading}>
-          הוסף
+          {mode === "edit" ? "עדכן" : "הוסף"}
         </button>
       </form>
     </Popup>
