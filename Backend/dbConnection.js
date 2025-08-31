@@ -1,28 +1,33 @@
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 
-let connection;
+// Create a connection pool instead of a single connection
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  port: Number(process.env.DB_PORT) || 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
 /**
  * @function getConnection
- * @description Establishes a connection to the database if one does not already exist,
- * and returns the existing connection if it does. This function uses a singleton pattern
- * to ensure that only one database connection is created and used throughout the application.
- * The connection details are read from environment variables.
- * @returns {Promise<mysql.Connection>} A promise that resolves to the database connection object.
+ * @description Gets a connection from the connection pool.
+ * Each call returns a new connection that can be properly released.
+ * @returns {Promise<mysql.PoolConnection>} A promise that resolves to a database connection object.
  */
 async function getConnection() {
-  if (!connection) {
-    connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      port: Number(process.env.DB_PORT) || 3306,
-    });
-    console.log("Connected to database");
+  try {
+    const connection = await pool.getConnection();
+    console.log("Got connection from pool");
+    return connection;
+  } catch (error) {
+    console.error("Error getting connection from pool:", error);
+    throw error;
   }
-  return connection;
 }
 
 module.exports = { getConnection };

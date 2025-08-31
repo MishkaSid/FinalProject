@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiClock, FiAlertTriangle, FiSave } from "react-icons/fi";
 import styles from "./exam.module.css";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Exam() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [exercises, setExercises] = useState([]);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
@@ -12,6 +14,7 @@ export default function Exam() {
   const [examCompleted, setExamCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [submittingExam, setSubmittingExam] = useState(false);
 
   const [examStats, setExamStats] = useState({
     totalQuestions: 0,
@@ -27,9 +30,14 @@ export default function Exam() {
   const EXAM_DURATION_MINUTES = 60;
   const MAX_QUESTIONS = 12;
 
+  // Check if user is authenticated
   useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     fetchExamData();
-  }, []);
+  }, [user, navigate]);
 
   useEffect(() => {
     if (examStats.startTime && !examCompleted) {
@@ -120,22 +128,39 @@ export default function Exam() {
     }
   };
 
-  const handleSubmitExam = () => {
+  const handleSubmitExam = async () => {
     if (window.confirm("האם אתה בטוח שברצונך להגיש את המבחן? לא תוכל לשנות תשובות לאחר ההגשה.")) {
-      calculateResults();
+      try {
+        setSubmittingExam(true);
+        await calculateResults();
+        setExamCompleted(true);
+        setShowResults(true);
+      } catch (error) {
+        console.error('Error calculating results:', error);
+        // Still show results even if save failed
+        setExamCompleted(true);
+        setShowResults(true);
+      } finally {
+        setSubmittingExam(false);
+      }
+    }
+  };
+
+  const handleTimeUp = async () => {
+    alert("הזמן נגמר! המבחן יוגש אוטומטית.");
+    try {
+      await calculateResults();
+      setExamCompleted(true);
+      setShowResults(true);
+    } catch (error) {
+      console.error('Error calculating results on time up:', error);
+      // Still show results even if save failed
       setExamCompleted(true);
       setShowResults(true);
     }
   };
 
-  const handleTimeUp = () => {
-    alert("הזמן נגמר! המבחן יוגש אוטומטית.");
-    calculateResults();
-    setExamCompleted(true);
-    setShowResults(true);
-  };
-
-  const calculateResults = () => {
+  const calculateResults = async () => {
     let correctAnswers = 0;
     const results = {};
 
@@ -181,8 +206,14 @@ export default function Exam() {
 
     const finalScore = ((correctAnswers / exercises.length) * 100).toFixed(1);
     
-    // Save exam results
-    saveExamResults(finalScore, results);
+    // Save exam results and wait for completion
+    const saveSuccess = await saveExamResults(finalScore, results);
+    
+    if (saveSuccess) {
+      console.log('Exam results saved successfully, proceeding to show results');
+    } else {
+      console.error('Failed to save exam results, but showing results anyway');
+    }
     
     setExamStats(prev => ({
       ...prev,
@@ -194,12 +225,22 @@ export default function Exam() {
 
   const saveExamResults = async (finalScore, results) => {
     try {
+      if (!user) {
+        console.error('User not authenticated');
+        return false;
+      }
+      
+      const userId = user?.id || user?.UserID || "1";
       const examData = {
+        userId: userId,
         score: finalScore,
         answers: results,
         timeSpent: (EXAM_DURATION_MINUTES * 60) - examStats.timeRemaining,
         completedAt: new Date().toISOString()
       };
+
+      console.log('Submitting exam results to:', `${SERVER_URL}/api/student/exam/submit`);
+      console.log('Exam data:', examData);
 
       const response = await fetch(`${SERVER_URL}/api/student/exam/submit`, {
         method: 'POST',
@@ -210,17 +251,34 @@ export default function Exam() {
       });
 
       if (response.ok) {
-        console.log('Exam results saved successfully');
+        const result = await response.json();
+        console.log('Exam results saved successfully:', result);
+        return true;
       } else {
-        console.error('Failed to save exam results');
+        const errorText = await response.text();
+        console.error('Failed to save exam results:', response.status, errorText);
+        return false;
       }
     } catch (error) {
       console.error('Error saving exam results:', error);
+      return false;
     }
   };
 
   const handleBackToDashboard = () => {
-    navigate('/student');
+    console.log('Exam: Navigating back to dashboard and dispatching examCompleted event');
+    
+    // Trigger a custom event to notify the dashboard to refresh
+    const event = new CustomEvent('examCompleted', {
+      detail: { userId: user?.id || user?.UserID }
+    });
+    console.log('Exam: Dispatching examCompleted event with userId:', user?.id || user?.UserID);
+    window.dispatchEvent(event);
+    
+    // Navigate to student dashboard after a short delay to ensure event is processed
+    setTimeout(() => {
+      navigate('/student', { replace: true });
+    }, 100);
   };
 
   const handleRetakeExam = () => {
@@ -347,6 +405,31 @@ export default function Exam() {
         </div>
       </div>
 
+      {/* Question Navigation - Moved to top */}
+      <div className={styles.questionNavigation}>
+        <h3>ניווט בין שאלות:</h3>
+        <div className={styles.questionGrid}>
+          {exercises.map((exercise, index) => {
+            const questionId = exercise.ExerciseID;
+            const isAnswered = selectedAnswers[questionId];
+            const isCurrent = index === currentExerciseIndex;
+            
+            return (
+              <button
+                key={questionId}
+                className={`${styles.questionNavButton} ${
+                  isCurrent ? styles.current : ''
+                } ${isAnswered ? styles.answered : styles.unanswered}`}
+                onClick={() => setCurrentExerciseIndex(index)}
+                disabled={examCompleted}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Exam Content */}
       <div className={styles.examContainer}>
         <div className={styles.examHeader}>
@@ -418,6 +501,33 @@ export default function Exam() {
           </div>
         </div>
 
+        {/* Submit Button */}
+        {!examCompleted && (
+          <div className={styles.submitSection}>
+            <div className={styles.submitInfo}>
+              <FiAlertTriangle className={styles.warningIcon} />
+              <span>ענית על {examStats.answeredQuestions} מתוך {examStats.totalQuestions} שאלות</span>
+            </div>
+            <button
+              className={styles.submitExamButton}
+              onClick={handleSubmitExam}
+              disabled={submittingExam}
+            >
+              {submittingExam ? (
+                <>
+                  <div className={styles.miniSpinner} style={{marginRight: '8px'}}></div>
+                  מגיש מבחן...
+                </>
+              ) : (
+                <>
+                  <FiSave />
+                  הגש מבחן
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className={styles.navigationButtons}>
           <button
@@ -436,23 +546,6 @@ export default function Exam() {
             שאלה הבאה
           </button>
         </div>
-
-        {/* Submit Button */}
-        {!examCompleted && (
-          <div className={styles.submitSection}>
-            <div className={styles.submitInfo}>
-              <FiAlertTriangle className={styles.warningIcon} />
-              <span>ענית על {examStats.answeredQuestions} מתוך {examStats.totalQuestions} שאלות</span>
-            </div>
-            <button
-              className={styles.submitExamButton}
-              onClick={handleSubmitExam}
-            >
-              <FiSave />
-              הגש מבחן
-            </button>
-          </div>
-        )}
 
         {/* Results Display */}
         {examCompleted && showResults && (
@@ -493,30 +586,7 @@ export default function Exam() {
 
 
 
-      {/* Question Navigation */}
-      <div className={styles.questionNavigation}>
-        <h3>ניווט בין שאלות:</h3>
-        <div className={styles.questionGrid}>
-          {exercises.map((exercise, index) => {
-            const questionId = exercise.ExerciseID;
-            const isAnswered = selectedAnswers[questionId];
-            const isCurrent = index === currentExerciseIndex;
-            
-            return (
-              <button
-                key={questionId}
-                className={`${styles.questionNavButton} ${
-                  isCurrent ? styles.current : ''
-                } ${isAnswered ? styles.answered : styles.unanswered}`}
-                onClick={() => setCurrentExerciseIndex(index)}
-                disabled={examCompleted}
-              >
-                {index + 1}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+
     </div>
   );
 }

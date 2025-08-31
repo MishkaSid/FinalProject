@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./student.module.css";
 import Card from "../../../components/card/Card";
+import { CgPlayButtonO } from "react-icons/cg";
 import { FiBook } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";
-import { CgPlayButtonO } from "react-icons/cg";
-import { FiUser, FiAward, FiTrendingUp, FiX, FiCheck } from "react-icons/fi";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import Popup from "../../../components/popup/Popup";
+
+import ProfileSection from "./ProfileSection";
+import SubjectsModal from "./SubjectsModal";
 
 /**
  * The StudentDashboard component renders the main page for students.
@@ -20,108 +21,246 @@ export default function StudentDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [showSubjectModal, setShowSubjectModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [subjectsLoading, setSubjectsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Debug user data
+  console.log('StudentDashboard: Component rendered with user data:', user);
+  console.log('StudentDashboard: User ID from user.id:', user?.id);
+  console.log('StudentDashboard: User ID from user.UserID:', user?.UserID);
+  console.log('StudentDashboard: Current refreshing state:', refreshing);
+  console.log('StudentDashboard: Current dashboard data:', dashboardData);
 
-        // Use user.id if available, otherwise use a default value or skip API call
-        const userId = user?.id || user?.UserID || "1";
+  // Fetch dashboard data (includes last exam and average)
+  const fetchDashboardData = useCallback(async (forceRefresh = false) => {
+    const currentUser = user; // Capture current user to avoid stale closure issues
+    
+    if (!currentUser?.id && !currentUser?.UserID) {
+      console.log('StudentDashboard: No user ID available, setting default fallback data');
+      setRefreshing(false);
+      setDashboardData({
+        user: { name: "משתמש לא מזוהה", role: "student" },
+        lastExam: null,
+        overallAverage: 0,
+        totalExams: 0
+      });
+      return;
+    }
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
-        const response = await fetch(
-          `http://localhost:5000/api/student/dashboard/${userId}`,
-          {
-            signal: controller.signal,
-          }
-        );
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard data");
-        }
-
-        const data = await response.json();
-        setDashboardData(data);
-      } catch (err) {
-        console.error("Error fetching dashboard data:", err);
-
-        if (err.name === "AbortError") {
-          setError("Request timeout - using demo data");
-        } else {
-          setError(err.message);
-        }
-
-        // Fallback to mock data if API fails
-        setDashboardData({
-          student: {
-            name: user?.name || "סטודנט",
-            role: user?.role || "student",
-          },
-          lastExam: {
-            examId: 1,
-            date: new Date().toISOString(),
-            averageGrade: 85,
-          },
-          overallAverage: 78,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Always run the effect, even if user is not fully loaded
-    fetchDashboardData();
-  }, [user]);
-
-  if (loading) {
-    return (
-      <div className={styles.studentPage}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>טוען נתונים...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const studentData = dashboardData || {
-    student: {
-      name: user?.name || "סטודנט",
-      role: user?.role || "student",
-    },
-    lastExam: {
-      examId: 1,
-      date: new Date().toISOString(),
-      averageGrade: 85,
-    },
-    overallAverage: 78,
-  };
-
-  // Fetch subjects from backend using general data endpoint
-  const fetchSubjects = async () => {
     try {
-      setSubjectsLoading(true);
+      if (forceRefresh) {
+        console.log('StudentDashboard: Setting refreshing state to true for force refresh');
+        setRefreshing(true);
+      }
+      setError(null);
+
+      const userId = currentUser?.id || currentUser?.UserID;
+      console.log('StudentDashboard: Fetching dashboard data for user ID:', userId);
+
       const response = await fetch(
-        "http://localhost:5000/api/topics/getTopics"
+        `http://localhost:5000/api/student/dashboard/${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch subjects");
+        const errorText = await response.text();
+        console.error('StudentDashboard: API response error:', response.status, errorText);
+        throw new Error(`Failed to fetch dashboard data: ${response.status} - ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('StudentDashboard: Dashboard API response received:', data);
+      
+      // Validate and normalize the data structure
+      const normalizedData = {
+        user: {
+          id: data.user?.id || userId,
+          name: data.user?.name || currentUser?.name || "משתמש לא מזוהה",
+          email: data.user?.email || "student@example.com",
+          course: data.user?.course || "מתמטיקה"
+        },
+        lastExam: data.lastExam || null,
+        overallAverage: data.overallAverage || 0,
+        totalExams: data.totalExams || 0
+      };
+      
+      setDashboardData(normalizedData);
+      console.log('StudentDashboard: Dashboard data updated with normalized data:', normalizedData);
+      
+    } catch (err) {
+      console.error("StudentDashboard: Error fetching dashboard data from server:", err);
+      setError(err.message);
+      
+      // Fallback to default data with proper error handling
+      setDashboardData({
+        user: { 
+          id: currentUser?.id || currentUser?.UserID,
+          name: currentUser?.name || "משתמש לא מזוהה", 
+          role: "student" 
+        },
+        lastExam: null,
+        overallAverage: 0,
+        totalExams: 0
+      });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [user?.id, user?.UserID]);
+
+  // Initial data fetch - only run once when user changes
+  useEffect(() => {
+    console.log('StudentDashboard: Initial data fetch effect triggered with user:', user);
+    if (user) {
+      console.log('StudentDashboard: User available, calling fetchDashboardData function');
+      fetchDashboardData();
+    } else {
+      console.log('StudentDashboard: No user available, setting default fallback data immediately');
+      // If no user, set default data immediately
+      setDashboardData({
+        user: { name: "משתמש לא מזוהה", role: "student" },
+        lastExam: null,
+        overallAverage: 0,
+        totalExams: 0
+      });
+    }
+  }, [user?.id, user?.UserID]); // Remove fetchDashboardData dependency to prevent loops
+
+  // Refresh data when component gains focus (e.g., returning from exam)
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('StudentDashboard: Page focused, refreshing dashboard data from server');
+      if (user && !refreshing) {
+        fetchDashboardData(true);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [user, refreshing]);
+
+  // Refresh data when navigating back to this page
+  useEffect(() => {
+    const handlePopState = () => {
+      console.log('StudentDashboard: Navigation detected, refreshing dashboard data from server');
+      if (user && !refreshing) {
+        fetchDashboardData(true);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [user, refreshing]);
+
+  // Listen for exam completion events
+  useEffect(() => {
+    const handleExamCompleted = (event) => {
+      console.log('StudentDashboard: Exam completed event received, refreshing dashboard data from server');
+      const { userId } = event.detail;
+      if (userId === (user?.id || user?.UserID) && !refreshing) {
+        // Add a small delay to ensure the exam data is saved
+        setTimeout(() => {
+          if (user && !refreshing) {
+            fetchDashboardData(true);
+          }
+        }, 1000);
+      }
+    };
+
+    window.addEventListener('examCompleted', handleExamCompleted);
+    return () => window.removeEventListener('examCompleted', handleExamCompleted);
+  }, [user, refreshing]);
+
+  // Manual refresh function
+  const handleRefresh = () => {
+    console.log('StudentDashboard: Manual refresh button clicked, refreshing data from server');
+    if (!refreshing) {
+      setError(null); // Clear previous errors
+      fetchDashboardData(true);
+    }
+  };
+
+  // Retry dashboard data fetch with exponential backoff
+  const retryDashboardFetch = async (attempt = 1) => {
+    if (attempt > 3) {
+      setError('נכשל בטעינת נתונים לאחר 3 ניסיונות. אנא נסה שוב מאוחר יותר');
+      return;
+    }
+
+    try {
+      console.log(`StudentDashboard: Retry attempt ${attempt} for dashboard data`);
+      await fetchDashboardData(true);
+    } catch (err) {
+      console.error(`StudentDashboard: Retry attempt ${attempt} failed:`, err);
+      setTimeout(() => retryDashboardFetch(attempt + 1), Math.pow(2, attempt) * 1000);
+    }
+  };
+
+  // Safety timeout to prevent infinite loading
+  useEffect(() => {
+    if (refreshing) {
+      const timeout = setTimeout(() => {
+        console.log('StudentDashboard: Safety timeout triggered, stopping refresh');
+        setRefreshing(false);
+        setError('Timeout: נסה שוב או פנה למנהל המערכת');
+      }, 30000); // 30 seconds timeout
+
+      return () => clearTimeout(timeout);
+    }
+  }, [refreshing]);
+
+  // Always show the dashboard, never show loading
+  const studentData = dashboardData || {
+    user: { name: user?.name || "משתמש לא מזוהה", role: "student" },
+    lastExam: null,
+    overallAverage: 0,
+    totalExams: 0
+  };
+
+  // Check if we have valid data
+  const hasValidData = dashboardData && dashboardData.user && dashboardData.user.name !== "משתמש לא מזוהה";
+
+  // Fetch subjects from backend using general data endpoint
+  const fetchSubjects = useCallback(async (retryCount = 0) => {
+    try {
+      setSubjectsLoading(true);
+      // Only clear error on fresh fetch, not on retries
+      if (retryCount === 0) {
+        setError(null);
+      }
+      console.log('StudentDashboard: Fetching subjects from server...');
+      
+      const response = await fetch(
+        "http://localhost:5000/api/topics/getTopics",
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('StudentDashboard: Subjects API error:', response.status, errorText);
+        throw new Error(`Failed to fetch subjects: ${response.status} - ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('StudentDashboard: Subjects API response received:', data);
+      
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received from server');
+      }
+      
       // Transform the data to match our component structure
       const transformedSubjects = data.map((topic) => ({
         id: topic.TopicID,
@@ -129,75 +268,57 @@ export default function StudentDashboard() {
         description: `נושא: ${topic.TopicName}`,
         courseName: topic.CourseName || "מתמטיקה",
       }));
+      
       setSubjects(transformedSubjects);
+      console.log('StudentDashboard: Subjects transformed and set:', transformedSubjects);
     } catch (err) {
-      console.error("Error fetching subjects:", err);
-      // Fallback to mock data
-      const mockSubjects = [
-        {
-          id: 1,
-          name: "אלגברה ליניארית",
-          description: "נושא: אלגברה ליניארית",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 2,
-          name: "חשבון דיפרנציאלי",
-          description: "נושא: חשבון דיפרנציאלי",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 3,
-          name: "גאומטריה",
-          description: "נושא: גאומטריה",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 4,
-          name: "סטטיסטיקה",
-          description: "נושא: סטטיסטיקה",
-          courseName: "מתמטיקה",
-        },
-        {
-          id: 5,
-          name: "טריגונומטריה",
-          description: "נושא: טריגונומטריה",
-          courseName: "מתמטיקה",
-        },
-      ];
-      setSubjects(mockSubjects);
+      console.error("StudentDashboard: Error fetching subjects from server:", err);
+      
+      // Retry logic for network errors
+      if (retryCount < 2 && (err.message.includes('Failed to fetch') || err.message.includes('Network'))) {
+        console.log(`StudentDashboard: Retrying subjects fetch, attempt ${retryCount + 1}`);
+        setTimeout(() => fetchSubjects(retryCount + 1), 1000 * (retryCount + 1));
+        return;
+      }
+      
+      // Set empty array instead of mock data
+      setSubjects([]);
+      // Show error in the modal
+      setError(`שגיאה בטעינת נושאים: ${err.message}`);
     } finally {
       setSubjectsLoading(false);
     }
-  };
+  }, []); // Empty dependency array since this function doesn't depend on any props or state
 
-  const handlePracticeClick = () => {
+  const handlePracticeClick = useCallback(() => {
     setShowSubjectModal(true);
+    setError(null); // Clear any previous errors
     fetchSubjects(); // Fetch subjects when modal opens
-  };
+  }, []); // Remove fetchSubjects dependency to prevent loops
 
-  const handleSubjectSelect = (subject) => {
+  const handleSubjectSelect = useCallback((subject) => {
     setSelectedSubject(subject);
-  };
+  }, []);
 
-  const handleStartPractice = () => {
+  const handleStartPractice = useCallback(() => {
     if (selectedSubject) {
       navigate(`/student/practice-dashboard/${selectedSubject.id}`);
       setShowSubjectModal(false);
       setSelectedSubject(null);
     }
-  };
+  }, [selectedSubject, navigate]);
 
-  const handleStartExam = () => {
+  const handleStartExam = useCallback(() => {
     navigate('/student/exam');
     setShowSubjectModal(false);
     setSelectedSubject(null);
-  };
+  }, [navigate]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setShowSubjectModal(false);
     setSelectedSubject(null);
-  };
+    setError(null); // Clear error when modal is closed
+  }, []);
 
   return (
     <div className={styles.studentPage}>
@@ -206,46 +327,30 @@ export default function StudentDashboard() {
         <div className={styles.heroBackground} />
         {/* Content on the right */}
         <div className={styles.heroContent}>
-          <h1 className={styles.title}>שלום, {studentData.student.name}</h1>
+          <h1 className={styles.title}>שלום, {studentData.user.name}</h1>
           <p className={styles.subTitle}>מתמטיקה</p>
         </div>
-        {/* Profile Section on the left */}
-        <div className={styles.heroProfile}>
-          <h2 className={styles.heroProfileTitle}>
-            <FiUser className={styles.profileIcon} />
-            פרופיל
-          </h2>
-          <div className={styles.heroProfileContent}>
-            <div className={styles.profileStat}>
-              <FiAward className={styles.statIcon} />
-              <div className={styles.statInfo}>
-                <span className={styles.statLabel}>מבחן אחרון:</span>
-                <span className={styles.statValue}>
-                  {studentData.lastExam ? `מבחן ${studentData.lastExam.examId}` : "מבחן שברים"} -{" "}
-                  {studentData.lastExam?.averageGrade || 85}%
-                </span>
-              </div>
-            </div>
-            <div className={styles.profileStat}>
-              <FiTrendingUp className={styles.statIcon} />
-              <div className={styles.statInfo}>
-                <span className={styles.statLabel}>ממוצע ציונים:</span>
-                <span className={styles.statValue}>
-                  {studentData.overallAverage || 78}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+                {/* Profile Section on the left */}
+        <ProfileSection
+          studentData={studentData}
+          refreshing={refreshing}
+          error={error}
+          hasValidData={hasValidData}
+          onRefresh={handleRefresh}
+          onRetryWithBackoff={retryDashboardFetch}
+        />
       </div>
 
       {/* Dashboard Section */}
       <div className={styles.dashboard}>
         <h2 className={styles.dashboardTitle}>מה תרצו לעשות היום?</h2>
+        <p style={{textAlign: 'center', color: '#6c757d', marginBottom: '2rem', fontSize: '1.1rem'}}>
+          בחר מהאפשרויות הבאות כדי להתחיל
+        </p>
         <div className={styles.cardContainer}>
           <Card
             title="תרגול כללי"
-            description="תרגול שאלות מכל הנושאים הזמינים"
+            description="תרגול שאלות מכל הנושאים הזמינים במערכת"
             icon={<FiBook size={30} />}
             onClick={() => navigate('/student/practice')}
             size="large"
@@ -253,7 +358,7 @@ export default function StudentDashboard() {
           />
           <Card
             title="תרגול נושא ספציפי"
-            description="תרגול שאלות מנושא מסוים"
+            description="תרגול שאלות מנושא מסוים לפי בחירתך"
             icon={<FiBook size={30} />}
             onClick={handlePracticeClick}
             size="large"
@@ -261,7 +366,7 @@ export default function StudentDashboard() {
           />
           <Card
             title="הדמיית מבחן"
-            description="כאן תוכלו לדמות מבחן אמיתי"
+            description="כאן תוכלו לדמות מבחן אמיתי עם שאלות מכל הנושאים"
             icon={<LuNotebookPen size={30} />}
                          onClick={() => navigate('/student/exam')}
             size="large"
@@ -271,79 +376,18 @@ export default function StudentDashboard() {
       </div>
 
       {/* Subject Selection Modal */}
-      {showSubjectModal && (
-        <Popup
-          isOpen={showSubjectModal}
-          onClose={handleCloseModal}
-          header="בחר נושא לתרגול"
-        >
-          <div className={styles.modalContent}>
-            <p className={styles.modalDescription}>
-              בחר את הנושא שברצונך לתרגל היום
-            </p>
-
-            {subjectsLoading ? (
-              <div className={styles.loadingContainer}>
-                <div className={styles.loadingSpinner}></div>
-                <p>טוען נושאים...</p>
-              </div>
-            ) : subjects.length > 0 ? (
-              <div className={styles.subjectsGrid}>
-                {subjects.map((subject) => (
-                  <div
-                    key={subject.id}
-                    className={`${styles.subjectCard} ${
-                      selectedSubject?.id === subject.id
-                        ? styles.selected
-                        : ""
-                    }`}
-                    onClick={() => handleSubjectSelect(subject)}
-                  >
-                    <div className={styles.subjectInfo}>
-                      <h3>{subject.name}</h3>
-                      <p>{subject.description}</p>
-                    </div>
-                    {selectedSubject?.id === subject.id && (
-                      <div className={styles.checkIcon}>
-                        <FiCheck />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={styles.noSubjects}>
-                <p>לא נמצאו נושאים זמינים</p>
-              </div>
-            )}
-          </div>
-
-          <div className={styles.modalFooter}>
-            <div className={styles.modalActions}>
-              <button
-                className={`${styles.startButton} ${styles.practiceButton} ${
-                  selectedSubject ? styles.active : styles.disabled
-                }`}
-                onClick={handleStartPractice}
-                disabled={!selectedSubject}
-              >
-                <FiBook />
-                התחל תרגול
-              </button>
-              <button
-                className={`${styles.startButton} ${styles.examButton} ${
-                  selectedSubject ? styles.active : styles.disabled
-                }`}
-                onClick={handleStartExam}
-                disabled={!selectedSubject}
-              >
-                <LuNotebookPen />
-                התחל מבחן
-              </button>
-            </div>
-          </div>
-        </Popup>
-      )}
+      <SubjectsModal
+        isOpen={showSubjectModal}
+        onClose={handleCloseModal}
+        subjects={subjects}
+        subjectsLoading={subjectsLoading}
+        selectedSubject={selectedSubject}
+        error={error}
+        onSubjectSelect={handleSubjectSelect}
+        onStartPractice={handleStartPractice}
+        onStartExam={handleStartExam}
+        onRetryFetch={fetchSubjects}
+      />
     </div>
     
   );
