@@ -1,10 +1,10 @@
-import { Outlet } from 'react-router-dom';
-import Header from '../components/header/Header';
-import Sidebar from '../components/sidebar/Sidebar';
-import Footer from '../components/footer/Footer';
+import { Outlet } from "react-router-dom";
+import Header from "../components/header/Header";
+import Sidebar from "../components/sidebar/Sidebar";
+import Footer from "../components/footer/Footer";
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 /**
  * The main layout component for the app.
@@ -13,23 +13,34 @@ import { useAuth } from '../context/AuthContext';
 
  * @returns {JSX.Element} The rendered Layout component.
  */
-
 const Layout = () => {
   const { user: loggedInUser } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const userType = loggedInUser?.role || (location.pathname.includes('manager') ? 'Admin' 
-  : location.pathname.includes('teacher') ? 'Teacher' 
-  : 'Examinee');
+  const userType =
+    loggedInUser?.role ||
+    (location.pathname.includes("manager")
+      ? "Admin"
+      : location.pathname.includes("teacher")
+      ? "Teacher"
+      : "Examinee");
 
+  /**
+   * Toggles the sidebar open or closed state.
+   * This function is used as a click handler for the sidebar toggle button.
+   */
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
     <>
-      <Header/>
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType={userType} />
+      <Header />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+        userType={userType}
+      />
       <main>
         <Outlet />
       </main>
@@ -39,4 +50,3 @@ const Layout = () => {
 };
 
 export default Layout;
-

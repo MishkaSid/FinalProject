@@ -9,7 +9,6 @@ const db = require("../dbConnection");
  * server error message is returned.
  */
 
-
 /**
  * @function getUsers
  * @description Fetches all users from the database.
@@ -38,13 +37,15 @@ exports.getUsers = async (req, res) => {
 exports.getAdmins = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM users WHERE role = 'Admin'");
+    const [rows] = await connection.query(
+      "SELECT * FROM users WHERE role = 'Admin'"
+    );
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getAdmins:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
 /**
  * @function getTeachers
@@ -53,16 +54,18 @@ exports.getAdmins = async (req, res) => {
  * @param {object} res - The response object.
  * @returns {void}
  */
-exports.getTeachers = async (req,res ) => {
+exports.getTeachers = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM users WHERE role = 'Teacher'");
+    const [rows] = await connection.query(
+      "SELECT * FROM users WHERE role = 'Teacher'"
+    );
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getTeachers:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
 /**
  * @function getExaminees
@@ -74,13 +77,15 @@ exports.getTeachers = async (req,res ) => {
 exports.getExaminees = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM users WHERE role = 'Examinee'");
+    const [rows] = await connection.query(
+      "SELECT * FROM users WHERE role = 'Examinee'"
+    );
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getExaminees:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
 /**
  * @function getPracticeData

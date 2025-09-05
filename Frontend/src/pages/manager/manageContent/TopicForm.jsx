@@ -21,9 +21,13 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
   return (
     <form
       className={styles.form}
-      onSubmit={e => {
+      onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ TopicID: topicId, TopicName: topicName, CourseID: courseId });
+        onSubmit({
+          TopicID: topicId,
+          TopicName: topicName,
+          CourseID: courseId,
+        });
       }}
     >
       <div className={styles.inputContainer}>
@@ -32,7 +36,7 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
           className={styles.input}
           type="number"
           value={topicId}
-          onChange={e => setTopicId(e.target.value)}
+          onChange={(e) => setTopicId(e.target.value)}
           placeholder="אוטומטי אלא אם שונה"
         />
       </div>
@@ -42,7 +46,7 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
           className={styles.input}
           type="text"
           value={topicName}
-          onChange={e => setTopicName(e.target.value)}
+          onChange={(e) => setTopicName(e.target.value)}
         />
       </div>
       <div className={styles.inputContainer}>
@@ -57,9 +61,14 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
       <button className={styles.submitButton} type="submit">
         {mode === "edit" ? "שמור" : "הוסף"}
       </button>
-      <button className={styles.smallButton} type="button" onClick={onClose} style={{marginTop: 8}}>
+      <button
+        className={styles.smallButton}
+        type="button"
+        onClick={onClose}
+        style={{ marginTop: 8 }}
+      >
         ביטול
       </button>
     </form>
   );
-} 
+}

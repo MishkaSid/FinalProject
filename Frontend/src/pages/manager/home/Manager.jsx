@@ -14,13 +14,11 @@ import { useAuth } from "../../../context/AuthContext";
  *
  * @returns {JSX.Element} The rendered Manager component.
  */
-
 function Manager() {
-
-  const {user} = useAuth();
+  const { user } = useAuth();
   return (
     <div className={styles.adminPage}>
-      <Welcome user={{ username:user?.name || "Manager"}}>
+      <Welcome user={{ username: user?.name || "Manager" }}>
         <div className={styles.background} />
         <div className={styles.managerPage}>
           <div className={styles.chartsGrid}>

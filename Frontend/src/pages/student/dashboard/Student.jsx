@@ -29,107 +29,135 @@ export default function StudentDashboard() {
   const [subjectsLoading, setSubjectsLoading] = useState(false);
 
   // Debug user data
-  console.log('StudentDashboard: Component rendered with user data:', user);
-  console.log('StudentDashboard: User ID from user.id:', user?.id);
-  console.log('StudentDashboard: User ID from user.UserID:', user?.UserID);
-  console.log('StudentDashboard: Current refreshing state:', refreshing);
-  console.log('StudentDashboard: Current dashboard data:', dashboardData);
+  console.log("StudentDashboard: Component rendered with user data:", user);
+  console.log("StudentDashboard: User ID from user.id:", user?.id);
+  console.log("StudentDashboard: User ID from user.UserID:", user?.UserID);
+  console.log("StudentDashboard: Current refreshing state:", refreshing);
+  console.log("StudentDashboard: Current dashboard data:", dashboardData);
 
   // Fetch dashboard data (includes last exam and average)
-  const fetchDashboardData = useCallback(async (forceRefresh = false) => {
-    const currentUser = user; // Capture current user to avoid stale closure issues
-    
-    if (!currentUser?.id && !currentUser?.UserID) {
-      console.log('StudentDashboard: No user ID available, setting default fallback data');
-      setRefreshing(false);
-      setDashboardData({
-        user: { name: "משתמש לא מזוהה", role: "student" },
-        lastExam: null,
-        overallAverage: 0,
-        totalExams: 0
-      });
-      return;
-    }
+  const fetchDashboardData = useCallback(
+    async (forceRefresh = false) => {
+      const currentUser = user; // Capture current user to avoid stale closure issues
 
-    try {
-      if (forceRefresh) {
-        console.log('StudentDashboard: Setting refreshing state to true for force refresh');
-        setRefreshing(true);
+      if (!currentUser?.id && !currentUser?.UserID) {
+        console.log(
+          "StudentDashboard: No user ID available, setting default fallback data"
+        );
+        setRefreshing(false);
+        setDashboardData({
+          user: { name: "משתמש לא מזוהה", role: "student" },
+          lastExam: null,
+          overallAverage: 0,
+          totalExams: 0,
+        });
+        return;
       }
-      setError(null);
 
-      const userId = currentUser?.id || currentUser?.UserID;
-      console.log('StudentDashboard: Fetching dashboard data for user ID:', userId);
-
-      const response = await fetch(
-        `http://localhost:5000/api/student/dashboard/${userId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      try {
+        if (forceRefresh) {
+          console.log(
+            "StudentDashboard: Setting refreshing state to true for force refresh"
+          );
+          setRefreshing(true);
         }
-      );
+        setError(null);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('StudentDashboard: API response error:', response.status, errorText);
-        throw new Error(`Failed to fetch dashboard data: ${response.status} - ${response.statusText}`);
+        const userId = currentUser?.id || currentUser?.UserID;
+        console.log(
+          "StudentDashboard: Fetching dashboard data for user ID:",
+          userId
+        );
+
+        const response = await fetch(
+          `http://localhost:5000/api/student/dashboard/${userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(
+            "StudentDashboard: API response error:",
+            response.status,
+            errorText
+          );
+          throw new Error(
+            `Failed to fetch dashboard data: ${response.status} - ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+        console.log("StudentDashboard: Dashboard API response received:", data);
+
+        // Validate and normalize the data structure
+        const normalizedData = {
+          user: {
+            id: data.user?.id || userId,
+            name: data.user?.name || currentUser?.name || "משתמש לא מזוהה",
+            email: data.user?.email || "student@example.com",
+            course: data.user?.course || "מתמטיקה",
+          },
+          lastExam: data.lastExam || null,
+          overallAverage: data.overallAverage || 0,
+          totalExams: data.totalExams || 0,
+        };
+
+        setDashboardData(normalizedData);
+        console.log(
+          "StudentDashboard: Dashboard data updated with normalized data:",
+          normalizedData
+        );
+      } catch (err) {
+        console.error(
+          "StudentDashboard: Error fetching dashboard data from server:",
+          err
+        );
+        setError(err.message);
+
+        // Fallback to default data with proper error handling
+        setDashboardData({
+          user: {
+            id: currentUser?.id || currentUser?.UserID,
+            name: currentUser?.name || "משתמש לא מזוהה",
+            role: "student",
+          },
+          lastExam: null,
+          overallAverage: 0,
+          totalExams: 0,
+        });
+      } finally {
+        setRefreshing(false);
       }
-
-      const data = await response.json();
-      console.log('StudentDashboard: Dashboard API response received:', data);
-      
-      // Validate and normalize the data structure
-      const normalizedData = {
-        user: {
-          id: data.user?.id || userId,
-          name: data.user?.name || currentUser?.name || "משתמש לא מזוהה",
-          email: data.user?.email || "student@example.com",
-          course: data.user?.course || "מתמטיקה"
-        },
-        lastExam: data.lastExam || null,
-        overallAverage: data.overallAverage || 0,
-        totalExams: data.totalExams || 0
-      };
-      
-      setDashboardData(normalizedData);
-      console.log('StudentDashboard: Dashboard data updated with normalized data:', normalizedData);
-      
-    } catch (err) {
-      console.error("StudentDashboard: Error fetching dashboard data from server:", err);
-      setError(err.message);
-      
-      // Fallback to default data with proper error handling
-      setDashboardData({
-        user: { 
-          id: currentUser?.id || currentUser?.UserID,
-          name: currentUser?.name || "משתמש לא מזוהה", 
-          role: "student" 
-        },
-        lastExam: null,
-        overallAverage: 0,
-        totalExams: 0
-      });
-    } finally {
-      setRefreshing(false);
-    }
-  }, [user?.id, user?.UserID]);
+    },
+    [user?.id, user?.UserID]
+  );
 
   // Initial data fetch - only run once when user changes
   useEffect(() => {
-    console.log('StudentDashboard: Initial data fetch effect triggered with user:', user);
+    console.log(
+      "StudentDashboard: Initial data fetch effect triggered with user:",
+      user
+    );
     if (user) {
-      console.log('StudentDashboard: User available, calling fetchDashboardData function');
+      console.log(
+        "StudentDashboard: User available, calling fetchDashboardData function"
+      );
       fetchDashboardData();
     } else {
-      console.log('StudentDashboard: No user available, setting default fallback data immediately');
+      console.log(
+        "StudentDashboard: No user available, setting default fallback data immediately"
+      );
       // If no user, set default data immediately
       setDashboardData({
         user: { name: "משתמש לא מזוהה", role: "student" },
         lastExam: null,
         overallAverage: 0,
-        totalExams: 0
+        totalExams: 0,
       });
     }
   }, [user?.id, user?.UserID]); // Remove fetchDashboardData dependency to prevent loops
@@ -137,33 +165,39 @@ export default function StudentDashboard() {
   // Refresh data when component gains focus (e.g., returning from exam)
   useEffect(() => {
     const handleFocus = () => {
-      console.log('StudentDashboard: Page focused, refreshing dashboard data from server');
+      console.log(
+        "StudentDashboard: Page focused, refreshing dashboard data from server"
+      );
       if (user && !refreshing) {
         fetchDashboardData(true);
       }
     };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, [user, refreshing]);
 
   // Refresh data when navigating back to this page
   useEffect(() => {
     const handlePopState = () => {
-      console.log('StudentDashboard: Navigation detected, refreshing dashboard data from server');
+      console.log(
+        "StudentDashboard: Navigation detected, refreshing dashboard data from server"
+      );
       if (user && !refreshing) {
         fetchDashboardData(true);
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, [user, refreshing]);
 
   // Listen for exam completion events
   useEffect(() => {
     const handleExamCompleted = (event) => {
-      console.log('StudentDashboard: Exam completed event received, refreshing dashboard data from server');
+      console.log(
+        "StudentDashboard: Exam completed event received, refreshing dashboard data from server"
+      );
       const { userId } = event.detail;
       if (userId === (user?.id || user?.UserID) && !refreshing) {
         // Add a small delay to ensure the exam data is saved
@@ -175,13 +209,16 @@ export default function StudentDashboard() {
       }
     };
 
-    window.addEventListener('examCompleted', handleExamCompleted);
-    return () => window.removeEventListener('examCompleted', handleExamCompleted);
+    window.addEventListener("examCompleted", handleExamCompleted);
+    return () =>
+      window.removeEventListener("examCompleted", handleExamCompleted);
   }, [user, refreshing]);
 
   // Manual refresh function
   const handleRefresh = () => {
-    console.log('StudentDashboard: Manual refresh button clicked, refreshing data from server');
+    console.log(
+      "StudentDashboard: Manual refresh button clicked, refreshing data from server"
+    );
     if (!refreshing) {
       setError(null); // Clear previous errors
       fetchDashboardData(true);
@@ -191,16 +228,21 @@ export default function StudentDashboard() {
   // Retry dashboard data fetch with exponential backoff
   const retryDashboardFetch = async (attempt = 1) => {
     if (attempt > 3) {
-      setError('נכשל בטעינת נתונים לאחר 3 ניסיונות. אנא נסה שוב מאוחר יותר');
+      setError("נכשל בטעינת נתונים לאחר 3 ניסיונות. אנא נסה שוב מאוחר יותר");
       return;
     }
 
     try {
-      console.log(`StudentDashboard: Retry attempt ${attempt} for dashboard data`);
+      console.log(
+        `StudentDashboard: Retry attempt ${attempt} for dashboard data`
+      );
       await fetchDashboardData(true);
     } catch (err) {
       console.error(`StudentDashboard: Retry attempt ${attempt} failed:`, err);
-      setTimeout(() => retryDashboardFetch(attempt + 1), Math.pow(2, attempt) * 1000);
+      setTimeout(
+        () => retryDashboardFetch(attempt + 1),
+        Math.pow(2, attempt) * 1000
+      );
     }
   };
 
@@ -208,9 +250,11 @@ export default function StudentDashboard() {
   useEffect(() => {
     if (refreshing) {
       const timeout = setTimeout(() => {
-        console.log('StudentDashboard: Safety timeout triggered, stopping refresh');
+        console.log(
+          "StudentDashboard: Safety timeout triggered, stopping refresh"
+        );
         setRefreshing(false);
-        setError('Timeout: נסה שוב או פנה למנהל המערכת');
+        setError("Timeout: נסה שוב או פנה למנהל המערכת");
       }, 30000); // 30 seconds timeout
 
       return () => clearTimeout(timeout);
@@ -222,11 +266,14 @@ export default function StudentDashboard() {
     user: { name: user?.name || "משתמש לא מזוהה", role: "student" },
     lastExam: null,
     overallAverage: 0,
-    totalExams: 0
+    totalExams: 0,
   };
 
   // Check if we have valid data
-  const hasValidData = dashboardData && dashboardData.user && dashboardData.user.name !== "משתמש לא מזוהה";
+  const hasValidData =
+    dashboardData &&
+    dashboardData.user &&
+    dashboardData.user.name !== "משתמש לא מזוהה";
 
   // Fetch subjects from backend using general data endpoint
   const fetchSubjects = useCallback(async (retryCount = 0) => {
@@ -236,31 +283,37 @@ export default function StudentDashboard() {
       if (retryCount === 0) {
         setError(null);
       }
-      console.log('StudentDashboard: Fetching subjects from server...');
-      
+      console.log("StudentDashboard: Fetching subjects from server...");
+
       const response = await fetch(
         "http://localhost:5000/api/topics/getTopics",
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('StudentDashboard: Subjects API error:', response.status, errorText);
-        throw new Error(`Failed to fetch subjects: ${response.status} - ${response.statusText}`);
+        console.error(
+          "StudentDashboard: Subjects API error:",
+          response.status,
+          errorText
+        );
+        throw new Error(
+          `Failed to fetch subjects: ${response.status} - ${response.statusText}`
+        );
       }
 
       const data = await response.json();
-      console.log('StudentDashboard: Subjects API response received:', data);
-      
+      console.log("StudentDashboard: Subjects API response received:", data);
+
       if (!Array.isArray(data)) {
-        throw new Error('Invalid data format received from server');
+        throw new Error("Invalid data format received from server");
       }
-      
+
       // Transform the data to match our component structure
       const transformedSubjects = data.map((topic) => ({
         id: topic.TopicID,
@@ -268,19 +321,34 @@ export default function StudentDashboard() {
         description: `נושא: ${topic.TopicName}`,
         courseName: topic.CourseName || "מתמטיקה",
       }));
-      
+
       setSubjects(transformedSubjects);
-      console.log('StudentDashboard: Subjects transformed and set:', transformedSubjects);
+      console.log(
+        "StudentDashboard: Subjects transformed and set:",
+        transformedSubjects
+      );
     } catch (err) {
-      console.error("StudentDashboard: Error fetching subjects from server:", err);
-      
+      console.error(
+        "StudentDashboard: Error fetching subjects from server:",
+        err
+      );
+
       // Retry logic for network errors
-      if (retryCount < 2 && (err.message.includes('Failed to fetch') || err.message.includes('Network'))) {
-        console.log(`StudentDashboard: Retrying subjects fetch, attempt ${retryCount + 1}`);
-        setTimeout(() => fetchSubjects(retryCount + 1), 1000 * (retryCount + 1));
+      if (
+        retryCount < 2 &&
+        (err.message.includes("Failed to fetch") ||
+          err.message.includes("Network"))
+      ) {
+        console.log(
+          `StudentDashboard: Retrying subjects fetch, attempt ${retryCount + 1}`
+        );
+        setTimeout(
+          () => fetchSubjects(retryCount + 1),
+          1000 * (retryCount + 1)
+        );
         return;
       }
-      
+
       // Set empty array instead of mock data
       setSubjects([]);
       // Show error in the modal
@@ -309,7 +377,7 @@ export default function StudentDashboard() {
   }, [selectedSubject, navigate]);
 
   const handleStartExam = useCallback(() => {
-    navigate('/student/exam');
+    navigate("/student/exam");
     setShowSubjectModal(false);
     setSelectedSubject(null);
   }, [navigate]);
@@ -330,7 +398,7 @@ export default function StudentDashboard() {
           <h1 className={styles.title}>שלום, {studentData.user.name}</h1>
           <p className={styles.subTitle}>מתמטיקה</p>
         </div>
-                {/* Profile Section on the left */}
+        {/* Profile Section on the left */}
         <ProfileSection
           studentData={studentData}
           refreshing={refreshing}
@@ -344,7 +412,14 @@ export default function StudentDashboard() {
       {/* Dashboard Section */}
       <div className={styles.dashboard}>
         <h2 className={styles.dashboardTitle}>מה תרצו לעשות היום?</h2>
-        <p style={{textAlign: 'center', color: '#6c757d', marginBottom: '2rem', fontSize: '1.1rem'}}>
+        <p
+          style={{
+            textAlign: "center",
+            color: "#6c757d",
+            marginBottom: "2rem",
+            fontSize: "1.1rem",
+          }}
+        >
           בחר מהאפשרויות הבאות כדי להתחיל
         </p>
         <div className={styles.cardContainer}>
@@ -352,7 +427,7 @@ export default function StudentDashboard() {
             title="תרגול כללי"
             description="תרגול שאלות מכל הנושאים הזמינים במערכת"
             icon={<FiBook size={30} />}
-            onClick={() => navigate('/student/practice')}
+            onClick={() => navigate("/student/practice")}
             size="large"
             layout="horizontal"
           />
@@ -368,7 +443,7 @@ export default function StudentDashboard() {
             title="הדמיית מבחן"
             description="כאן תוכלו לדמות מבחן אמיתי עם שאלות מכל הנושאים"
             icon={<LuNotebookPen size={30} />}
-                         onClick={() => navigate('/student/exam')}
+            onClick={() => navigate("/student/exam")}
             size="large"
             layout="horizontal"
           />
@@ -389,6 +464,5 @@ export default function StudentDashboard() {
         onRetryFetch={fetchSubjects}
       />
     </div>
-    
   );
 }

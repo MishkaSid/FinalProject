@@ -1,5 +1,14 @@
 import "./loading.css";
 
+/**
+ * A loading animation component.
+ *
+ * This component renders a loading animation with a gradient background
+ * and a text "Loading" below it.
+ *
+ * @returns {React.ReactElement} A React component representing the loading
+ * animation.
+ */
 export default function Loading() {
   return (
     <>

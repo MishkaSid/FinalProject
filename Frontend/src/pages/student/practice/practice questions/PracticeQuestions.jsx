@@ -3,6 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiPlay } from "react-icons/fi";
 import styles from "./practiceQuestions.module.css";
 
+/**
+ * PracticeQuestions component for student to practice questions of a topic
+ * @param {object} [topicData] - Topic data from server
+ * @param {array} [exercises] - Exercises array from server
+ * @param {number} [currentExerciseIndex] - Current exercise index
+ * @param {string} [selectedAnswer] - Selected answer by user
+ * @param {boolean} [showResult] - Whether to show result of previous exercise
+ * @param {number} [score] - Score of the practice
+ * @param {boolean} [loading] - Whether to display loading animation
+ * @param {string} [error] - Error message to display if practice data failed to load
+ * @returns {JSX.Element} - PracticeQuestions component
+ */
 export default function PracticeQuestions() {
   const { topicId } = useParams();
   const navigate = useNavigate();
@@ -22,15 +34,23 @@ export default function PracticeQuestions() {
     fetchPracticeData();
   }, [topicId]);
 
+  /**
+   * Fetches practice data from the server and sets the state.
+   * It fetches the topic data and exercises from the server.
+   * If the request fails, it sets the error state with the error message.
+   * @returns {void}
+   */
   const fetchPracticeData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${SERVER_URL}/api/student/practice/topic/${topicId}`);
-      
+      const response = await fetch(
+        `${SERVER_URL}/api/student/practice/topic/${topicId}`
+      );
+
       if (!response.ok) {
         throw new Error("Failed to fetch practice data");
       }
-      
+
       const data = await response.json();
       setTopicData(data.topic);
       setExercises(data.exercises);
@@ -42,51 +62,87 @@ export default function PracticeQuestions() {
     }
   };
 
+  /**
+   * Sets the selected answer for the current exercise.
+   * @param {string} answer
+   * @returns {void}
+   */
   const handleAnswerSelect = (answer) => {
     setSelectedAnswer(answer);
   };
 
+  /**
+   * Handles submitting an answer for the current exercise.
+   * It compares the selected answer to the correct answer, and
+   * updates the score and topic progress if the answer is correct.
+   * @returns {void}
+   */
+
   const handleSubmitAnswer = () => {
     if (!selectedAnswer) return;
-    
+
     const currentExercise = exercises[currentExerciseIndex];
-    
+
     // Debug logging to see what we're comparing
-    console.log('=== ANSWER SUBMISSION DEBUG ===');
-    console.log('Selected Answer:', selectedAnswer);
-    console.log('Correct Answer:', currentExercise.CorrectAnswer);
-    console.log('Answer Options:', answerOptions);
-    console.log('Types - Selected:', typeof selectedAnswer, 'Correct:', typeof currentExercise.CorrectAnswer);
-    
+    console.log("=== ANSWER SUBMISSION DEBUG ===");
+    console.log("Selected Answer:", selectedAnswer);
+    console.log("Correct Answer:", currentExercise.CorrectAnswer);
+    console.log("Answer Options:", answerOptions);
+    console.log(
+      "Types - Selected:",
+      typeof selectedAnswer,
+      "Correct:",
+      typeof currentExercise.CorrectAnswer
+    );
+
     // Check if CorrectAnswer is a letter (A, B, C, D) and convert to actual answer text
     let correctAnswerText = currentExercise.CorrectAnswer;
-    if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(currentExercise.CorrectAnswer).trim())) {
-      const letterIndex = String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+    if (
+      ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
+        String(currentExercise.CorrectAnswer).trim()
+      )
+    ) {
+      const letterIndex =
+        String(currentExercise.CorrectAnswer)
+          .trim()
+          .toUpperCase()
+          .charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
       if (letterIndex >= 0 && letterIndex < answerOptions.length) {
         correctAnswerText = answerOptions[letterIndex];
-        console.log('Converted letter to answer text:', currentExercise.CorrectAnswer, '->', correctAnswerText);
+        console.log(
+          "Converted letter to answer text:",
+          currentExercise.CorrectAnswer,
+          "->",
+          correctAnswerText
+        );
       }
     }
-    
+
     // Ensure both values are strings for comparison
     const selectedAnswerStr = String(selectedAnswer).trim();
     const correctAnswerStr = String(correctAnswerText).trim();
-    
+
     const isCorrect = selectedAnswerStr === correctAnswerStr;
-    
-    console.log('String comparison:');
-    console.log('  Selected (trimmed):', `"${selectedAnswerStr}"`);
-    console.log('  Correct (trimmed):', `"${correctAnswerStr}"`);
-    console.log('  Is Correct:', isCorrect);
-    console.log('================================');
-    
+
+    console.log("String comparison:");
+    console.log("  Selected (trimmed):", `"${selectedAnswerStr}"`);
+    console.log("  Correct (trimmed):", `"${correctAnswerStr}"`);
+    console.log("  Is Correct:", isCorrect);
+    console.log("================================");
+
     if (isCorrect) {
       setScore(score + 1);
     }
-    
+
     setShowResult(true);
   };
 
+  /**
+   * Handles user's action of navigating to the next exercise.
+   * Does nothing if the user is already on the last exercise.
+   * Resets the selected answer and shows the result of the previous exercise.
+   * @returns {void}
+   */
   const handleNextExercise = () => {
     if (currentExerciseIndex < exercises.length - 1) {
       setCurrentExerciseIndex(currentExerciseIndex + 1);
@@ -95,14 +151,25 @@ export default function PracticeQuestions() {
     }
   };
 
+  /**
+   * Finishes the practice session and navigates back to the practice dashboard.
+   * Calculates the final score as a percentage of correct answers out of total questions.
+   * Logs the final score and topic progress to the console.
+   * @returns {void}
+   */
   const handleFinishPractice = () => {
     const finalScore = ((score / exercises.length) * 100).toFixed(1);
     // You can save the practice results here if needed
     navigate(`/student/practice-dashboard/${topicId}?score=${finalScore}`);
   };
 
+  /**
+   * Navigates back to the student dashboard if topicId is not defined, otherwise
+   * navigates to the practice dashboard for the current topic.
+   * @returns {void}
+   */
   const handleBackToDashboard = () => {
-    if(!topicId) {
+    if (!topicId) {
       navigate(`/student`);
     }
     navigate(`/student/practice-dashboard/${topicId}`);
@@ -112,7 +179,7 @@ export default function PracticeQuestions() {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     // If it's already a full URL, return as is
-    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith("http")) return imagePath;
     // If it's a relative path, add server URL
     return `${SERVER_URL}${imagePath}`;
   };
@@ -151,7 +218,7 @@ export default function PracticeQuestions() {
           <p>לא נמצאו תרגילים עבור נושא זה</p>
           <button onClick={handleBackToDashboard} className={styles.backButton}>
             <FiArrowLeft />
-            חזור 
+            חזור
           </button>
         </div>
       </div>
@@ -166,33 +233,45 @@ export default function PracticeQuestions() {
   let answerOptions = [];
   try {
     if (currentExercise.AnswerOptions) {
-      answerOptions = typeof currentExercise.AnswerOptions === 'string' 
-        ? JSON.parse(currentExercise.AnswerOptions) 
-        : currentExercise.AnswerOptions;
+      answerOptions =
+        typeof currentExercise.AnswerOptions === "string"
+          ? JSON.parse(currentExercise.AnswerOptions)
+          : currentExercise.AnswerOptions;
     }
   } catch (error) {
-    console.warn('Failed to parse AnswerOptions:', error);
+    console.warn("Failed to parse AnswerOptions:", error);
     answerOptions = [];
   }
 
   // Get the correct answer text (handle both letter and text formats)
   let correctAnswerText = currentExercise.CorrectAnswer;
-  if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(currentExercise.CorrectAnswer).trim())) {
-    const letterIndex = String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+  if (
+    ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
+      String(currentExercise.CorrectAnswer).trim()
+    )
+  ) {
+    const letterIndex =
+      String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) -
+      65; // A=0, B=1, C=2, D=3
     if (letterIndex >= 0 && letterIndex < answerOptions.length) {
       correctAnswerText = answerOptions[letterIndex];
-      console.log('Correct answer conversion:', currentExercise.CorrectAnswer, '->', correctAnswerText);
+      console.log(
+        "Correct answer conversion:",
+        currentExercise.CorrectAnswer,
+        "->",
+        correctAnswerText
+      );
     }
   }
 
   // Debug: Log the current exercise data
-  console.log('Current Exercise Data:', {
+  console.log("Current Exercise Data:", {
     ContentType: currentExercise.ContentType,
     ContentValue: currentExercise.ContentValue,
     AnswerOptions: currentExercise.AnswerOptions,
     CorrectAnswer: currentExercise.CorrectAnswer,
     CorrectAnswerText: correctAnswerText,
-    ParsedAnswerOptions: answerOptions
+    ParsedAnswerOptions: answerOptions,
   });
 
   return (
@@ -208,10 +287,12 @@ export default function PracticeQuestions() {
           <p>תרגול שאלות</p>
         </div>
         <div className={styles.progressInfo}>
-          <span>{currentExerciseIndex + 1} מתוך {exercises.length}</span>
+          <span>
+            {currentExerciseIndex + 1} מתוך {exercises.length}
+          </span>
           <div className={styles.progressBar}>
-            <div 
-              className={styles.progressFill} 
+            <div
+              className={styles.progressFill}
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -228,21 +309,24 @@ export default function PracticeQuestions() {
         </div>
 
         <div className={styles.exerciseContent}>
-          {currentExercise.ContentType === 'image' && (
+          {currentExercise.ContentType === "image" && (
             <div className={styles.imageContainer}>
-              <img 
-                src={getImageUrl(currentExercise.ContentValue)} 
+              <img
+                src={getImageUrl(currentExercise.ContentValue)}
                 alt="Question content"
                 className={styles.questionImage}
                 onError={(e) => {
-                  console.error('Failed to load image:', currentExercise.ContentValue);
-                  e.target.style.display = 'none';
+                  console.error(
+                    "Failed to load image:",
+                    currentExercise.ContentValue
+                  );
+                  e.target.style.display = "none";
                 }}
               />
             </div>
           )}
-          
-          {currentExercise.ContentType === 'text' && (
+
+          {currentExercise.ContentType === "text" && (
             <div className={styles.textContainer}>
               <p>{currentExercise.ContentValue}</p>
             </div>
@@ -254,18 +338,28 @@ export default function PracticeQuestions() {
               {answerOptions.map((option, index) => {
                 // Get the correct answer text (handle both letter and text formats)
                 let correctAnswerText = currentExercise.CorrectAnswer;
-                if (['A', 'B', 'C', 'D', 'a', 'b', 'c', 'd'].includes(String(currentExercise.CorrectAnswer).trim())) {
-                  const letterIndex = String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+                if (
+                  ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
+                    String(currentExercise.CorrectAnswer).trim()
+                  )
+                ) {
+                  const letterIndex =
+                    String(currentExercise.CorrectAnswer)
+                      .trim()
+                      .toUpperCase()
+                      .charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
                   if (letterIndex >= 0 && letterIndex < answerOptions.length) {
                     correctAnswerText = answerOptions[letterIndex];
                   }
                 }
-                
+
                 // Use consistent comparison method for all checks
-                const isCorrectAnswer = String(option).trim() === String(correctAnswerText).trim();
+                const isCorrectAnswer =
+                  String(option).trim() === String(correctAnswerText).trim();
                 const isSelectedAnswer = selectedAnswer === option;
-                const isIncorrectSelected = showResult && isSelectedAnswer && !isCorrectAnswer;
-                
+                const isIncorrectSelected =
+                  showResult && isSelectedAnswer && !isCorrectAnswer;
+
                 // Debug logging for visual feedback
                 if (showResult) {
                   console.log(`Option ${index + 1} (${option}):`, {
@@ -274,10 +368,10 @@ export default function PracticeQuestions() {
                     isIncorrectSelected,
                     optionValue: `"${option}"`,
                     correctValue: `"${currentExercise.CorrectAnswer}"`,
-                    correctAnswerText: `"${correctAnswerText}"`
+                    correctAnswerText: `"${correctAnswerText}"`,
                   });
                 }
-                
+
                 return (
                   <button
                     key={index}
@@ -293,7 +387,9 @@ export default function PracticeQuestions() {
                     onClick={() => !showResult && handleAnswerSelect(option)}
                     disabled={showResult}
                   >
-                    <span className={styles.optionLetter}>{String.fromCharCode(65 + index)}.</span>
+                    <span className={styles.optionLetter}>
+                      {String.fromCharCode(65 + index)}.
+                    </span>
                     <span className={styles.optionText}>{option}</span>
                     {showResult && isCorrectAnswer && (
                       <FiCheck className={styles.correctIcon} />
@@ -344,12 +440,16 @@ export default function PracticeQuestions() {
         {/* Result Display */}
         {showResult && (
           <div className={styles.resultDisplay}>
-            <div className={`${styles.resultMessage} ${
-              String(selectedAnswer).trim() === String(correctAnswerText).trim()
-                ? styles.correctMessage 
-                : styles.incorrectMessage
-            }`}>
-              {String(selectedAnswer).trim() === String(correctAnswerText).trim() ? (
+            <div
+              className={`${styles.resultMessage} ${
+                String(selectedAnswer).trim() ===
+                String(correctAnswerText).trim()
+                  ? styles.correctMessage
+                  : styles.incorrectMessage
+              }`}
+            >
+              {String(selectedAnswer).trim() ===
+              String(correctAnswerText).trim() ? (
                 <>
                   <FiCheck />
                   תשובה נכונה!

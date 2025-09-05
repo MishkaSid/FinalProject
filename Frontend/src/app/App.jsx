@@ -15,6 +15,12 @@ import PracticeQuestions from "../pages/student/practice/practice questions/Prac
 import Practice from "../pages/student/practice/practice questions/practice";
 import Exam from "../pages/student/exam/Exam";
 
+/**
+ * The main app component, which wraps the entire app in the AuthProvider and
+ * Router components. It also defines the routes for the app, including the
+ * login page, unauthorized page, and the protected routes for the manager,
+ * teacher, and student dashboards.
+ */
 function App() {
   return (
     <AuthProvider>

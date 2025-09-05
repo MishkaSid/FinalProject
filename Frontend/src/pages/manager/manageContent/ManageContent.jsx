@@ -38,7 +38,7 @@ export default function ManageContent() {
     open: false,
     topic: null,
   });
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: "", text: "" });
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
   const [newCourseName, setNewCourseName] = useState("");
   const [deleteCourseConfirm, setDeleteCourseConfirm] = useState({
@@ -240,7 +240,8 @@ export default function ManageContent() {
    * @param {object} values - The updated form values for the practice content.
    */
   const handleEditContentSubmit = (values) => {
-    axios.put(`/api/practice/practiceExercise/${editContent.ExerciseID}`, values)
+    axios
+      .put(`/api/practice/practiceExercise/${editContent.ExerciseID}`, values)
       .then((res) => {
         setPracticeContent((prev) => ({
           ...prev,
@@ -250,13 +251,13 @@ export default function ManageContent() {
         }));
         setIsEditContentPopupOpen(false);
         setEditContent(null);
-        setMessage({ type: 'success', text: 'התוכן עודכן בהצלחה!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        setMessage({ type: "success", text: "התוכן עודכן בהצלחה!" });
+        setTimeout(() => setMessage({ type: "", text: "" }), 3000);
       })
       .catch((err) => {
         console.error("Error updating practice content:", err);
-        setMessage({ type: 'error', text: 'שגיאה בעדכון התוכן. אנא נסה שוב.' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+        setMessage({ type: "error", text: "שגיאה בעדכון התוכן. אנא נסה שוב." });
+        setTimeout(() => setMessage({ type: "", text: "" }), 5000);
       });
   };
 
@@ -267,7 +268,8 @@ export default function ManageContent() {
    * @param {number} exerciseId - The ID of the practice exercise to be deleted.
    */
   const handleDeleteContent = (exerciseId) => {
-    axios.delete(`/api/practice/practiceExercise/${exerciseId}`)
+    axios
+      .delete(`/api/practice/practiceExercise/${exerciseId}`)
       .then(() => {
         setPracticeContent((prev) => ({
           ...prev,
@@ -275,13 +277,13 @@ export default function ManageContent() {
             (c) => c.ExerciseID !== exerciseId
           ),
         }));
-        setMessage({ type: 'success', text: 'התוכן נמחק בהצלחה!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        setMessage({ type: "success", text: "התוכן נמחק בהצלחה!" });
+        setTimeout(() => setMessage({ type: "", text: "" }), 3000);
       })
       .catch((err) => {
         console.error("Error deleting practice content:", err);
-        setMessage({ type: 'error', text: 'שגיאה במחיקת התוכן. אנא נסה שוב.' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+        setMessage({ type: "error", text: "שגיאה במחיקת התוכן. אנא נסה שוב." });
+        setTimeout(() => setMessage({ type: "", text: "" }), 5000);
       });
   };
   /**
@@ -298,7 +300,7 @@ export default function ManageContent() {
       ...prev,
       [topicId]: [...(prev[topicId] || []), newContent],
     }));
-    
+
     // Refresh practice content data from server to ensure consistency
     axios.get("/api/practice/practiceExercises").then((res) => {
       const allContent = res.data || [];
@@ -315,17 +317,21 @@ export default function ManageContent() {
   return (
     <div className={styles.adminPage}>
       <h1 className={styles.pageTitle}>ניהול תכנים</h1>
-      
+
       {/* Message Display */}
       {message.text && (
-        <div 
-          className={`${styles.message} ${message.type === 'success' ? styles.successMessage : styles.errorMessage}`}
+        <div
+          className={`${styles.message} ${
+            message.type === "success"
+              ? styles.successMessage
+              : styles.errorMessage
+          }`}
           style={{
-            padding: '1rem',
-            margin: '1rem 0',
-            borderRadius: '8px',
-            textAlign: 'center',
-            fontWeight: '500'
+            padding: "1rem",
+            margin: "1rem 0",
+            borderRadius: "8px",
+            textAlign: "center",
+            fontWeight: "500",
           }}
         >
           {message.text}

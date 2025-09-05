@@ -48,7 +48,9 @@ const Form = ({ inputs, onSubmit }) => {
           )}
         </div>
       ))}
-      <button className={styles.submitButton} type="submit">Submit</button>
+      <button className={styles.submitButton} type="submit">
+        Submit
+      </button>
     </form>
   );
 };

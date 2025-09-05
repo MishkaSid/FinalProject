@@ -17,7 +17,6 @@ import { useAuth } from "../../context/AuthContext";
  *
  * @returns {JSX.Element} The rendered sidebar component.
  */
-
 function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
   
   const { logout } = useAuth();
@@ -43,6 +42,10 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
     guest: []
   };
 
+  /**
+   * Logs out the user and navigates to the homepage.
+   * @function
+   */
   function hadleLogout() {
     logout();
     navigate("/");
@@ -76,4 +79,3 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
 }
 
 export default Sidebar;
-

@@ -12,21 +12,25 @@ import { useAuth } from "../../context/AuthContext";
 /**
  * The TeacherDashboard component renders the main page for teachers.
  * It includes a sidebar for navigation, a welcome message for the user,
- * and a main content area with charts displaying question statistics 
+ * and a main content area with charts displaying question statistics
  * and grade distribution.
  *
- * The sidebar can be toggled open or closed, which blurs the background 
- * content. The component uses the Welcome, Sidebar, QuestionStatsChart, 
+ * The sidebar can be toggled open or closed, which blurs the background
+ * content. The component uses the Welcome, Sidebar, QuestionStatsChart,
  * and GradesDistributionChart components to render the respective sections.
  *
  * @returns {JSX.Element} The rendered TeacherDashboard component.
  */
-
 const TeacherDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handles navigation to the given route.
+   * @param {string} route The route to navigate to.
+   * @returns {void} No return value.
+   */
   const handleNavigation = (route) => {
     navigate(route);
   };
@@ -34,7 +38,11 @@ const TeacherDashboard = () => {
   return (
     <div className={styles.teacherPage}>
       <Welcome user={{ username: user?.name || "Teacher" }}>
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="Teacher" />
+        <Sidebar
+          isOpen={isSidebarOpen}
+          setIsOpen={setIsSidebarOpen}
+          userType="Teacher"
+        />
 
         <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
           <div className={styles.background}></div>

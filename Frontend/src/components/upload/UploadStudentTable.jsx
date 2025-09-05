@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import styles from "./uploadStudentTable.module.css";
 
+/**
+ * A React component that lets the user upload an Excel file to bulk-add users.
+ * When the upload is complete, it calls the `onUsersAdded` callback (if provided)
+ * to notify the parent component that users were added.
+ * @param {Object} props - Component props.
+ * @param {Function} [props.onUsersAdded] - Callback to notify parent component
+ *   that users were added.
+ * @returns {ReactElement} - The rendered component.
+ */
 export default function UploadStudentTable({ onUsersAdded }) {
   const [isUploading, setUploading] = useState(false);
 

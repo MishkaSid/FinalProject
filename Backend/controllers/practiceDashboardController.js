@@ -1,7 +1,11 @@
 const db = require("../dbConnection");
 
-/** GET /api/practice-dashboard/topics
- *  מחזיר את כל הנושאים עם שם הקורס
+/**
+ * @function getAllTopics
+ * @description Fetches all topics, ordered by course and topic names.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
  */
 exports.getAllTopics = async (req, res) => {
   let connection;
@@ -20,7 +24,7 @@ exports.getAllTopics = async (req, res) => {
       `
     );
 
-    return res.json(rows); // גם אם ריק – נחזיר []
+    return res.json(rows);
   } catch (err) {
     console.error("Error in getAllTopics:", err);
     return res.status(500).json({ error: "DB error" });
@@ -29,8 +33,12 @@ exports.getAllTopics = async (req, res) => {
   }
 };
 
-/** GET /api/practice-dashboard/topic/:topicId
- *  מחזיר מידע על נושא יחיד + שם קורס
+/**
+ * @function getTopicInfo
+ * @description Fetches a topic's information by id.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
  */
 exports.getTopicInfo = async (req, res) => {
   const { topicId } = req.params;
@@ -82,9 +90,12 @@ exports.getTopicInfo = async (req, res) => {
   }
 };
 
-/** GET /api/practice-dashboard/videos/:topicId
- *  מחזיר את כל הסרטונים לנושא מסוים, מסודרים: intro -> easy -> medium -> exam
- *  דורש שבטבלת practice_video יהיו העמודות: VideoUrl (VARCHAR) ו- Difficulty (ENUM)
+/**
+ * @function getPracticeVideos
+ * @description Fetches all practice videos for a topic, ordered by difficulty and video id.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
  */
 exports.getPracticeVideos = async (req, res) => {
   const { topicId } = req.params;
@@ -112,7 +123,7 @@ exports.getPracticeVideos = async (req, res) => {
       [topicId]
     );
 
-    return res.json(rows); // מערך (יכול להיות ריק)
+    return res.json(rows);
   } catch (err) {
     console.error("Error in getPracticeVideos:", err);
     return res.status(500).json({ error: "DB error" });
@@ -121,8 +132,12 @@ exports.getPracticeVideos = async (req, res) => {
   }
 };
 
-/** GET /api/practice-dashboard/exercises/:topicId
- *  מחזיר תרגילים לנושא (בסיסי, כמו שהיה אצלך – עם תיקון שם טבלה)
+/**
+ * @function getPracticeExercises
+ * @description Fetches the 10 most recent practice exercises for a topic, ordered by exercise id in descending order.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
  */
 exports.getPracticeExercises = async (req, res) => {
   const { topicId } = req.params;
