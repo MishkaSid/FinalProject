@@ -1,3 +1,8 @@
+// בקובץ זה נמצאים נתיבים לניהול נושאי הלימוד במערכת
+// הקובץ מגדיר endpoints לפעולות CRUD על נושאים
+// הוא מספק גישה מלאה לניהול נושאי הלימוד עבור המנהלים
+//routes
+// topicRoutes.js
 const express = require('express');
 const router = express.Router();
 const topicDataController = require('../controllers/topicDataController');

@@ -1,3 +1,4 @@
+// Frontend/src/pages/student/practice/practice questions/Practice.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiBook } from "react-icons/fi";

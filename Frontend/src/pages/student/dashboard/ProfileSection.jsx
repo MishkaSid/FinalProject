@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב הפרופיל של הסטודנט במערכת
+// הקובץ מציג מידע אישי על הסטודנט כולל מבחן אחרון, ממוצע ציונים ומספר מבחנים
+// הוא מספק כפתור רענון נתונים ומציג סטטוס טעינה ושגיאות
+// הוא משמש כחלק מדף הבית של הסטודנט ומציג את המידע האישי שלו
+
+// Frontend/src/pages/student/dashboard/ProfileSection.jsx
 import React from "react";
 import { FiUser, FiAward, FiTrendingUp, FiRefreshCw } from "react-icons/fi";
 import styles from "./student.module.css";

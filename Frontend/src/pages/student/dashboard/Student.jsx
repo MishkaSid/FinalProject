@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף הבית הראשי עבור סטודנטים במערכת
+// הקובץ מציג מידע אישי על הסטודנט ואפשרויות תרגול ובחינות
+// הוא מספק ממשק אינטראקטיבי לגישה לכל הפונקציונליות הלימודית
+// Frontend/src/pages/student/dashboard/Student.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "./student.module.css";
 import Card from "../../../components/card/Card";

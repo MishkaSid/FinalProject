@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב הרשימה להצגת נושאים במערכת
+// הקובץ מציג רשימה של נושאים באמצעות רכיבי כרטיס נפרדים
+// הוא מעביר פונקציות טיפול אירועים לכל כרטיס נושא ומנהל את הרשימה
+// הוא משמש להצגת כל הנושאים הקיימים במערכת עבור מנהלים ומורים
+
+// Frontend/src/pages/manager/manageContent/TopicList.jsx
 import React from "react";
 import styles from "../adminPages.module.css";
 import TopicCard from "./TopicCard";

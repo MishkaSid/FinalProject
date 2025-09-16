@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף הבית הראשי עבור מורים במערכת
+// הקובץ מציג גרפים סטטיסטיים על ביצועי התלמידים וסטטיסטיקות שאלות
+// הוא מספק מידע על התקדמות התלמידים ועל התוכן הלימודי במערכת
+// Frontend/src/pages/teacher/Teacher.jsx
 import React from "react";
 import styles from "./teacher.module.css";
 import { useNavigate } from "react-router-dom";

@@ -1,3 +1,6 @@
+// בקובץ זה נמצאות פונקציות לשליחת מיילים במערכת
+// הקובץ מגדיר חיבור ל-SMTP של Gmail ומספק פונקציה לשליחת הזמנות
+// הוא משמש לשליחת מיילי ברוכים הבאים למשתמשים חדשים במערכת
 // Backend/utils/mailer.js
 require("dotenv").config();
 const nodemailer = require("nodemailer");

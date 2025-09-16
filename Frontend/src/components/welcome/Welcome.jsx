@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הברכה הראשית של המערכת
+// הקובץ מציג הודעת ברוכים הבאים עם אפשרות גלילה למטה
+// הוא משמש כעמוד הבית הראשי עבור משתמשים מחוברים במערכת
+// Frontend/src/components/welcome/Welcome.jsx
 import { ChevronDown } from "lucide-react";
 import { scroller, Element } from "react-scroll";
 import styles from "./welcome.module.css";

@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב ההגנה על נתיבים במערכת
+// הקובץ בודק את תפקיד המשתמש ומאפשר גישה רק למשתמשים מורשים
+// הוא מספק אבטחה ומניעת גישה לא מורשית לדפים רגישים
+// ProtectedRoute.js
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Loading from "../components/loading spinner/Loading";

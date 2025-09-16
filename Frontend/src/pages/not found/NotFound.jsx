@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף השגיאה 404 של המערכת
+// הקובץ מציג הודעת שגיאה כאשר המשתמש מנסה לגשת לדף לא קיים
+// הוא מספק חוויית משתמש טובה גם במקרה של שגיאות ניווט
+// Frontend/src/pages/not found/NotFound.jsx
 import styles from "./notFound.module.css";
 
 /**

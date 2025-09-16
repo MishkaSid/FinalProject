@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף ניהול התוכן עבור מנהלים ומורים
+// הקובץ מספק ממשק מלא לניהול קורסים, נושאים ותוכן תרגול
+// הוא מאפשר פעולות CRUD מלאות על כל רכיבי התוכן הלימודי במערכת
+// Frontend/src/pages/manager/manageContent/ManageContent.jsx
 import React, { useState, useEffect } from "react";
 import styles from "../adminPages.module.css";
 import Popup from "../../../components/popup/Popup";

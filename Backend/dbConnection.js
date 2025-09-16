@@ -1,3 +1,7 @@
+// בקובץ זה נמצאת הגדרת החיבור למסד הנתונים
+// הקובץ יוצר pool של חיבורים למסד הנתונים MySQL ומנהל אותם
+// הוא מספק פונקציה לקבלת חיבור מהפול ושחרורו לאחר השימוש
+// dbConnection.js
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 

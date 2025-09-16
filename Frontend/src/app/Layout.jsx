@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הפריסה הראשי של האפליקציה
+// הקובץ מגדיר את המבנה הבסיסי עם כותרת, סרגל צד ותחתית
+// הוא מספק את הפריסה המשותפת לכל הדפים במערכת
+// Layout.js
 import { Outlet } from "react-router-dom";
 import Header from "../components/header/Header";
 import Sidebar from "../components/sidebar/Sidebar";

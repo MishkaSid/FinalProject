@@ -1,3 +1,8 @@
+// בקובץ זה נמצאות כל הפונקציות לטיפול בתוצאות בחינות במערכת
+// הקובץ מטפל בשמירת תוצאות בחינות, קבלת נתונים סטטיסטיים וניהול טבלת הבחינות
+// הוא מספק מידע על היסטוריית בחינות, ציונים ממוצעים ונתונים עבור לוח הבקרה של הסטודנט
+//controllers
+// examResultController.js
 const db = require("../dbConnection");
 
 // Test function to check and create exam table

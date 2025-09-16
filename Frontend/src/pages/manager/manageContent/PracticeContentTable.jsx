@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב הטבלה להצגת תוכן התרגול במערכת
+// הקובץ מציג טבלה עם תרגילים כולל תמונות, אפשרויות תשובה ותשובה נכונה
+// הוא מספק כפתורי עריכה ומחיקה עבור כל תרגיל ומטפל בפרסור נתוני JSON
+// הוא משמש להצגת כל התרגילים הקיימים במערכת עבור מנהלים ומורים
+
+// Frontend/src/pages/manager/manageContent/PracticeContentTable.jsx
 import React from "react";
 import styles from "../adminPages.module.css";
 

@@ -1,3 +1,8 @@
+// בקובץ זה נמצאים נתיבים לניהול משתמשים במערכת
+// הקובץ מגדיר endpoints ליצירה, עדכון ומחיקה של משתמשים והעלאת משתמשים מקובץ אקסל
+// הוא מספק גישה מלאה לניהול משתמשים עבור המנהלים
+//routes
+// userRoutes.js
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');

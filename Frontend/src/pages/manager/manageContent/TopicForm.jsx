@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב הטופס ליצירה ועריכה של נושאים במערכת
+// הקובץ מספק טופס עם שדות למזהה נושא, שם נושא ומזהה קורס
+// הוא תומך במצבי הוספה ועריכה ומציג כפתורי שמירה וביטול
+// הוא משמש לניהול נושאי הלימוד במערכת עבור מנהלים ומורים
+
+// Frontend/src/pages/manager/manageContent/TopicForm.jsx
 import React, { useState } from "react";
 import styles from "../adminPages.module.css";
 

@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הגרפים להצגת סטטיסטיקות שאלות במערכת
+// הקובץ מציג גרף עמודות לסוגי שאלות וגרף עוגה לאחוז נכשלים לפי מקצוע
+// הוא מספק מידע ויזואלי על ביצועי המערכת והתוכן הלימודי
+// Frontend/src/components/charts/QuestionStatsChart.jsx
 import React from "react";
 import {
   BarChart,

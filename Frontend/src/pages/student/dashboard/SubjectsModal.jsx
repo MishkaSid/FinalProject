@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב החלון הקופץ לבחירת נושאים לתרגול
+// הקובץ מציג רשימה של נושאים זמינים עם אפשרות בחירה לתרגול או מבחן
+// הוא מטפל בטעינת נתונים, הצגת שגיאות ומספק כפתורי התחלת תרגול ומבחן
+// הוא משמש כחלון בחירה עבור סטודנטים לבחירת נושא ספציפי לתרגול
+
+// Frontend/src/pages/student/dashboard/SubjectsModal.jsx
 import React from "react";
 import { FiBook, FiCheck } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";

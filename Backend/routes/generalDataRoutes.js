@@ -1,3 +1,8 @@
+// בקובץ זה נמצאים נתיבים לקבלת נתונים כלליים ממסד הנתונים
+// הקובץ מגדיר endpoints לקבלת משתמשים, מנהלים, מורים ונתוני תרגול
+// הוא מספק גישה לנתונים בסיסיים עבור ממשקי הניהול במערכת
+//routes
+// generalDataRoutes.js
 const express = require('express');
 const router = express.Router();
 const generalDataController = require('../controllers/generalDataController');

@@ -1,3 +1,8 @@
+// בקובץ זה נמצאים נתיבים עבור ממשק הסטודנט במערכת
+// הקובץ מגדיר endpoints לקורסים, נושאים, תרגול ובחינות עבור סטודנטים
+// הוא מספק את כל הפונקציונליות הנדרשת עבור ממשק הסטודנט
+//routes
+// studentRoutes.js
 const express = require('express');
 const router = express.Router();
 const studentController = require('../controllers/studentController');

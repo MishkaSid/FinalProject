@@ -1,4 +1,7 @@
-
+// בקובץ זה נמצא רכיב הגרף להצגת התפלגות ציונים במערכת
+// הקובץ מציג גרף עמודות עם התפלגות ציונים של סטודנטים לפי טווחים
+// הוא משמש להצגת נתונים סטטיסטיים על ביצועי הסטודנטים במערכת
+// Frontend/src/components/charts/GradeDistributionChart.jsx
 import React from "react";
 import {
   BarChart,

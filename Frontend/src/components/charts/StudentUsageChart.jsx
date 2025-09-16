@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הגרף להצגת שימוש יומי במערכת
+// הקובץ מציג גרף קווים עם מספר הסטודנטים שהתחברו בכל יום
+// הוא מספק מידע על רמת הפעילות והשימוש בפלטפורמה
+// Frontend/src/components/charts/StudentUsageChart.jsx
 import React from "react";
 import {
   LineChart,

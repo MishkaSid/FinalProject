@@ -1,4 +1,6 @@
-import { useState } from "react";
+// בקובץ זה נמצא רכיב הטופס הכללי למשתמשים במערכת
+// הקובץ מספק טופס רב-שימושי להתחברות, הוספה ועריכת משתמשים
+// הוא כולל ולידציה מתקדמת ותמיכה במצבים שונים של הטופס
 import styles from "./form.module.css";
 import Popup from "../popup/Popup";
 

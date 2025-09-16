@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף ההתחברות הראשי של המערכת
+// הקובץ מספק ממשק התחברות עם שדות אימייל וסיסמה
+// הוא מטפל בתהליך האותנטיקציה ומנווט למשתמש לפי תפקידו
+// Frontend/src/pages/Login/Login-page.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

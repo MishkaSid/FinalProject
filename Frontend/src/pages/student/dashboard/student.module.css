@@ -26,8 +26,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error states */
@@ -252,7 +256,8 @@
   max-width: 1200px;
 }
 
-.profile, .card {
+.profile,
+.card {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -275,7 +280,7 @@
   margin-top: 4rem;
 }
 
-.profileTitle{
+.profileTitle {
   font-size: 7rem;
   color: var(--clr-blue-5);
   margin-bottom: 1rem;
@@ -283,7 +288,7 @@
   text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.profileContent{
+.profileContent {
   font-size: 1.8rem;
   color: var(--clr-blue-5);
   font-weight: 700;
@@ -703,4 +708,3 @@
     font-size: 0.6rem;
   }
 }
-

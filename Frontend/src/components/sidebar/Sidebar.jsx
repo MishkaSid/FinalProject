@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב סרגל הצד לניווט במערכת
+// הקובץ מציג תפריט ניווט שונה לפי תפקיד המשתמש ומאפשר התנתקות
+// הוא מספק גישה מהירה לכל הדפים הרלוונטיים לכל סוג משתמש
+// Frontend/src/components/sidebar/Sidebar.jsx
 import { Link , useNavigate } from "react-router-dom";
 import { FiUsers, FiHome, FiBookOpen, FiBook, FiMenu, FiLogOut } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";

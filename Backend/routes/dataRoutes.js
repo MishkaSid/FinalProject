@@ -1,3 +1,8 @@
+// בקובץ זה נמצאים נתיבים כלליים לנתונים במערכת
+// הקובץ מגדיר endpoints לנתונים בסיסיים כמו משתמשים, קורסים, נושאים ותרגילים
+// הוא משמש כנקודת גישה מרכזית לנתונים סטטיים במערכת
+//routes
+// dataRoutes.js
 const express = require('express');
 const router = express.Router();
 const generalDataController = require('../controllers/generalDataController');

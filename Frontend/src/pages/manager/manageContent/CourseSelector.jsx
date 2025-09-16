@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב בחירת הקורסים במערכת
+// הקובץ מספק ממשק לבחירת קורסים, הוספת קורסים חדשים ומחיקת קורסים קיימים
+// הוא מאפשר הוספת נושאים לקורס נבחר ומציג כפתורי פעולה שונים לפי המצב
+// הוא משמש ככלי ניהול מרכזי עבור מנהלים ומורים לניהול קורסים ונושאים
+
+// Frontend/src/pages/manager/manageContent/CourseSelector.jsx
 import React from "react";
 import styles from "../adminPages.module.css";
 

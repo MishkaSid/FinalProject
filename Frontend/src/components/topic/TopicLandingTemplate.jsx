@@ -1,3 +1,7 @@
+// בקובץ זה נמצא תבנית הדף הראשי לנושאי הלימוד
+// הקובץ מציג מידע על נושא, סרטוני הסבר ותרגול לפי רמות קושי
+// הוא מספק ממשק אינטראקטיבי לסטודנטים לגישה לתוכן הלימוד
+// Frontend/src/components/topic/TopicLandingTemplate.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./topicLanding.module.css";

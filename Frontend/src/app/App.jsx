@@ -1,3 +1,7 @@
+// בקובץ זה נמצא הרכיב הראשי של האפליקציה
+// הקובץ מגדיר את כל הנתיבים והרכיבים המוגנים במערכת
+// הוא מספק את המבנה הבסיסי של הניווט והגישה לפי תפקידים
+// App.js
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
 import Layout from "./Layout";

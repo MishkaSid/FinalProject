@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף המבחן הכללי עבור סטודנטים
+// הקובץ מספק ממשק מלא למבחן עם טיימר, ניווט בין שאלות ושמירת תוצאות
+// הוא מטפל בכל תהליך המבחן מהתחלה ועד הצגת התוצאות הסופיות
+// Frontend/src/pages/student/exam/Exam.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {

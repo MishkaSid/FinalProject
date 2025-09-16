@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב התחתית של האפליקציה
+// הקובץ מציג פרטי יצירת קשר וזכויות יוצרים
+// הוא מספק מידע חשוב למשתמשים ומשמש כחלק מהפריסה הבסיסית
+// Footer.js
 import './footer.css'
 /**
  * A simple footer component that displays a contact email and a copyright message

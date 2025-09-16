@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף התרגול עבור נושא ספציפי
+// הקובץ מספק ממשק תרגול אינטראקטיבי עם שאלות ותשובות מידיות
+// הוא מאפשר לסטודנטים לתרגל נושא מסוים ולקבל משוב מיידי על התשובות
+// Frontend/src/pages/student/practice/practice questions/PracticeQuestions.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiPlay } from "react-icons/fi";

@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף השגיאה עבור משתמשים ללא הרשאה
+// הקובץ מציג הודעת שגיאה כאשר משתמש מנסה לגשת לדף שאין לו הרשאה אליו
+// הוא מספק מידע על יצירת קשר עם מנהל המערכת במקרה של שגיאה
+// Frontend/src/pages/unauthorize/Unauthorize.jsx
 import styles from "./unauthorize.module.css";
 
 /**

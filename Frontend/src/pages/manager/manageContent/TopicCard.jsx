@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב הכרטיס להצגת נושא במערכת
+// הקובץ מציג נושא יחיד ככרטיס עם כפתורי פעולה לעריכה ומחיקה
+// הוא משתמש ברכיב הכרטיס הכללי ומספק ממשק אינטראקטיבי לניהול נושאים
+// הוא משמש להצגת נושאים ברשימה ומאפשר פעולות מהירות על כל נושא
+
+// Frontend/src/pages/manager/manageContent/TopicCard.jsx
 import React from "react";
 import styles from "../adminPages.module.css";
 import Card from "../../../components/card/Card";

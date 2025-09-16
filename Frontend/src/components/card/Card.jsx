@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הכרטיס הכללי של המערכת
+// הקובץ מספק רכיב כרטיס רב-שימושי עם אפשרויות התאמה שונות
+// הוא משמש להצגת מידע בצורה ויזואלית וקליקית בממשק המשתמש
+// Frontend/src/components/card/Card.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./card.module.css";

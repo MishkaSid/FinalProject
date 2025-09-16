@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב להעלאת קובץ אקסל של סטודנטים
+// הקובץ מספק ממשק להעלאת קובץ אקסל עם רשימת משתמשים חדשים
+// הוא משמש מנהלים להוספת מספר רב של סטודנטים בבת אחת למערכת
+// Frontend/src/components/upload/UploadStudentTable.jsx
 import React, { useState } from "react";
 import styles from "./uploadStudentTable.module.css";
 

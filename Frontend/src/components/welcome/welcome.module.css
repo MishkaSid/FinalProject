@@ -9,7 +9,7 @@
 }
 
 .content {
-  background:rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.5);
   padding: 5rem;
   border-radius: 2rem;
   width: 30%;
@@ -45,7 +45,7 @@
   opacity: 0;
 }
 
-.scrollIndicator p{
+.scrollIndicator p {
   color: #333;
 }
 
@@ -60,7 +60,7 @@
   stroke-width: 2px;
   color: var(--clr-blue-5);
 }
-.chevron:hover{
+.chevron:hover {
   color: var(--clr-yellow);
 }
 /* Animate the entrance */
@@ -79,7 +79,8 @@
 
 /* Bounce chevron */
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -92,4 +93,3 @@
   min-height: 100vh;
   padding: 2rem;
 }
-

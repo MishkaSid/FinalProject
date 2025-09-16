@@ -1,3 +1,7 @@
+// בקובץ זה נמצא דף הבית הראשי עבור מנהלים במערכת
+// הקובץ מציג גרפים סטטיסטיים על ביצועי המערכת ושימוש הסטודנטים
+// הוא מספק מידע מקיף על פעילות המערכת עבור מנהלים
+// Frontend/src/pages/manager/home/Manager.jsx
 import "../../pages.css";
 import styles from "./manager.module.css";
 import GradesDistributionChart from "../../../components/charts/GradeDistributionChart";

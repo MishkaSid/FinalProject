@@ -1,3 +1,8 @@
+// בקובץ זה נמצאות פונקציות לניהול משתמשים במערכת
+// הקובץ מטפל ביצירה, עדכון ומחיקה של משתמשים, כולל העלאת משתמשים מקובץ אקסל
+// הוא כולל הצפנת סיסמאות, שליחת הזמנות במייל ובדיקת כפילויות
+//controllers
+// userController.js
 const ExcelJS = require("exceljs");
 const db = require("../dbConnection");
 const bcrypt = require("bcrypt");

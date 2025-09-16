@@ -1,3 +1,9 @@
+// בקובץ זה נמצא דף ניהול הרשאות המשתמשים במערכת
+// הקובץ מספק ממשק מלא לניהול משתמשים כולל חיפוש, סינון, הוספה ועריכה
+// הוא מטפל בוולידציה, שליחת מיילים והעלאת משתמשים מקובץ אקסל
+// הוא משמש ככלי ניהול מרכזי עבור מנהלים לניהול כל המשתמשים במערכת
+
+// Frontend/src/pages/manager/permissions/UserPermissions.jsx
 import { useState, useEffect } from "react";
 import styles from "../adminPages.module.css";
 import Upload from "../../../components/upload/UploadStudentTable";
