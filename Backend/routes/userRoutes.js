@@ -1,29 +1,26 @@
 // בקובץ זה נמצאים נתיבים לניהול משתמשים במערכת
 // הקובץ מגדיר endpoints ליצירה, עדכון ומחיקה של משתמשים והעלאת משתמשים מקובץ אקסל
 // הוא מספק גישה מלאה לניהול משתמשים עבור המנהלים
-//routes
-// userRoutes.js
-const express = require('express');
+// Backend/routes/userRoutes.js
+// Routes for user management: create, update, delete, and bulk upload from Excel
+
+const express = require("express");
 const router = express.Router();
-const userController = require('../controllers/userController');
-const upload = require('../middleware/upload');
+const userController = require("../controllers/userController");
+const upload = require("../middleware/upload"); // must export a Multer instance
 
+// Add a new user
+router.post("/addUser", userController.createUser);
 
-// Route for adding a new user
-router.post('/addUser', userController.createUser);
-
-// Route for bulk‑uploading users from Excel
+// Bulk upload from Excel
 // POST /api/user/upload
-// field name: file (an .xlsx with columns: id, email, name)
-router.post(
-  '/upload',
-  upload.single('file'),
-  userController.bulkUploadUsers
-);
+// field name: file
+router.post("/upload", upload.single("file"), userController.bulkUploadUsers);
 
-// Route for updating a user
-router.put('/updateUser/:id', userController.updateUser);
-// Route for deleting a user
-router.delete('/deleteUser/:id', userController.deleteUser);
+// Update a user
+router.put("/updateUser/:id", userController.updateUser);
 
-module.exports = router; 
+// Delete a user
+router.delete("/deleteUser/:id", userController.deleteUser);
+
+module.exports = router;
