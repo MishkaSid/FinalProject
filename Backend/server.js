@@ -13,6 +13,8 @@ const practiceContentRoutes = require("./routes/practiceContentRoutes");
 const practiceDashboardRoutes = require("./routes/practiceDashboardRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const authRoutes = require("./auth/auth");
+const analyticsRoutes = require("./routes/analyticsRoutes");
+const practiceTrackingRoutes = require("./routes/practiceTrackingRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -26,6 +28,8 @@ app.use("/api/practice", practiceContentRoutes);
 app.use("/api/practice-dashboard", practiceDashboardRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/practice-tracking", practiceTrackingRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

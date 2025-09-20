@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiBook } from "react-icons/fi";
 import styles from "./practice.module.css"; // Using dedicated CSS for this component
+import { postPracticeAttempt } from "../../../services/analyticsApi";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Practice() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [exercises, setExercises] = useState([]);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -70,7 +73,7 @@ export default function Practice() {
     setSelectedAnswer(answer);
   };
 
-  const handleSubmitAnswer = () => {
+  const handleSubmitAnswer = async () => {
     if (!selectedAnswer) return;
     
     const currentExercise = exercises[currentExerciseIndex];
@@ -100,9 +103,24 @@ export default function Practice() {
     
     console.log('String comparison:');
     console.log('  Selected (trimmed):', `"${selectedAnswerStr}"`);
-    console.log('  Correct (trimmed):', `"${correctAnswerStr}"`);
+    console.log('  Correct (trimmed):', `"${selectedAnswerStr}"`);
     console.log('  Is Correct:', isCorrect);
     console.log('================================');
+    
+    // Track practice attempt if user is authenticated
+    if (user?.id) {
+      try {
+        await postPracticeAttempt({
+          userId: user.id,
+          exerciseId: currentExercise.ExerciseID,
+          selectedAnswer: selectedAnswerStr
+        });
+        console.log('Practice attempt tracked successfully');
+      } catch (err) {
+        console.error('Failed to track practice attempt:', err);
+        // Don't block the UI if tracking fails
+      }
+    }
     
     if (isCorrect) {
       setScore(score + 1);

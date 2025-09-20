@@ -24,6 +24,28 @@
   text-align: center;
 }
 
+.loadingState,
+.errorState,
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  padding: 2rem;
+}
+
+.errorState {
+  color: #e74c3c;
+}
+
+.emptyState {
+  color: #95a5a6;
+  font-style: italic;
+}
+
 .centerChart{
   display: flex;
   justify-content: center;
