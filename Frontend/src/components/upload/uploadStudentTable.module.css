@@ -1,18 +1,28 @@
 /* From Uiverse.io by omar49511 */ 
+.wrapper {
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
 .container {
   display: flex;
   position: relative;
   justify-content: center;
   align-items: center;
-  background-color: #307750;
+  background-color: var(--admin-accent);
   color: #fff;
   border-style: none;
-  padding: 1em 2em;
-  border-radius: 0.5em;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   z-index: 1;
-  box-shadow: 4px 8px 10px -3px rgba(0, 0, 0, 0.356);
+  box-shadow: var(--admin-shadow);
   transition: all 250ms;
+  height: 48px;
+  min-width: 120px;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 .container input[type="file"] {
   position: absolute;
@@ -29,8 +39,8 @@
   position: absolute;
   height: 100%;
   width: 0;
-  border-radius: 0.5em;
-  background-color: #469b61;
+  border-radius: var(--radius-sm);
+  background-color: var(--admin-accent-strong);
   z-index: -1;
   transition: all 350ms;
 }
@@ -38,6 +48,6 @@
   width: 100%;
 }
 .container:hover {
-  background-color:#307750;
-  box-shadow: 0 0 10px rgba(75, 218, 77, 0.5);
+  background-color: var(--admin-accent-strong);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--admin-accent) 50%, transparent);
 }

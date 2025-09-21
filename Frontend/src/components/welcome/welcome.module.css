@@ -9,26 +9,28 @@
 }
 
 .content {
-  background:rgba(255, 255, 255, 0.5);
+  background: var(--admin-surface);
   padding: 5rem;
-  border-radius: 2rem;
+  border-radius: var(--radius-lg);
   width: 30%;
   text-align: center;
   animation: slideUp 1s ease forwards;
   opacity: 0;
   transform: translateY(40px);
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--admin-shadow);
 }
 
 .title {
   font-weight: bold;
-  color: var(--clr-blue-2);
+  color: var(--admin-text);
   margin-bottom: 0.5rem;
   animation: fadeIn 1s 0.2s ease-out forwards;
   opacity: 0;
 }
 
 .subtitle {
-  color: #555;
+  color: var(--admin-text-muted);
   margin-bottom: 2rem;
   animation: fadeIn 1s 0.4s ease-out forwards;
   opacity: 0;
@@ -39,14 +41,14 @@
   flex-direction: column;
   align-items: center;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--admin-text-muted);
   cursor: pointer;
   animation: fadeIn 1s 1s ease-out forwards;
   opacity: 0;
 }
 
 .scrollIndicator p{
-  color: #333;
+  color: var(--admin-text-muted);
 }
 
 .chevronContainer {
@@ -58,10 +60,10 @@
   width: 24px;
   height: 24px;
   stroke-width: 2px;
-  color: var(--clr-blue-5);
+  color: var(--admin-accent);
 }
 .chevron:hover{
-  color: var(--clr-yellow);
+  color: var(--admin-cta);
 }
 /* Animate the entrance */
 @keyframes fadeIn {

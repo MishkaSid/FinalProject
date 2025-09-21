@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/sidebar/Sidebar";
 import { useState } from "react";
 import "../pages.css";
+import "../../styles/admin-utils.css";
 import GradesDistributionChart from "../../components/charts/GradeDistributionChart";
 import QuestionStatsChart from "../../components/charts/QuestionStatsChart";
-import Welcome from "../../components/welcome/Welcome";
 import { useAuth } from "../../context/AuthContext";
 
 /**
@@ -33,20 +33,22 @@ const TeacherDashboard = () => {
 
   return (
     <div className={styles.teacherPage}>
-      <Welcome user={{ username: user?.name || "Teacher" }}>
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="Teacher" />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="Teacher" />
 
-        <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
-          <div className={styles.background}></div>
+      <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
+        <div className={styles.background}></div>
 
-          <div className={styles.teacherContent}>
-            <div className={styles.chartsGrid}>
-              <QuestionStatsChart />
-              <GradesDistributionChart />
-            </div>
+        <div className={styles.teacherContent}>
+          <div className={styles.dashboardHeader}>
+            <h1 className={styles.dashboardTitle}>לוח בקרה - מורה</h1>
+            <p className={styles.dashboardSubtitle}>ברוך הבא, {user?.name || "מורה"}</p>
+          </div>
+          <div className={styles.chartsGrid}>
+            <QuestionStatsChart />
+            <GradesDistributionChart />
           </div>
         </div>
-      </Welcome>
+      </div>
     </div>
   );
 };

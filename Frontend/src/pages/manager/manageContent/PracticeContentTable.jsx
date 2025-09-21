@@ -47,7 +47,7 @@ export default function PracticeContentTable({ contentList, onDeleteContent, onE
                   <button 
                     className={styles.smallButton} 
                     onClick={() => onEditContent(content)}
-                    style={{ marginLeft: '5px', backgroundColor: '#007bff', color: 'white' }}
+                    style={{ marginLeft: '5px', backgroundColor: 'var(--admin-accent)', color: 'white' }}
                   >
                     ערוך
                   </button>

@@ -14,12 +14,13 @@
 }
 
 .popupContent {
-  background-color: white;
-  padding: 10px;
-  border-radius: 8px;
+  background-color: var(--admin-surface);
+  padding: var(--pad-lg);
+  border-radius: var(--radius-lg);
   max-width: 600px;
   width: 90%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
   text-align: center;
   animation: slideUp 0.3s ease-in forwards;
   position: relative;
@@ -29,32 +30,33 @@
   margin-bottom: 15px;
   font-size: 2rem;
   font-weight: bold;
-  color: var(--clr-blue-2);
+  color: var(--admin-text);
 }
 
 .popupText {
   margin-bottom: 25px;
   font-size: 1.2rem;
   font-weight: bold;
-  color: var(--clr-blue-2);
+  color: var(--admin-text-muted);
 }
 .closeButton {
   position: absolute;
   top: 0.2rem;
   left: 1rem;
-  background-color: #9ecbfc;
-  color: white;
+  background-color: var(--admin-accent-weak);
+  color: var(--admin-accent-strong);
   padding: 5px 5px;
   border: none;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.1s ease;
   max-width: 5%;
-  
 }
 
 .closeButton:hover {
-  background-color: #0057b3c9;
+  background-color: var(--admin-accent);
+  color: white;
+  transform: translateY(-1px);
 }
 
 @keyframes fadeIn {

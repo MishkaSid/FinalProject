@@ -4,6 +4,7 @@
   flex-direction: column;
   position: relative;
   min-height: 90vh;
+  background: var(--admin-bg);
 }
 
 .background {
@@ -30,6 +31,32 @@
   margin-left: 4%;
 }
 
+/* Dashboard Header */
+.dashboardHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: var(--admin-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+}
+
+.dashboardTitle {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboardSubtitle {
+  font-size: 1.5rem;
+  color: var(--admin-text-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
 /* charts Grid */
 .chartsGrid {
   display: grid;
@@ -45,9 +72,11 @@
 /* Card Style */
 .card {
   padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
   text-align: center;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
   transition: transform 0.3s ease-in-out;
 }
 
@@ -57,29 +86,30 @@
 }
 
 .card h3 {
-  color: #2c3e50;
+  color: var(--admin-text);
   font-size: 1.5rem;
 }
 
 .card p {
-  color: #555;
+  color: var(--admin-text-muted);
   font-size: 1rem;
   margin: 1rem 0;
 }
 
 .card button {
-  background: #3498db;
+  background: var(--admin-accent);
   color: white;
   border: none;
   padding: 10px 15px;
   font-size: 1rem;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
+  transition: background 0.3s ease-in-out, transform 0.1s ease;
 }
 
 .card button:hover {
-  background: #2980b9;
+  background: var(--admin-accent-strong);
+  transform: translateY(-1px);
 }
 
 /* Responsive Design */
@@ -109,6 +139,19 @@
   .sidebar {
     width: 100%;
     text-align: center;
+  }
+
+  .dashboardHeader {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .dashboardTitle {
+    font-size: 2.5rem;
+  }
+
+  .dashboardSubtitle {
+    font-size: 1.2rem;
   }
 }
 

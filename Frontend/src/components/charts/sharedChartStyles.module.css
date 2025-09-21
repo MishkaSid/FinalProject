@@ -1,9 +1,10 @@
 
 .chartWrapper {
   height: 350px;
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  background-color: var(--admin-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
   padding: 4em;
   margin-bottom: 2em;
   width: 100%;
@@ -13,13 +14,13 @@
 .chartTitle {
   font-size: 1.6rem;
   font-weight: bold;
-  color: var(--clr-blue-2);
+  color: var(--admin-text);
   text-align: center;
 }
 
 .chartSub {
   font-size: 1rem;
-  color: #777;
+  color: var(--admin-text-muted);
   margin-bottom: 12px;
   text-align: center;
 }
@@ -32,17 +33,17 @@
   justify-content: center;
   height: 200px;
   font-size: 1.2rem;
-  color: #666;
+  color: var(--admin-text-muted);
   text-align: center;
   padding: 2rem;
 }
 
 .errorState {
-  color: #e74c3c;
+  color: var(--admin-error);
 }
 
 .emptyState {
-  color: #95a5a6;
+  color: var(--admin-text-muted);
   font-style: italic;
 }
 

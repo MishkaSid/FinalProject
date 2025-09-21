@@ -54,6 +54,57 @@ Variables
   --radius: 0.25rem;
 
   --max-width: 900px;
+
+  /* Admin Theme Variables */
+  /* Primary */
+  --color-primary-900: #1C3448;
+  --color-primary-700: #194973; /* main */
+  --color-primary-500: #6F9EC8;
+  --color-primary-300: #AED3F2;
+  --color-primary-100: #E2F2FF;
+
+  /* Secondary */
+  --color-secondary-700: #A06D4C;
+  --color-secondary-600: #CA763E;
+  --color-secondary-500: #F47521; /* main */
+
+  /* Gray */
+  --color-gray-900: #1E2A33;
+  --color-gray-700: #44515B;
+  --color-gray-500: #7E9AB0; /* main */
+
+  /* Error */
+  --color-error-600: #D52323;
+  --color-error-500: #FF0000;
+
+  /* Semantic admin tokens */
+  --admin-bg: #F8FBFF;                 /* or var(--color-primary-100) */
+  --admin-surface: #FFFFFF;
+  --admin-surface-alt: #F2F6FA;
+  --admin-border: rgba(28, 52, 72, 0.12);
+  --admin-text: #1C3448;               /* primary-900 */
+  --admin-text-muted: #44515B;         /* gray-700 */
+  --admin-link: var(--color-primary-700);
+  --admin-link-hover: var(--color-primary-900);
+
+  --admin-accent: var(--color-primary-700);     /* main */
+  --admin-accent-weak: var(--color-primary-300);
+  --admin-accent-strong: var(--color-primary-900);
+
+  --admin-cta: var(--color-secondary-500);      /* F47521 main */
+  --admin-cta-hover: var(--color-secondary-600);
+
+  --admin-error: var(--color-error-600);
+  --admin-focus: var(--color-primary-500);      /* focus ring */
+  --admin-shadow: 0 6px 18px rgba(25, 73, 115, 0.12);
+
+  /* Radii & spacing for consistent look */
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
+  --pad-lg: 20px;
+  --pad-md: 16px;
+  --pad-sm: 12px;
 }
 
 /* #endregion variables */

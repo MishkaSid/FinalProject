@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiBook } from "react-icons/fi";
 import styles from "./practice.module.css"; // Using dedicated CSS for this component
-import { postPracticeAttempt } from "../../../services/analyticsApi";
-import { useAuth } from "../../../context/AuthContext";
+import { postPracticeAttempt } from "../../../../services/analyticsApi";
+import { useAuth } from "../../../../context/AuthContext";
 
 export default function Practice() {
   const navigate = useNavigate();
