@@ -4,13 +4,14 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  border-radius: 16px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.2),
-    2px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-lg);
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--admin-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  padding: 20px;
+  padding: var(--pad-lg);
   cursor: pointer;
+  margin: 2em;
   margin: 2em;
 }
 
@@ -22,18 +23,19 @@
 .cardIcon {
   font-size: 2.5rem;
   margin-bottom: 12px;
-  color: var(--clr-blue-2);
+  color: var(--admin-accent);
 }
 
 .cardTitle {
   font-size: 3rem;
   font-weight: bold;
   margin-bottom: 10px;
+  color: var(--admin-text);
 }
 
 .cardDescription {
   font-size: 1.2rem;
-  color: black;
+  color: var(--admin-text-muted);
   line-height: 1.5;
 }
 

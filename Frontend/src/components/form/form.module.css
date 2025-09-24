@@ -6,8 +6,10 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 3rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
 }
 
 .inputContainer {
@@ -21,19 +23,23 @@
   margin-bottom: 0.5rem;
   font-weight: bold;
   font-size: 1.4rem;
+  color: var(--admin-text);
 }
 
 .input {
   padding: 0.75rem;
   font-size: 1.6rem;
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text);
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus {
-  box-shadow: 0 0 8px var(--clr-blue-5);
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-focus) 30%, transparent);
 }
 
 .formTextarea {
@@ -43,25 +49,31 @@
 .formButton {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.25rem;
-  background-color: var(--clr-blue-5);
-  color: var(--clr-white);
+  border-radius: var(--radius-sm);
+  background-color: var(--admin-accent);
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .formButton:hover {
-  background-color: var(--clr-blue-6);
+  background-color: var(--admin-accent-strong);
+  transform: translateY(-1px);
 }
 
 .submitButton {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.25rem;
-  background-color: var(--clr-blue-4);
-  color: var(--clr-white);
+  border-radius: var(--radius-sm);
+  background-color: var(--admin-cta);
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.submitButton:hover {
+  background-color: var(--admin-cta-hover);
+  transform: translateY(-1px);
 }
 

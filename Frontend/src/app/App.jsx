@@ -18,6 +18,9 @@ import NotFound from "../pages/not found/NotFound";
 import PracticeQuestions from "../pages/student/practice/practice questions/PracticeQuestions";
 import Practice from "../pages/student/practice/practice questions/practice";
 import Exam from "../pages/student/exam/Exam";
+import AdminVideosPage from "../pages/admin/AdminVideosPage";
+import AdminExamQuestionsPage from "../pages/admin/AdminExamQuestionsPage";
+import AdminPracticeExercisesPage from "../pages/admin/AdminPracticeExercisesPage";
 
 /**
  * The main app component, which wraps the entire app in the AuthProvider and
@@ -49,6 +52,9 @@ function App() {
                 path="/manager/manageContent"
                 element={<ManageContent />}
               />
+              <Route path="/admin/topics/:topicId/videos" element={<AdminVideosPage />} />
+              <Route path="/admin/topics/:topicId/exam" element={<AdminExamQuestionsPage />} />
+              <Route path="/admin/topics/:topicId/practice" element={<AdminPracticeExercisesPage />} />
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route
                 path="/teacher/manageContent"

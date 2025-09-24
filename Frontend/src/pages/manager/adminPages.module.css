@@ -1,16 +1,56 @@
 .adminPage {
   position: relative;
-  padding: 32px;
-  min-height:70vh;
+  padding: var(--pad-lg);
+  min-height: 70vh;
   display: flex;
   flex-direction: column;
   z-index: 1;
   backdrop-filter: blur(3px);
   direction: rtl;
-  margin-left: 4rem;
 }
 
 /* Background */
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background-image: url('../../assets/images/managerBackground.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(3px);
+}
+
+/* Global background for admin pages */
+.adminBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background-image: url('../../assets/images/managerBackground.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(3px);
+}
+
+.adminBackground::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
 .adminPage::before {
   content: "";
   position: fixed;
@@ -18,11 +58,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('../../assets/images/managerBackground.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  z-index: -2;
+  z-index: -1;
 }
 
 .adminPage::after {
@@ -32,19 +68,19 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.7);
   z-index: -1;
 }
 
 .pageTitle {
   font-weight: bold;
-  color: var(--clr-blue-2);
-  margin-bottom: 16px;
+  color: var(--admin-text);
+  margin-bottom: var(--pad-md);
   text-align: right;
+  font-size: 2rem;
 }
 
 .pageDescription {
-  color: #444;
+  color: var(--admin-text-muted);
   margin-bottom: 28px;
   max-width: 800px;
   text-align: right;
@@ -61,14 +97,14 @@
 }
 
 .successMessage {
-  background-color: #d1fae5;
+  background-color: color-mix(in srgb, #10b981 20%, transparent);
   color: #065f46;
   border: 1px solid #a7f3d0;
 }
 
 .errorMessage {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: color-mix(in srgb, var(--admin-error) 20%, transparent);
+  color: var(--admin-error);
   border: 1px solid #fecaca;
 }
 
@@ -84,13 +120,36 @@
 }
 
 .searchInput {
-  padding: 12px;
+  padding: var(--pad-sm);
   width: 100%;
   max-width: 400px;
   margin-bottom: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--admin-border);
   text-align: right;
+  background: #fff;
+  color: var(--admin-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Transparent select in course selector */
+.addingLine .searchInput {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--admin-text);
+  backdrop-filter: blur(10px);
+}
+
+.searchInput:focus {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-focus) 30%, transparent);
+  outline: none;
+}
+
+.addingLine .searchInput:focus {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 30%, transparent);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Flex line */
@@ -100,28 +159,55 @@
   gap: 16px;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+.addingLine > * {
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+/* Small buttons for course selector */
+.addingLine .addButton,
+.addingLine .deleteButtonLarge {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  height: 36px;
+  min-width: 100px;
 }
 
 /* ✅ Restored your nice add button */
 .addButton {
-  padding: 1.8rem 2.5rem;
+  padding: 12px 24px;
   border: none;
-  border-radius: 0.9rem;
-  background-color: var(--clr-blue-2);
+  border-radius: var(--radius-md);
+  background-color: var(--admin-accent);
   color: #fff;
-  font-weight: 700;
-  font-size: 1.5rem;
+  font-weight: 600;
+  font-size: 1.2rem;
   cursor: pointer;
-  margin-bottom: 1rem;
-  margin-right: 0.5rem;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(79,140,255,0.12);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s ease;
+  box-shadow: var(--admin-shadow);
   letter-spacing: 0.5px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
 }
 
 .addButton:hover {
-  background-color: #2563eb;
-  box-shadow: 0 4px 16px rgba(79,140,255,0.18);
+  background-color: var(--admin-accent-strong);
+  box-shadow: 0 4px 16px rgba(25, 73, 115, 0.18);
+  transform: translateY(-1px);
+}
+
+.addButton:active {
+  transform: translateY(0);
 }
 
 .sort {
@@ -130,42 +216,34 @@
   justify-content: center;
   font-size: 1rem;
   font-weight: bold;
-  color: white;
-  padding: 1rem;
+  color: var(--admin-text);
+  padding: 0;
+  height: 48px;
+  margin-top: 1.5rem;  
 }
 
 .sort select {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 1.5rem 2rem 1.5rem 3rem;
-  border: none;
-  border-radius: 10px;
+  height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 1.2rem;
+  min-width: 150px;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 1.3rem;
-  background-color: var(--clr-blue-2);
-  color: white;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-  width: 22rem;
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: left 1rem center;
-  background-size: 1.2rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.sort select:hover,
 .sort select:focus {
-  background-color: var(--clr-blue-4);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-focus) 30%, transparent);
   outline: none;
 }
 
+
 .note{
-  background-color: #f47521;
+  background-color: var(--admin-cta);
   opacity: 0.4;
   border-radius: 5px;
 }
@@ -190,24 +268,29 @@
 }
 
 .table th {
-  background-color: #f5f6f8;
+  background-color: var(--admin-surface-alt);
   font-weight: bold;
-  color: #333;
+  color: var(--admin-text);
 }
 
 /* ✅ Edit/Delete buttons now match your theme */
 .actionButton {
-  padding: 10px 14px;
+  padding: 12px 16px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-left: 6px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
   color: white;
-  max-width: 20rem;
+  min-width: 100px;
+  height: 40px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
+  font-size: 1.1rem;
 }
 
 .noResults {
@@ -216,7 +299,7 @@
   text-align: center;
   padding: 3rem;
   border-radius: 10px;
-  background-color: #e0e0e0;
+  background-color: var(--admin-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -225,19 +308,21 @@ noResults td {
 }
 
 .editButton {
-  background-color: var(--clr-blue-2);
+  background-color: var(--admin-accent);
 }
 
 .editButton:hover {
-  background-color: #1e63d5;
+  background-color: var(--admin-accent-strong);
+  transform: translateY(-1px);
 }
 
 .deleteButton {
-  background-color: #960101da;
+  background-color: color-mix(in srgb, var(--admin-error) 85%, transparent);
 }
 
 .deleteButton:hover {
-  background-color: #b90000da;
+  background-color: var(--admin-error);
+  transform: translateY(-1px);
 }
 
 .smallButton {
@@ -255,7 +340,7 @@ noResults td {
   box-shadow: 0 2px 8px rgba(79,140,255,0.08);
 }
 .smallButton:hover {
-  background-color: #1e63d5;
+  background-color: var(--admin-accent);
   box-shadow: 0 4px 16px rgba(79,140,255,0.12);
 }
 
@@ -269,13 +354,24 @@ noResults td {
   }
 
   .actionButton {
-    font-size: 0.85rem;
-    padding: 8px 10px;
+    font-size: 1rem;
+    padding: 10px 12px;
+    min-width: 80px;
+    height: 36px;
   }
 
   .addingLine {
     flex-direction: column;
     align-items: stretch;
+  }
+  
+  .addingLine .addButton,
+  .addingLine .deleteButtonLarge {
+    width: 100%;
+    min-width: 0;
+    font-size: 0.8rem;
+    padding: 0.6rem 0.3rem;
+    height: 32px;
   }
 }
 
@@ -307,12 +403,13 @@ noResults td {
   gap: 18px;
   justify-content: flex-end;
 }
+
 .editButtonLarge {
   padding: 0.7rem 2.1rem;
   font-size: 1.15rem;
   border-radius: 0.7rem;
   border: none;
-  background-color: #2563eb;
+  background-color: var(--admin-accent);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
@@ -320,7 +417,7 @@ noResults td {
   box-shadow: 0 2px 8px rgba(37,99,235,0.08);
 }
 .editButtonLarge:hover {
-  background-color: #174ea6;
+  background-color: var(--admin-accent-strong);
   box-shadow: 0 4px 16px rgba(37,99,235,0.12);
 }
 .deleteButtonLarge {
@@ -328,7 +425,7 @@ noResults td {
   font-size: 1.15rem;
   border-radius: 0.7rem;
   border: none;
-  background-color: #e53935;
+  background-color: var(--admin-error);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
@@ -336,7 +433,7 @@ noResults td {
   box-shadow: 0 2px 8px rgba(229,57,53,0.08);
 }
 .deleteButtonLarge:hover {
-  background-color: #b71c1c;
+  background-color: color-mix(in srgb, var(--admin-error) 85%, #000);
   box-shadow: 0 4px 16px rgba(229,57,53,0.12);
 }
 .tableWrapper {
@@ -382,7 +479,7 @@ noResults td {
 .courseName {
   font-size: 1.18rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--admin-link);
   flex: 1;
   text-align: right;
 }
@@ -434,6 +531,13 @@ noResults td {
   .addButton, .deleteButtonLarge, .editButtonLarge {
     font-size: 1rem;
     padding: 0.8rem 0.3rem;
+  }
+  
+  .addingLine .addButton,
+  .addingLine .deleteButtonLarge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.2rem;
+    height: 28px;
   }
   .topicsList {
     gap: 0.7rem;

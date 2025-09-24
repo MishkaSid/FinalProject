@@ -1,0 +1,245 @@
+/* Admin Utility Classes */
+/* Shared utility classes for admin pages (Manager, Teacher) */
+
+/* Surface utilities */
+.admin-surface {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.admin-surface-alt {
+  background: var(--admin-surface-alt);
+}
+
+/* Card utilities */
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+}
+
+/* Text utilities */
+.admin-heading {
+  color: var(--admin-text);
+}
+
+.admin-subtle {
+  color: var(--admin-text-muted);
+}
+
+/* Link utilities */
+.admin-link {
+  color: var(--admin-link);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.admin-link:hover {
+  color: var(--admin-link-hover);
+  text-decoration: underline;
+}
+
+/* Button utilities */
+.btn-primary {
+  background: var(--admin-accent);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background: var(--admin-accent-strong);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--admin-cta);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--admin-cta-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Form utilities */
+.input,
+.select,
+.textarea {
+  background: #fff;
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-focus) 30%, transparent);
+}
+
+/* Table utilities */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table thead th {
+  background: var(--color-primary-100);
+  color: var(--admin-text);
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--admin-border);
+  font-weight: 600;
+}
+
+.table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.table tbody tr:hover {
+  background: var(--admin-surface-alt);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Error utilities */
+.form-error {
+  color: var(--admin-error);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+/* Badge utilities */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-primary {
+  background: var(--admin-accent-weak);
+  color: var(--admin-accent-strong);
+}
+
+.badge-secondary {
+  background: color-mix(in srgb, var(--admin-cta) 20%, transparent);
+  color: var(--admin-cta);
+}
+
+.badge-error {
+  background: color-mix(in srgb, var(--admin-error) 20%, transparent);
+  color: var(--admin-error);
+}
+
+/* Layout utilities */
+.admin-container {
+  background: var(--admin-bg);
+  min-height: 100vh;
+  padding: var(--pad-lg);
+}
+
+.admin-header {
+  background: var(--admin-surface);
+  border-bottom: 1px solid var(--admin-border);
+  padding: var(--pad-md) var(--pad-lg);
+  margin-bottom: var(--pad-lg);
+}
+
+.admin-sidebar {
+  background: var(--color-primary-900);
+  color: #fff;
+  min-height: 100vh;
+  padding: var(--pad-lg);
+}
+
+.admin-sidebar .nav-item {
+  color: #fff;
+  text-decoration: none;
+  padding: var(--pad-sm) var(--pad-md);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s ease;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.admin-sidebar .nav-item:hover {
+  background: color-mix(in srgb, var(--color-primary-700) 85%, #000 15%);
+}
+
+.admin-sidebar .nav-item.active {
+  background: var(--color-primary-700);
+}
+
+/* RTL Support */
+[dir="rtl"] .table thead th,
+[dir="rtl"] .table tbody td {
+  text-align: right;
+}
+
+[dir="rtl"] .admin-link {
+  text-align: right;
+}
+
+/* Focus management for accessibility */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--admin-focus);
+  outline-offset: 2px;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .admin-container {
+    padding: var(--pad-md);
+  }
+  
+  .table {
+    font-size: 0.875rem;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    padding: 8px 10px;
+  }
+}

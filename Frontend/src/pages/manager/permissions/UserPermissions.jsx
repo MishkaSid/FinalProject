@@ -270,6 +270,7 @@ export default function UserPermissions() {
   return (
     <>
       <div className={styles.adminPage}>
+        <div className={styles.background} />
         <h1 className={styles.pageTitle}>ניהול הרשאות</h1>
         {/* Search input */}
         <input

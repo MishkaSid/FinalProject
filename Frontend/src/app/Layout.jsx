@@ -1,14 +1,11 @@
-// בקובץ זה נמצא רכיב הפריסה הראשי של האפליקציה
-// הקובץ מגדיר את המבנה הבסיסי עם כותרת, סרגל צד ותחתית
-// הוא מספק את הפריסה המשותפת לכל הדפים במערכת
-// Layout.js
-import { Outlet } from "react-router-dom";
-import Header from "../components/header/Header";
-import Sidebar from "../components/sidebar/Sidebar";
-import Footer from "../components/footer/Footer";
+import { Outlet } from 'react-router-dom';
+import Header from '../components/header/Header';
+import Navbar from '../components/navbar/Navbar';
+import Footer from '../components/footer/Footer';
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from '../context/AuthContext';
+import styles from '../pages/manager/adminPages.module.css';
 
 /**
  * The main layout component for the app.
@@ -19,7 +16,6 @@ import { useAuth } from "../context/AuthContext";
  */
 const Layout = () => {
   const { user: loggedInUser } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const userType =
     loggedInUser?.role ||
@@ -29,22 +25,14 @@ const Layout = () => {
       ? "Teacher"
       : "Examinee");
 
-  /**
-   * Toggles the sidebar open or closed state.
-   * This function is used as a click handler for the sidebar toggle button.
-   */
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // Check if current page is an admin page
+  const isAdminPage = location.pathname.includes('/manager') || location.pathname.includes('/admin');
 
   return (
     <>
-      <Header />
-      <Sidebar
-        isOpen={isSidebarOpen}
-        setIsOpen={setIsSidebarOpen}
-        userType={userType}
-      />
+      {isAdminPage && <div className={styles.adminBackground} />}
+      <Header/>
+      <Navbar userType={userType} />
       <main>
         <Outlet />
       </main>

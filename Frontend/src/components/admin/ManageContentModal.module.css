@@ -1,0 +1,183 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modalContent {
+  background: var(--admin-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  direction: rtl;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--pad-lg);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.modalTitle {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background: var(--admin-surface-alt);
+  color: var(--admin-text);
+}
+
+.actionCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--pad-lg);
+  padding: var(--pad-lg);
+}
+
+.actionCard {
+  background: var(--admin-surface);
+  border: 2px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  padding: var(--pad-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.actionCard:hover {
+  border-color: var(--admin-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(25, 73, 115, 0.15);
+}
+
+.actionCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-strong));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.actionCard:hover::before {
+  transform: scaleX(1);
+}
+
+.cardIcon {
+  color: var(--admin-accent);
+  margin-bottom: var(--pad-md);
+  transition: all 0.3s ease;
+}
+
+.actionCard:hover .cardIcon {
+  color: var(--admin-accent-strong);
+  transform: scale(1.1);
+}
+
+.cardTitle {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  margin: 0 0 var(--pad-sm) 0;
+}
+
+.cardDescription {
+  font-size: 1rem;
+  color: var(--admin-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    margin: var(--pad-md);
+  }
+
+  .modalHeader {
+    padding: var(--pad-md);
+  }
+
+  .modalTitle {
+    font-size: 1.5rem;
+  }
+
+  .actionCards {
+    grid-template-columns: 1fr;
+    gap: var(--pad-md);
+    padding: var(--pad-md);
+  }
+
+  .actionCard {
+    padding: var(--pad-md);
+  }
+
+  .cardIcon {
+    margin-bottom: var(--pad-sm);
+  }
+
+  .cardTitle {
+    font-size: 1.2rem;
+  }
+
+  .cardDescription {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalTitle {
+    font-size: 1.3rem;
+  }
+
+  .actionCard {
+    padding: var(--pad-sm);
+  }
+
+  .cardTitle {
+    font-size: 1.1rem;
+  }
+
+  .cardDescription {
+    font-size: 0.85rem;
+  }
+}

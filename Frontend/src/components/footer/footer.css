@@ -1,8 +1,8 @@
 
 footer {
-  background-color: rgba(0, 125, 214, 0.7);
-  border-top: 1px solid #ddd;
-  color: var(--clr-white);
+  background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 50%, var(--color-primary-300) 100%);
+  border-top: 1px solid var(--admin-border);
+  color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,6 +12,7 @@ footer {
   left: 0;
   width: 100%;
   margin-top: auto;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .contact {
@@ -19,23 +20,31 @@ footer {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
+  color: #fff;
 }
 
 .contact a {
-  color: aliceblue;
+  color: #fff;
   text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+  font-weight: 500;
 }
 
 .contact a:hover {
+  color: var(--color-primary-300);
   text-decoration: underline;
 }
 
 .copyright {
   font-size: 1.2rem;
   text-align: center;
+  color: #fff;
+  opacity: 0.9;
 }
-p{
-  color: aliceblue;
+
+p {
+  color: #fff;
+  margin: 0;
 }
 
 @media screen and (max-width: 768px) {
@@ -45,6 +54,7 @@ p{
 
   .contact {
     font-size: 1.3rem;
+    margin-bottom: 1rem;
   }
 
   .copyright {

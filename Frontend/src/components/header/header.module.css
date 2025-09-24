@@ -3,35 +3,69 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 125, 214, 0.7);
-  padding: 1rem 3rem;  /* Adjust padding for larger screens */
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 50%, var(--color-primary-300) 100%);
+  padding: 1rem 3rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+  margin: 1rem;
 }
 
 .schoolLogo {
   height: 6rem;
   width: auto;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   margin-left: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
 }
+
+.schoolLogo:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.schoolLogo:active {
+  transform: scale(0.98);
+}
+
 .logo {
   height: 10rem;
   width: auto;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   margin-left: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
   src: url("../../assets/images/logoBeta.PNG");
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.logo:active {
+  transform: scale(0.98);
 }
 
 @media screen and (max-width: 768px) {
   header {
     flex-direction: column;
     text-align: center;
-    padding: 1rem; /* Adjust padding for small screens */
+    padding: 1rem;
+    margin: 0.5rem;
   }
 
-  img {
-    margin-top: 1rem;
+  .logo, .schoolLogo {
+    margin: 0.5rem 0;
     height: 5rem;
+  }
+
+  .logo:hover, .schoolLogo:hover {
+    transform: none; /* Disable hover effects on mobile */
   }
 }

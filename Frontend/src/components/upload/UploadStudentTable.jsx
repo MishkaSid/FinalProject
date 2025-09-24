@@ -81,7 +81,6 @@ export default function UploadStudentTable({ onUsersAdded }) {
       <button
         className={styles.container}
         disabled={isUploading}
-        style={{ position: "relative", overflow: "hidden" }}
       >
         {/* Upload icon */}
         <svg

@@ -13,6 +13,9 @@ import { useNavigate } from "react-router-dom";
 
 import ProfileSection from "./ProfileSection";
 import SubjectsModal from "./SubjectsModal";
+import StudentUsageChart from "../../../components/charts/StudentUsageChart";
+import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
+import GradeDistributionChart from "../../../components/charts/GradeDistributionChart";
 
 /**
  * The StudentDashboard component renders the main page for students.
@@ -453,6 +456,21 @@ export default function StudentDashboard() {
           />
         </div>
       </div>
+
+      {/* Analytics Charts Section */}
+      {user?.id && (
+        <div className={styles.analyticsSection}>
+          <h2 className={styles.analyticsTitle}>ניתוח ביצועים</h2>
+          <p style={{textAlign: 'center', color: '#6c757d', marginBottom: '2rem', fontSize: '1.1rem'}}>
+            צפה בביצועים שלך לאורך זמן
+          </p>
+          <div className={styles.chartsGrid}>
+            <StudentUsageChart userId={user.id} />
+            <QuestionStatsChart userId={user.id} />
+            <GradeDistributionChart userId={user.id} />
+          </div>
+        </div>
+      )}
 
       {/* Subject Selection Modal */}
       <SubjectsModal
