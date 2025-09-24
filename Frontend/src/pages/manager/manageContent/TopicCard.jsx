@@ -11,14 +11,15 @@ import Card from "../../../components/card/Card";
  * @param {Function} props.onSelect - The function to call when the card is clicked.
  * @param {Function} props.onEdit - The function to call when the edit button is clicked.
  * @param {Function} props.onDelete - The function to call when the delete button is clicked.
+ * @param {Function} props.onManageContent - The function to call when the manage content button is clicked.
  * @returns {JSX.Element} The rendered topic card component.
  */
-export default function TopicCard({ topic, onSelect, onEdit, onDelete }) {
+export default function TopicCard({ topic, onEdit, onDelete, onManageContent }) {
   return (
     <div className={styles.topicCardContainer}>
       <Card
         title={topic.TopicName}
-        onClick={onSelect}
+        onClick={() => onManageContent(topic)}
         size="medium"
       />
       <div className={styles.topicActions}>

@@ -16,6 +16,14 @@ const authRoutes = require("./auth/auth");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const practiceTrackingRoutes = require("./routes/practiceTrackingRoutes");
 
+// Admin routes
+const videosRoutes = require("./routes/admin/videosRoutes");
+const examQuestionsRoutes = require("./routes/admin/examQuestionsRoutes");
+const practiceExercisesRoutes = require("./routes/admin/practiceExercisesRoutes");
+
+// Auth middleware
+const { authenticateToken, requireAdmin } = require("./middleware/auth");
+
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -30,6 +38,11 @@ app.use("/api/student", studentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/practice-tracking", practiceTrackingRoutes);
+
+// Admin routes with authentication
+app.use("/api", authenticateToken, requireAdmin, videosRoutes);
+app.use("/api", authenticateToken, requireAdmin, examQuestionsRoutes);
+app.use("/api", authenticateToken, requireAdmin, practiceExercisesRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

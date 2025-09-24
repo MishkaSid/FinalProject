@@ -4,7 +4,7 @@
   flex-direction: column;
   position: relative;
   min-height: 90vh;
-  background: var(--admin-bg);
+
 }
 
 .background {

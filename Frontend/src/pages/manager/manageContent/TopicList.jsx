@@ -13,16 +13,16 @@ import TopicCard from "./TopicCard";
  * @param {Function} props.onDeleteTopic - The function to call when the delete button on a topic card is clicked.
  * @returns {JSX.Element} The rendered list of topic cards.
  */
-export default function TopicList({ topics, onSelectTopic, onEditTopic, onDeleteTopic }) {
+export default function TopicList({ topics, onEditTopic, onDeleteTopic, onManageContent }) {
   return (
     <div className={styles.topicsList}>
       {topics.map((topic) => (
         <TopicCard
           key={topic.TopicID}
           topic={topic}
-          onSelect={() => onSelectTopic(topic)}
           onEdit={() => onEditTopic(topic)}
           onDelete={() => onDeleteTopic(topic)}
+          onManageContent={onManageContent}
         />
       ))}
     </div>

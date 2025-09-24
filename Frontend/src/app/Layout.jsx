@@ -1,10 +1,11 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/header/Header';
-import Sidebar from '../components/sidebar/Sidebar';
+import Navbar from '../components/navbar/Navbar';
 import Footer from '../components/footer/Footer';
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from '../context/AuthContext';
+import styles from '../pages/manager/adminPages.module.css';
 
 /**
  * The main layout component for the app.
@@ -16,20 +17,19 @@ import { useAuth } from '../context/AuthContext';
 
 const Layout = () => {
   const { user: loggedInUser } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const userType = loggedInUser?.role || (location.pathname.includes('manager') ? 'Admin' 
   : location.pathname.includes('teacher') ? 'Teacher' 
   : 'Examinee');
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // Check if current page is an admin page
+  const isAdminPage = location.pathname.includes('/manager') || location.pathname.includes('/admin');
 
   return (
     <>
+      {isAdminPage && <div className={styles.adminBackground} />}
       <Header/>
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType={userType} />
+      <Navbar userType={userType} />
       <main>
         <Outlet />
       </main>

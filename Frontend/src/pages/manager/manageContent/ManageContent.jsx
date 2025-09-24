@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import styles from "../adminPages.module.css";
 import Popup from "../../../components/popup/Popup";
 import axios from "axios";
-import PracticeContent from "../../../components/practiceContent/PracticeContent";
 import CourseSelector from "./CourseSelector";
 import TopicList from "./TopicList";
 import TopicForm from "./TopicForm";
-import PracticeContentTable from "./PracticeContentTable";
+import ManageContentModal from "../../../components/admin/ManageContentModal";
 
 /**
  * @component ManageContent
@@ -20,8 +19,6 @@ export default function ManageContent() {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [topics, setTopics] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState(null);
-  const [isTopicPopupOpen, setIsTopicPopupOpen] = useState(false);
   const [isAddTopicOpen, setIsAddTopicOpen] = useState(false);
   const [isEditTopicOpen, setIsEditTopicOpen] = useState(false);
   const [editTopic, setEditTopic] = useState(null);
@@ -30,10 +27,6 @@ export default function ManageContent() {
     TopicName: "",
     CourseID: "",
   });
-  const [practiceContent, setPracticeContent] = useState({}); // { [topicId]: [content, ...] }
-  const [isAddContentPopupOpen, setIsAddContentPopupOpen] = useState(false);
-  const [isEditContentPopupOpen, setIsEditContentPopupOpen] = useState(false);
-  const [editContent, setEditContent] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({
     open: false,
     topic: null,
@@ -45,6 +38,8 @@ export default function ManageContent() {
     open: false,
     course: null,
   });
+  const [isManageContentModalOpen, setIsManageContentModalOpen] = useState(false);
+  const [selectedTopicForContent, setSelectedTopicForContent] = useState(null);
 
   /**
    * @effect
@@ -71,25 +66,6 @@ export default function ManageContent() {
     });
   }, [selectedCourse]);
 
-  /**
-   * @effect
-   * @description Fetches all practice exercises for the topics that are currently displayed.
-   * It creates a map of practice content, keyed by topic ID. This effect runs whenever the
-   * `topics` state changes.
-   */
-  useEffect(() => {
-    if (!topics.length) return;
-    axios.get("/api/practice/practiceExercises").then((res) => {
-      const allContent = res.data || [];
-      const map = {};
-      topics.forEach((topic) => {
-        map[topic.TopicID] = allContent.filter(
-          (c) => c.TopicID === topic.TopicID
-        );
-      });
-      setPracticeContent(map);
-    });
-  }, [topics]);
 
   /**
    * @function handleSelectCourse
@@ -139,15 +115,17 @@ export default function ManageContent() {
    * @param {object} topic - The topic object to be deleted.
    */
   const handleDeleteTopic = (topic) => setDeleteConfirm({ open: true, topic });
+  
   /**
-   * @function handleSelectTopic
-   * @description Opens a popup displaying the details and practice content for a selected topic.
+   * @function handleManageContent
+   * @description Opens the manage content modal for a selected topic.
    * @param {object} topic - The selected topic object.
    */
-  const handleSelectTopic = (topic) => {
-    setSelectedTopic(topic);
-    setIsTopicPopupOpen(true);
+  const handleManageContent = (topic) => {
+    setSelectedTopicForContent(topic);
+    setIsManageContentModalOpen(true);
   };
+
 
   /**
    * @function handleAddTopicSubmit
@@ -223,97 +201,12 @@ export default function ManageContent() {
       });
   };
 
-  /**
-   * @function handleEditContent
-   * @description Opens the popup for editing an existing practice content.
-   * @param {object} content - The practice content object to be edited.
-   */
-  const handleEditContent = (content) => {
-    setEditContent(content);
-    setIsEditContentPopupOpen(true);
-  };
 
-  /**
-   * @function handleEditContentSubmit
-   * @description Handles the form submission for editing practice content. It sends the updated data
-   * to the server and updates the local state on success.
-   * @param {object} values - The updated form values for the practice content.
-   */
-  const handleEditContentSubmit = (values) => {
-    axios.put(`/api/practice/practiceExercise/${editContent.ExerciseID}`, values)
-      .then((res) => {
-        setPracticeContent((prev) => ({
-          ...prev,
-          [selectedTopic.TopicID]: prev[selectedTopic.TopicID].map((c) =>
-            c.ExerciseID === editContent.ExerciseID ? { ...c, ...values } : c
-          ),
-        }));
-        setIsEditContentPopupOpen(false);
-        setEditContent(null);
-        setMessage({ type: 'success', text: 'התוכן עודכן בהצלחה!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-      })
-      .catch((err) => {
-        console.error("Error updating practice content:", err);
-        setMessage({ type: 'error', text: 'שגיאה בעדכון התוכן. אנא נסה שוב.' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 5000);
-      });
-  };
 
-  /**
-   * @function handleDeleteContent
-   * @description Deletes a specific piece of practice content. It sends a delete request
-   * to the server and removes the content from the local state on success.
-   * @param {number} exerciseId - The ID of the practice exercise to be deleted.
-   */
-  const handleDeleteContent = (exerciseId) => {
-    axios.delete(`/api/practice/practiceExercise/${exerciseId}`)
-      .then(() => {
-        setPracticeContent((prev) => ({
-          ...prev,
-          [selectedTopic.TopicID]: prev[selectedTopic.TopicID].filter(
-            (c) => c.ExerciseID !== exerciseId
-          ),
-        }));
-        setMessage({ type: 'success', text: 'התוכן נמחק בהצלחה!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-      })
-      .catch((err) => {
-        console.error("Error deleting practice content:", err);
-        setMessage({ type: 'error', text: 'שגיאה במחיקת התוכן. אנא נסה שוב.' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 5000);
-      });
-  };
-  /**
-   * @function handleContentAdded
-   * @description A callback function that updates the practice content in the state after a new
-   * piece of content has been successfully added. It also refreshes the data from the server
-   * to ensure the table shows the most up-to-date information.
-   * @param {number} topicId - The ID of the topic the content was added to.
-   * @param {object} newContent - The new practice content object that was added.
-   */
-  const handleContentAdded = (topicId, newContent) => {
-    // Update local state immediately for better UX
-    setPracticeContent((prev) => ({
-      ...prev,
-      [topicId]: [...(prev[topicId] || []), newContent],
-    }));
-    
-    // Refresh practice content data from server to ensure consistency
-    axios.get("/api/practice/practiceExercises").then((res) => {
-      const allContent = res.data || [];
-      const map = {};
-      topics.forEach((topic) => {
-        map[topic.TopicID] = allContent.filter(
-          (c) => c.TopicID === topic.TopicID
-        );
-      });
-      setPracticeContent(map);
-    });
-  };
 
   return (
     <div className={styles.adminPage}>
+      <div className={styles.adminBackground} />
       <h1 className={styles.pageTitle}>ניהול תכנים</h1>
       
       {/* Message Display */}
@@ -408,9 +301,9 @@ export default function ManageContent() {
         <>
           <TopicList
             topics={topics}
-            onSelectTopic={handleSelectTopic}
             onEditTopic={handleEditTopic}
             onDeleteTopic={handleDeleteTopic}
+            onManageContent={handleManageContent}
           />
         </>
       )}
@@ -466,54 +359,14 @@ export default function ManageContent() {
           </button>
         </div>
       </Popup>
-      {/* Practice Content Popup (table and add content) */}
-      <Popup
-        isOpen={isTopicPopupOpen}
-        onClose={() => setIsTopicPopupOpen(false)}
-        header={selectedTopic?.TopicName || "תוכן נושא"}
-      >
-        <div className={`${styles.prominentPopup} ${styles.popupLarge}`}>
-          <PracticeContentTable
-            contentList={practiceContent[selectedTopic?.TopicID] || []}
-            onDeleteContent={handleDeleteContent}
-            onEditContent={handleEditContent}
-          />
-          <button
-            className={styles.addButton}
-            onClick={() => setIsAddContentPopupOpen(true)}
-          >
-            הוסף תוכן
-          </button>
-          <PracticeContent
-            topic={selectedTopic}
-            isOpen={isAddContentPopupOpen}
-            onClose={() => setIsAddContentPopupOpen(false)}
-            onContentAdded={handleContentAdded}
-          />
-        </div>
-      </Popup>
 
-      {/* Edit Content Popup */}
-      <Popup
-        isOpen={isEditContentPopupOpen}
-        onClose={() => {
-          setIsEditContentPopupOpen(false);
-          setEditContent(null);
-        }}
-        header="ערוך תוכן תרגול"
-      >
-        <PracticeContent
-          topic={selectedTopic}
-          isOpen={isEditContentPopupOpen}
-          onClose={() => {
-            setIsEditContentPopupOpen(false);
-            setEditContent(null);
-          }}
-          onContentAdded={handleEditContentSubmit}
-          initialValues={editContent}
-          mode="edit"
-        />
-      </Popup>
+      {/* Manage Content Modal */}
+      <ManageContentModal
+        isOpen={isManageContentModalOpen}
+        onClose={() => setIsManageContentModalOpen(false)}
+        topicId={selectedTopicForContent?.TopicID}
+        topicName={selectedTopicForContent?.TopicName}
+      />
     </div>
   );
 }

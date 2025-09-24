@@ -7,11 +7,50 @@
   z-index: 1;
   backdrop-filter: blur(3px);
   direction: rtl;
-  margin-left: 4rem;
- /* background: var(--admin-bg); */
 }
 
 /* Background */
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background-image: url('../../assets/images/managerBackground.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(3px);
+}
+
+/* Global background for admin pages */
+.adminBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background-image: url('../../assets/images/managerBackground.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(3px);
+}
+
+.adminBackground::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
 .adminPage::before {
   content: "";
   position: fixed;
@@ -19,11 +58,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('../../assets/images/managerBackground.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  z-index: -2;
+  z-index: -1;
 }
 
 .adminPage::after {
@@ -33,7 +68,6 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.7);
   z-index: -1;
 }
 
@@ -93,15 +127,29 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--admin-border);
   text-align: right;
-  background: var(--admin-surface);
+  background: #fff;
   color: var(--admin-text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Transparent select in course selector */
+.addingLine .searchInput {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--admin-text);
+  backdrop-filter: blur(10px);
 }
 
 .searchInput:focus {
   border-color: var(--admin-focus);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-focus) 30%, transparent);
   outline: none;
+}
+
+.addingLine .searchInput:focus {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 30%, transparent);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Flex line */
@@ -111,12 +159,25 @@
   gap: 16px;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  background: transparent;
+  padding: 0;
+  border: none;
 }
 
 .addingLine > * {
   height: 48px;
   display: flex;
   align-items: center;
+}
+
+/* Small buttons for course selector */
+.addingLine .addButton,
+.addingLine .deleteButtonLarge {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  height: 36px;
+  min-width: 100px;
 }
 
 /* ✅ Restored your nice add button */
@@ -303,6 +364,15 @@ noResults td {
     flex-direction: column;
     align-items: stretch;
   }
+  
+  .addingLine .addButton,
+  .addingLine .deleteButtonLarge {
+    width: 100%;
+    min-width: 0;
+    font-size: 0.8rem;
+    padding: 0.6rem 0.3rem;
+    height: 32px;
+  }
 }
 
 .topicsList {
@@ -333,6 +403,7 @@ noResults td {
   gap: 18px;
   justify-content: flex-end;
 }
+
 .editButtonLarge {
   padding: 0.7rem 2.1rem;
   font-size: 1.15rem;
@@ -460,6 +531,13 @@ noResults td {
   .addButton, .deleteButtonLarge, .editButtonLarge {
     font-size: 1rem;
     padding: 0.8rem 0.3rem;
+  }
+  
+  .addingLine .addButton,
+  .addingLine .deleteButtonLarge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.2rem;
+    height: 28px;
   }
   .topicsList {
     gap: 0.7rem;

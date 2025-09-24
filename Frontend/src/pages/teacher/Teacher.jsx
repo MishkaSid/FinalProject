@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./teacher.module.css";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../components/sidebar/Sidebar";
 import { useState } from "react";
 import "../pages.css";
 import "../../styles/admin-utils.css";
@@ -23,7 +22,6 @@ import { useAuth } from "../../context/AuthContext";
  */
 
 const TeacherDashboard = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -33,9 +31,7 @@ const TeacherDashboard = () => {
 
   return (
     <div className={styles.teacherPage}>
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userType="Teacher" />
-
-      <div className={`pageContent ${isSidebarOpen ? "blurred" : ""}`}>
+      <div className="pageContent">
         <div className={styles.background}></div>
 
         <div className={styles.teacherContent}>

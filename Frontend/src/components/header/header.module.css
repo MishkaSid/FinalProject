@@ -2,7 +2,7 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 100%);
+  background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 50%, var(--color-primary-300) 100%);
   padding: 1rem 3rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--admin-shadow);
@@ -16,11 +16,18 @@ header {
   border-radius: var(--radius-sm);
   margin-left: 2rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
 .schoolLogo:hover {
   transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.schoolLogo:active {
+  transform: scale(0.98);
 }
 
 .logo {
@@ -29,12 +36,19 @@ header {
   border-radius: var(--radius-sm);
   margin-left: 2rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
   src: url("../../assets/images/logoBeta.PNG");
 }
 
 .logo:hover {
   transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.logo:active {
+  transform: scale(0.98);
 }
 
 @media screen and (max-width: 768px) {
