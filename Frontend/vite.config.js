@@ -1,3 +1,6 @@
+// קובץ הגדרות Vite עבור הפרויקט Frontend
+// מגדיר את הגדרות השרת, פורט ופרוקסי עבור פיתוח
+// מכיל את כל ההגדרות הנדרשים להרצת סביבת הפיתוח
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 

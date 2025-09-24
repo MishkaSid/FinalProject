@@ -12,6 +12,7 @@
   padding: var(--pad-lg);
   cursor: pointer;
   margin: 2em;
+  margin: 2em;
 }
 
 .card:hover {

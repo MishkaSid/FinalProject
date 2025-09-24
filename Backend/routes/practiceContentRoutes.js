@@ -1,3 +1,8 @@
+// בקובץ זה נמצאים נתיבים לניהול תוכן התרגול במערכת
+// הקובץ מגדיר endpoints לפעולות CRUD על תרגילים והעלאת קבצים
+// הוא מספק גישה מלאה לניהול תוכן התרגול עבור המנהלים
+//routes
+// practiceContentRoutes.js
 const express = require('express');
 const router = express.Router();
 const practiceContentController = require('../controllers/practiceContentController');

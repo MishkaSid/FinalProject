@@ -1,4 +1,5 @@
 {
+  "_comment": "קובץ הגדרות הפרויקט Frontend - מכיל את כל התלויות והסקריפטים הנדרשים להרצת האפליקציה",
   "name": "solution-template-vite-24",
   "private": true,
   "version": "0.0.0",

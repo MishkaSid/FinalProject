@@ -1,5 +1,18 @@
+// בקובץ זה נמצא רכיב האנימציה לטעינה במערכת
+// הקובץ מציג אנימציה ויזואלית עם רקע גרדיאנט וטקסט "Loading"
+// הוא משמש להצגת מצב טעינה במהלך פעולות שונות במערכת
+// Frontend/src/components/loading spinner/Loading.jsx
 import "./loading.css";
 
+/**
+ * A loading animation component.
+ *
+ * This component renders a loading animation with a gradient background
+ * and a text "Loading" below it.
+ *
+ * @returns {React.ReactElement} A React component representing the loading
+ * animation.
+ */
 export default function Loading() {
   return (
     <>

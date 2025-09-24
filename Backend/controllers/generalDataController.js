@@ -1,3 +1,8 @@
+// בקובץ זה נמצאות פונקציות לקבלת נתונים כלליים ממסד הנתונים
+// הקובץ מספק גישה לנתונים בסיסיים כמו משתמשים, נושאים, תוכן תרגול ושאלות בחינה
+// הוא משמש כנקודת גישה מרכזית לנתונים סטטיים במערכת
+//controllers
+// generalDataController.js
 const db = require("../dbConnection");
 
 /**
@@ -8,7 +13,6 @@ const db = require("../dbConnection");
  * to ensure that any issues during data retrieval are logged and an appropriate
  * server error message is returned.
  */
-
 
 /**
  * @function getUsers
@@ -38,13 +42,15 @@ exports.getUsers = async (req, res) => {
 exports.getAdmins = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM users WHERE role = 'Admin'");
+    const [rows] = await connection.query(
+      "SELECT * FROM users WHERE role = 'Admin'"
+    );
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getAdmins:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
 /**
  * @function getTeachers
@@ -53,16 +59,18 @@ exports.getAdmins = async (req, res) => {
  * @param {object} res - The response object.
  * @returns {void}
  */
-exports.getTeachers = async (req,res ) => {
+exports.getTeachers = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM users WHERE role = 'Teacher'");
+    const [rows] = await connection.query(
+      "SELECT * FROM users WHERE role = 'Teacher'"
+    );
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getTeachers:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
 /**
  * @function getExaminees
@@ -74,13 +82,15 @@ exports.getTeachers = async (req,res ) => {
 exports.getExaminees = async (req, res) => {
   try {
     const connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM users WHERE role = 'Examinee'");
+    const [rows] = await connection.query(
+      "SELECT * FROM users WHERE role = 'Examinee'"
+    );
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getExaminees:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
 /**
  * @function getPracticeData

@@ -9,28 +9,26 @@
 }
 
 .content {
-  background: var(--admin-surface);
+  background: rgba(255, 255, 255, 0.5);
   padding: 5rem;
-  border-radius: var(--radius-lg);
+  border-radius: 2rem;
   width: 30%;
   text-align: center;
   animation: slideUp 1s ease forwards;
   opacity: 0;
   transform: translateY(40px);
-  border: 1px solid var(--admin-border);
-  box-shadow: var(--admin-shadow);
 }
 
 .title {
   font-weight: bold;
-  color: var(--admin-text);
+  color: var(--clr-blue-2);
   margin-bottom: 0.5rem;
   animation: fadeIn 1s 0.2s ease-out forwards;
   opacity: 0;
 }
 
 .subtitle {
-  color: var(--admin-text-muted);
+  color: #555;
   margin-bottom: 2rem;
   animation: fadeIn 1s 0.4s ease-out forwards;
   opacity: 0;
@@ -41,14 +39,14 @@
   flex-direction: column;
   align-items: center;
   font-size: 0.95rem;
-  color: var(--admin-text-muted);
+  color: #333;
   cursor: pointer;
   animation: fadeIn 1s 1s ease-out forwards;
   opacity: 0;
 }
 
-.scrollIndicator p{
-  color: var(--admin-text-muted);
+.scrollIndicator p {
+  color: #333;
 }
 
 .chevronContainer {
@@ -60,10 +58,10 @@
   width: 24px;
   height: 24px;
   stroke-width: 2px;
-  color: var(--admin-accent);
+  color: var(--clr-blue-5);
 }
-.chevron:hover{
-  color: var(--admin-cta);
+.chevron:hover {
+  color: var(--clr-yellow);
 }
 /* Animate the entrance */
 @keyframes fadeIn {
@@ -81,7 +79,8 @@
 
 /* Bounce chevron */
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -94,4 +93,3 @@
   min-height: 100vh;
   padding: 2rem;
 }
-

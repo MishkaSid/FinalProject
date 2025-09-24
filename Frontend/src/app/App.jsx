@@ -1,3 +1,7 @@
+// בקובץ זה נמצא הרכיב הראשי של האפליקציה
+// הקובץ מגדיר את כל הנתיבים והרכיבים המוגנים במערכת
+// הוא מספק את המבנה הבסיסי של הניווט והגישה לפי תפקידים
+// App.js
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
 import Layout from "./Layout";
@@ -18,6 +22,12 @@ import AdminVideosPage from "../pages/admin/AdminVideosPage";
 import AdminExamQuestionsPage from "../pages/admin/AdminExamQuestionsPage";
 import AdminPracticeExercisesPage from "../pages/admin/AdminPracticeExercisesPage";
 
+/**
+ * The main app component, which wraps the entire app in the AuthProvider and
+ * Router components. It also defines the routes for the app, including the
+ * login page, unauthorized page, and the protected routes for the manager,
+ * teacher, and student dashboards.
+ */
 function App() {
   return (
     <AuthProvider>

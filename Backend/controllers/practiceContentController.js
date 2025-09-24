@@ -1,3 +1,8 @@
+// בקובץ זה נמצאות פונקציות לניהול תוכן התרגול במערכת
+// הקובץ מטפל בהעלאת קבצים, יצירה ועדכון של תרגילים וניהול תוכן התרגול
+// הוא מספק פונקציונליות מלאה לפעולות CRUD על תרגילים ותוכן תרגול
+//controllers
+// practiceContentController.js
 const db = require("../dbConnection");
 const path = require("path");
 const multer = require("multer");

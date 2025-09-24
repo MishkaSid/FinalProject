@@ -1,4 +1,7 @@
-// All comments in English. All user-facing text in Hebrew (RTL).
+// בקובץ זה נמצא תבנית הדף הראשי לנושאי הלימוד
+// הקובץ מציג מידע על נושא, סרטוני הסבר ותרגול לפי רמות קושי
+// הוא מספק ממשק אינטראקטיבי לסטודנטים לגישה לתוכן הלימוד
+// Frontend/src/components/topic/TopicLandingTemplate.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./topicLanding.module.css";
@@ -10,6 +13,12 @@ import {
   FiPlay,
 } from "react-icons/fi";
 
+/**
+ * Given a URL or ID, returns a YouTube embed URL.
+ *
+ * @param {string|null|undefined} urlOrId The URL or ID to convert.
+ * @returns {string|null} The embed URL, or null if invalid.
+ */
 function toYoutubeEmbed(urlOrId) {
   if (!urlOrId) return null;
   const raw = String(urlOrId).trim();
@@ -39,6 +48,11 @@ function toYoutubeEmbed(urlOrId) {
   return null;
 }
 
+/**
+ * Arrange videos into intro and levels.
+ * @param {Array<Object>} videos Array of video objects.
+ * @returns {{intro: Object|null, levels: Array<Object>}} Object with intro and levels.
+ */
 function arrangeVideos(videos) {
   if (!Array.isArray(videos) || videos.length === 0) {
     return { intro: null, levels: [] };
@@ -74,6 +88,13 @@ function arrangeVideos(videos) {
   }
 
   const levels = [];
+  /**
+   * Attempt to push a candidate to the levels array, but only if the candidate is
+   * truthy and the levels array has fewer than 3 elements.
+   *
+   * @param {Object} candidate A video object to attempt to push.
+   * @returns {boolean} Whether the candidate was successfully pushed.
+   */
   const tryPush = (candidate) =>
     candidate && levels.length < 3 && levels.push(candidate);
 
@@ -89,6 +110,12 @@ function arrangeVideos(videos) {
   return { intro: chosenIntro, levels };
 }
 
+/**
+ * A template component for the practice landing page.
+ * @returns {JSX.Element} A JSX element representing the landing page.
+ * @example
+ * <TopicLandingTemplate />
+ */
 export default function TopicLandingTemplate() {
   const { topicId } = useParams();
   const navigate = useNavigate();
@@ -99,11 +126,26 @@ export default function TopicLandingTemplate() {
   const [error, setError] = useState(null);
 
   const [openLevels, setOpenLevels] = useState([false, false, false]);
+  /**
+   * Toggle the `openLevels` state for the given level index.
+   *
+   * @param {number} idx The index of the level to toggle.
+   * @returns {void}
+   */
   const toggleLevel = (idx) =>
     setOpenLevels((prev) => prev.map((v, i) => (i === idx ? !v : v)));
 
   useEffect(() => {
     let cancelled = false;
+    /**
+     * Loads the topic and videos from the server.
+     * If the topic or videos request fails, sets error state.
+     * If the videos request is successful, sets videos state.
+     * If the topic request is successful, sets topic state.
+     * Finally, sets loading state to false.
+     *
+     * @returns {Promise<void>}
+     */
     async function load() {
       try {
         setLoading(true);
@@ -165,10 +207,23 @@ export default function TopicLandingTemplate() {
 
   const { intro, levels } = useMemo(() => arrangeVideos(videos), [videos]);
 
+  /**
+   * Navigate to the practice questions page for the current topic.
+   *
+   * @returns {void}
+   */
   const handlePractice = () => {
     navigate(`/student/practice-questions/${topicId}`);
   };
 
+  /**
+   * Navigate to the practice questions page for the current topic
+   * with the given difficulty level.
+   *
+   * @param {string} difficulty The difficulty level of the practice questions
+   * to navigate to. Must be one of "easy", "medium", or "exam".
+   * @returns {void}
+   */
   const handlePracticeLevel = (difficulty) => {
     navigate(`/student/practice-questions/${topicId}?level=${difficulty}`);
   };
@@ -203,7 +258,6 @@ export default function TopicLandingTemplate() {
         </div>
       </header>
 
-     
       {/* Description */}
       <section className={styles.descSection}>
         <div className={styles.descCard}>
@@ -231,7 +285,6 @@ export default function TopicLandingTemplate() {
               <div className={styles.placeholder}>אין כתובת וידאו להצגה</div>
             )}
           </div>
-          
         </article>
       </section>
 
@@ -290,7 +343,7 @@ export default function TopicLandingTemplate() {
                   </div>
                 </div>
 
-                {/* כפתור התרגול תמיד גלוי, גם כשהסרטון סגור */}
+                {/* Practice button */}
                 <div className={styles.practiceRow}>
                   <button
                     className={styles.practiceBtn}

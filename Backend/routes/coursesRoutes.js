@@ -1,3 +1,8 @@
+// בקובץ זה נמצאים הנתיבים לטיפול בקורסים במערכת
+// הקובץ מגדיר את כל ה-endpoints עבור פעולות CRUD על קורסים
+// הוא מחבר בין הבקשות HTTP לפונקציות המתאימות בקונטרולר
+//routes
+// coursesRoutes.js
 const express = require('express');
 const router = express.Router();
 const coursesDataController = require('../controllers/coursesDataController');

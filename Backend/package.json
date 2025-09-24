@@ -1,4 +1,5 @@
 {
+  "_comment": "קובץ הגדרות הפרויקט Backend - מכיל את כל התלויות והסקריפטים הנדרשים להרצת השרת",
   "name": "backend",
   "version": "1.0.0",
   "description": "",
@@ -22,6 +23,7 @@
     "multer": "^2.0.2",
     "mysql2": "^3.14.1",
     "nodemailer": "^7.0.5",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "puppeteer": "^24.21.0"
   }
 }

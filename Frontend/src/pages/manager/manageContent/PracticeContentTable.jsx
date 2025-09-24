@@ -1,8 +1,18 @@
+// בקובץ זה נמצא רכיב הטבלה להצגת תוכן התרגול במערכת
+// הקובץ מציג טבלה עם תרגילים כולל תמונות, אפשרויות תשובה ותשובה נכונה
+// הוא מספק כפתורי עריכה ומחיקה עבור כל תרגיל ומטפל בפרסור נתוני JSON
+// הוא משמש להצגת כל התרגילים הקיימים במערכת עבור מנהלים ומורים
+
+// Frontend/src/pages/manager/manageContent/PracticeContentTable.jsx
 import React from "react";
 import styles from "../adminPages.module.css";
 
 // Renders a table of practice content exercises.
-export default function PracticeContentTable({ contentList, onDeleteContent, onEditContent }) {
+export default function PracticeContentTable({
+  contentList,
+  onDeleteContent,
+  onEditContent,
+}) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.tableFullWidth}>
@@ -16,53 +26,71 @@ export default function PracticeContentTable({ contentList, onDeleteContent, onE
           </tr>
         </thead>
         <tbody>
-          {(contentList || []).map(content => {
+          {(contentList || []).map((content) => {
             // Parse AnswerOptions from JSON string to array
             let answerOptions = [];
             try {
               if (content.AnswerOptions) {
-                answerOptions = typeof content.AnswerOptions === 'string' 
-                  ? JSON.parse(content.AnswerOptions) 
-                  : content.AnswerOptions;
+                answerOptions =
+                  typeof content.AnswerOptions === "string"
+                    ? JSON.parse(content.AnswerOptions)
+                    : content.AnswerOptions;
               }
             } catch (error) {
-              console.warn('Failed to parse AnswerOptions:', error);
+              console.warn("Failed to parse AnswerOptions:", error);
               answerOptions = [];
             }
-            
+
             return (
               <tr key={content.ExerciseID}>
                 <td>
                   {content.ContentType === "image" && (
-                    <img src={content.ContentValue} alt="img" style={{ maxWidth: 80, maxHeight: 60, borderRadius: 8 }} />
+                    <img
+                      src={content.ContentValue}
+                      alt="img"
+                      style={{ maxWidth: 80, maxHeight: 60, borderRadius: 8 }}
+                    />
                   )}
                 </td>
                 <td>
                   {(answerOptions || []).map((opt, i) => (
-                    <div key={i}>{String.fromCharCode(65 + i)}. {opt}</div>
+                    <div key={i}>
+                      {String.fromCharCode(65 + i)}. {opt}
+                    </div>
                   ))}
                 </td>
                 <td>{content.CorrectAnswer}</td>
                 <td>
-                  <button 
-                    className={styles.smallButton} 
+                  <button
+                    className={styles.smallButton}
                     onClick={() => onEditContent(content)}
-                    style={{ marginLeft: '5px', backgroundColor: 'var(--admin-accent)', color: 'white' }}
+                    style={{
+                      marginLeft: "5px",
+                      backgroundColor: "#007bff",
+                      color: "white",
+                    }}
                   >
                     ערוך
                   </button>
                 </td>
                 <td>
-                  <button className={styles.smallButton} onClick={() => onDeleteContent(content.ExerciseID)}>מחק</button>
+                  <button
+                    className={styles.smallButton}
+                    onClick={() => onDeleteContent(content.ExerciseID)}
+                  >
+                    מחק
+                  </button>
                 </td>
               </tr>
             );
           })}
           {(contentList || []).length === 0 && (
-            <tr><td colSpan="5">אין תוכן</td></tr>
+            <tr>
+              <td colSpan="5">אין תוכן</td>
+            </tr>
           )}
         </tbody>
       </table>
     </div>
   );
-} 
+}

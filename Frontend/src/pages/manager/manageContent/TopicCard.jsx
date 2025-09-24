@@ -1,3 +1,9 @@
+// בקובץ זה נמצא רכיב הכרטיס להצגת נושא במערכת
+// הקובץ מציג נושא יחיד ככרטיס עם כפתורי פעולה לעריכה ומחיקה
+// הוא משתמש ברכיב הכרטיס הכללי ומספק ממשק אינטראקטיבי לניהול נושאים
+// הוא משמש להצגת נושאים ברשימה ומאפשר פעולות מהירות על כל נושא
+
+// Frontend/src/pages/manager/manageContent/TopicCard.jsx
 import React from "react";
 import styles from "../adminPages.module.css";
 import Card from "../../../components/card/Card";
@@ -11,21 +17,20 @@ import Card from "../../../components/card/Card";
  * @param {Function} props.onSelect - The function to call when the card is clicked.
  * @param {Function} props.onEdit - The function to call when the edit button is clicked.
  * @param {Function} props.onDelete - The function to call when the delete button is clicked.
- * @param {Function} props.onManageContent - The function to call when the manage content button is clicked.
  * @returns {JSX.Element} The rendered topic card component.
  */
-export default function TopicCard({ topic, onEdit, onDelete, onManageContent }) {
+export default function TopicCard({ topic, onSelect, onEdit, onDelete }) {
   return (
     <div className={styles.topicCardContainer}>
-      <Card
-        title={topic.TopicName}
-        onClick={() => onManageContent(topic)}
-        size="medium"
-      />
+      <Card title={topic.TopicName} onClick={onSelect} size="medium" />
       <div className={styles.topicActions}>
-        <button className={styles.editButtonLarge} onClick={onEdit}>ערוך</button>
-        <button className={styles.deleteButtonLarge} onClick={onDelete}>מחק</button>
+        <button className={styles.editButtonLarge} onClick={onEdit}>
+          ערוך
+        </button>
+        <button className={styles.deleteButtonLarge} onClick={onDelete}>
+          מחק
+        </button>
       </div>
     </div>
   );
-} 
+}

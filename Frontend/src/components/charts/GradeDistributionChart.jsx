@@ -1,5 +1,8 @@
-
-import React, { useState, useEffect } from "react";
+// בקובץ זה נמצא רכיב הגרף להצגת התפלגות ציונים במערכת
+// הקובץ מציג גרף עמודות עם התפלגות ציונים של סטודנטים לפי טווחים
+// הוא משמש להצגת נתונים סטטיסטיים על ביצועי הסטודנטים במערכת
+// Frontend/src/components/charts/GradeDistributionChart.jsx
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -10,116 +13,50 @@ import {
   CartesianGrid,
 } from "recharts";
 import styles from "./sharedChartStyles.module.css";
-import { getExamCounters } from "../../services/analyticsApi";
+
+
+const data = [
+  { range: "0-10", students: 5 },
+  { range: "10-20", students: 10 },
+  { range: "20-30", students: 15 },
+  { range: "30-40", students: 8 },
+  { range: "40-50", students: 10 },
+  { range: "50-60", students: 20 },
+  { range: "60-70", students: 15 },
+  { range: "70-80", students: 25 },
+  { range: "80-90", students: 19 },
+  { range: "90-100", students: 5 }
+];
 
 /**
  * The GradeDistributionChart component renders a bar chart that displays the
- * student's exam performance summary and statistics.
+ * distribution of student grades on a given assignment.
  *
  * The chart is rendered inside a div with the class "chartWrapper", and the
  * chart title is rendered as a heading element with the class "chartTitle".
  *
- * The chart displays key performance indicators including total exams taken,
- * average grade, best grade, and latest exam date.
+ * The chart is a bar chart, with the x-axis displaying the range of grades
+ * (e.g. "0-10", "10-20", etc.), and the y-axis displaying the number of
+ * students who scored within each range.
  *
  * The chart is responsive, meaning it will resize to fit the available space.
+ * The chart is rendered with a tooltip that displays the range of grades and
+ * the number of students who scored within that range when the user hovers over
+ * the bar.
  */
-export default function GradeDistributionChart({ userId }) {
-  const [examData, setExamData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await getExamCounters(userId, 30); // Last 30 days
-        setExamData(response);
-      } catch (err) {
-        console.error('Failed to fetch exam counters:', err);
-        setError(err.message || 'Failed to load exam data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [userId]);
-
-  if (loading) {
-    return (
-      <div className={styles.chartWrapper}>
-        <h2 className={styles.chartTitle}>סיכום מבחנים</h2>
-        <div className={styles.loadingState}>טוען נתונים...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.chartWrapper}>
-        <h2 className={styles.chartTitle}>סיכום מבחנים</h2>
-        <div className={styles.errorState}>שגיאה בטעינת נתונים: {error}</div>
-      </div>
-    );
-  }
-
-  if (!examData || examData.totalExams === 0) {
-    return (
-      <div className={styles.chartWrapper}>
-        <h2 className={styles.chartTitle}>סיכום מבחנים</h2>
-        <div className={styles.emptyState}>אין מבחנים זמינים</div>
-      </div>
-    );
-  }
-
-  // Create summary data for display
-  const summaryData = [
-    { metric: "סה״כ מבחנים", value: examData.totalExams, color: "#3498db" },
-    { metric: "ציון ממוצע", value: examData.avgGrade.toFixed(1), color: "#2ecc71" },
-    { metric: "ציון גבוה ביותר", value: examData.bestGrade, color: "#f39c12" },
-    { metric: "מבחן אחרון", value: examData.latestExamDate ? new Date(examData.latestExamDate).toLocaleDateString('he-IL') : "אין", color: "#e74c3c" }
-  ];
-
+export default function GradeDistributionChart() {
   return (
     <div className={styles.chartWrapper}>
-      <h2 className={styles.chartTitle}>סיכום מבחנים</h2>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(2, 1fr)', 
-        gap: '1rem', 
-        padding: '1rem',
-        height: 'calc(100% - 60px)' // Account for title height
-      }}>
-        {summaryData.map((item, index) => (
-          <div
-            key={index}
-            style={{
-              backgroundColor: item.color,
-              color: 'white',
-              padding: '1rem',
-              borderRadius: '8px',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}
-          >
-            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-              {item.metric}
-            </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-              {item.value}
-            </div>
-          </div>
-        ))}
-      </div>
+      <h2 className={styles.chartTitle}>התפלגות ציונים</h2>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="range" />
+          <YAxis allowDecimals={false} />
+          <Tooltip contentStyle={{ backgroundColor:" rgba(0, 0, 0, 0.8)", borderRadius: "2rem", fontSize: "1.8rem" }}/>
+          <Bar dataKey="students" fill="#3598db" radius={[25, 25, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

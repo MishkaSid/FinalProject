@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הטופס הכללי של המערכת
+// הקובץ מספק רכיב טופס דינמי שניתן להתאים לפי סוגי שדות שונים
+// הוא משמש ליצירת טפסים שונים במערכת כמו הוספת משתמשים וניהול תוכן
+// Frontend/src/components/form/Form.jsx
 import styles from "./form.module.css";
 
 /**
@@ -48,7 +52,9 @@ const Form = ({ inputs, onSubmit }) => {
           )}
         </div>
       ))}
-      <button className={styles.submitButton} type="submit">Submit</button>
+      <button className={styles.submitButton} type="submit">
+        Submit
+      </button>
     </form>
   );
 };

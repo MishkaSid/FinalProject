@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הכותרת הראשית של האפליקציה
+// הקובץ מציג את הלוגו של המערכת ולוגו בית הספר
+// הוא משמש כחלק מהפריסה הבסיסית של כל הדפים במערכת
+// Frontend/src/components/header/Header.jsx
 import classes from './header.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';

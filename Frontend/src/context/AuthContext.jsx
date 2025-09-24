@@ -1,3 +1,7 @@
+// בקובץ זה נמצא הקונטקסט לניהול האותנטיקציה במערכת
+// הקובץ מספק פונקציות להתחברות, התנתקות וניהול מצב המשתמש
+// הוא משמש כנקודת גישה מרכזית למידע על המשתמש המחובר
+// AuthContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 

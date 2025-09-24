@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב הכרטיס הכללי של המערכת
+// הקובץ מספק רכיב כרטיס רב-שימושי עם אפשרויות התאמה שונות
+// הוא משמש להצגת מידע בצורה ויזואלית וקליקית בממשק המשתמש
+// Frontend/src/components/card/Card.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./card.module.css";
@@ -13,8 +17,15 @@ import styles from "./card.module.css";
  * @prop {String} [size=medium] The card size. Can be "small", "medium", or "large".
  * @prop {String} [layout=vertical] The card layout. Can be "vertical" or "horizontal".
  */
-
-export default function Card({ title, description, icon, to, size = "medium", layout = "vertical", onClick }) {
+export default function Card({
+  title,
+  description,
+  icon,
+  to,
+  size = "medium",
+  layout = "vertical",
+  onClick,
+}) {
   const navigate = useNavigate();
 
   /**
@@ -32,7 +43,9 @@ export default function Card({ title, description, icon, to, size = "medium", la
 
   return (
     <div
-      className={`${styles.card} ${styles[size]} ${layout === "horizontal" ? styles.horizontal : ""}`}
+      className={`${styles.card} ${styles[size]} ${
+        layout === "horizontal" ? styles.horizontal : ""
+      }`}
       onClick={handleClick}
     >
       {icon && <div className={styles.cardIcon}>{icon}</div>}
@@ -43,4 +56,3 @@ export default function Card({ title, description, icon, to, size = "medium", la
     </div>
   );
 }
-

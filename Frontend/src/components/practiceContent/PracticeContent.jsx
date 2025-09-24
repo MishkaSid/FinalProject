@@ -1,3 +1,7 @@
+// בקובץ זה נמצא רכיב לניהול תוכן התרגול במערכת
+// הקובץ מספק ממשק להוספת ועריכת תרגילים עם תמונות ואפשרויות תשובה
+// הוא משמש לניהול תוכן התרגול עבור מנהלים ומורים במערכת
+// Frontend/src/components/practiceContent/PracticeContent.jsx
 import React, { useState, useEffect } from "react";
 import styles from "./practiceContent.module.css";
 import Popup from "../popup/Popup";

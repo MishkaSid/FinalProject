@@ -1,3 +1,9 @@
+// בקובץ זה נמצא דף ניהול הרשאות המשתמשים במערכת
+// הקובץ מספק ממשק מלא לניהול משתמשים כולל חיפוש, סינון, הוספה ועריכה
+// הוא מטפל בוולידציה, שליחת מיילים והעלאת משתמשים מקובץ אקסל
+// הוא משמש ככלי ניהול מרכזי עבור מנהלים לניהול כל המשתמשים במערכת
+
+// Frontend/src/pages/manager/permissions/UserPermissions.jsx
 import { useState, useEffect } from "react";
 import styles from "../adminPages.module.css";
 import Upload from "../../../components/upload/UploadStudentTable";
@@ -28,7 +34,6 @@ export default function UserPermissions() {
   const [popupConfig, setPopupConfig] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
   const [originalId, setOriginalId] = useState(null);
-
 
   /**
    * @effect
@@ -150,8 +155,6 @@ export default function UserPermissions() {
       .catch((err) => console.error("Error refreshing users:", err));
   }
 
-
-
   /**
    * @function handleSubmitUser
    * @description Handles the submission of the user form (for both adding and editing).
@@ -165,11 +168,12 @@ export default function UserPermissions() {
 
     const idIsValid = /^\d{9}$/.test(UserID);
     const nameIsValid = /^[A-Za-z\u0590-\u05FF\s]{2,}$/.test(Name);
-    
+
     // For Examinee users, password is optional (will be auto-reset to ID in backend)
-    const passwordIsValid = Role === "Examinee" ? true : /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,10}$/.test(
-      Password
-    );
+    const passwordIsValid =
+      Role === "Examinee"
+        ? true
+        : /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,10}$/.test(Password);
 
     if (!idIsValid) {
       setPopupConfig({
@@ -212,7 +216,7 @@ export default function UserPermissions() {
     // Debug: Log what we're sending
     console.log("Sending user data:", values);
     console.log("Endpoint:", endpoint);
-    
+
     // Ensure all required fields are present
     const userData = {
       UserID: values.UserID,
@@ -220,9 +224,9 @@ export default function UserPermissions() {
       Email: values.Email,
       Password: values.Password || "", // Ensure password is never undefined
       Role: values.Role,
-      CourseID: values.CourseID || null
+      CourseID: values.CourseID || null,
     };
-    
+
     console.log("Processed user data:", userData);
 
     axiosMethod(endpoint, userData)
@@ -246,7 +250,9 @@ export default function UserPermissions() {
         const backendMsg = err.response?.data?.error;
         if (
           err.response?.status === 400 &&
-          (backendMsg === "משתמש זה כבר קיים" || backendMsg === "אימייל זה כבר קיים" || backendMsg === "תעודת זהות זו כבר קיימת")
+          (backendMsg === "משתמש זה כבר קיים" ||
+            backendMsg === "אימייל זה כבר קיים" ||
+            backendMsg === "תעודת זהות זו כבר קיימת")
         ) {
           setPopupConfig({
             title: "שגיאה",
@@ -345,12 +351,14 @@ export default function UserPermissions() {
             mode={isEditMode ? "edit" : "add"}
             initialValues={formData}
             onSubmit={handleSubmitUser}
-            onValidationError={(msg) => setPopupConfig({
-              title: "שגיאה",
-              message: msg,
-              confirmLabel: "סגור",
-              onConfirm: () => setPopupConfig(null),
-            })}
+            onValidationError={(msg) =>
+              setPopupConfig({
+                title: "שגיאה",
+                message: msg,
+                confirmLabel: "סגור",
+                onConfirm: () => setPopupConfig(null),
+              })
+            }
           />
           {isEditMode && (
             <div className={styles.note}>
@@ -371,8 +379,6 @@ export default function UserPermissions() {
           </button>
         </Popup>
       )}
-      
-
     </>
   );
 }

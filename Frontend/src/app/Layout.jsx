@@ -14,13 +14,16 @@ import styles from '../pages/manager/adminPages.module.css';
 
  * @returns {JSX.Element} The rendered Layout component.
  */
-
 const Layout = () => {
   const { user: loggedInUser } = useAuth();
   const location = useLocation();
-  const userType = loggedInUser?.role || (location.pathname.includes('manager') ? 'Admin' 
-  : location.pathname.includes('teacher') ? 'Teacher' 
-  : 'Examinee');
+  const userType =
+    loggedInUser?.role ||
+    (location.pathname.includes("manager")
+      ? "Admin"
+      : location.pathname.includes("teacher")
+      ? "Teacher"
+      : "Examinee");
 
   // Check if current page is an admin page
   const isAdminPage = location.pathname.includes('/manager') || location.pathname.includes('/admin');
@@ -39,4 +42,3 @@ const Layout = () => {
 };
 
 export default Layout;
-

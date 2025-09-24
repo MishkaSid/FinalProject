@@ -1,18 +1,35 @@
+// בקובץ זה נמצא דף ההתחברות הראשי של המערכת
+// הקובץ מספק ממשק התחברות עם שדות אימייל וסיסמה
+// הוא מטפל בתהליך האותנטיקציה ומנווט למשתמש לפי תפקידו
+// Frontend/src/pages/Login/Login-page.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import classes from "./login.module.css";
 import Popup from "../../components/popup/Popup";
-import { useAuth } from "../../context/AuthContext"; // ✅ import auth hook
+import { useAuth } from "../../context/AuthContext";
 
+/**
+ * Handles user login by sending a request to the server and storing the
+ * received token in the AuthContext. The user is then navigated to the
+ * appropriate page based on their role.
+ */
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPopup, setShowPopup] = useState(false);
 
-  const { login, user } = useAuth(); // ✅ use login() and user from context
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handles user login by sending a request to the server and storing the
+   * received token in the AuthContext. The user is then navigated to the
+   * appropriate page based on their role.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - The login form submission event.
+   * @returns {Promise<void>} - Resolves after the login request is complete.
+   */
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -26,14 +43,11 @@ function LoginPage() {
 
       const { token } = response.data;
 
-      // ✅ Save token via AuthContext
       login(token);
 
-      // ✅ Decode token locally (optional, safer to wait for context update)
-      const payload = JSON.parse(atob(token.split(".")[1])); // decode payload
+      const payload = JSON.parse(atob(token.split(".")[1]));
       const role = payload.role;
 
-      // ✅ Navigate by role
       switch (role) {
         case "Admin":
           navigate("/manager");
@@ -57,8 +71,16 @@ function LoginPage() {
       <div className={classes.background}></div>
       <div className={classes.homepage}>
         <div className={classes.logos}>
-          <img className={classes.logo} src="src/assets/images/logoBeta.PNG" alt="logo" />
-          <img className={classes.schoolLogo} src="https://www.pet.ac.il/images/logo.png" alt="logo" />
+          <img
+            className={classes.logo}
+            src="src/assets/images/logoBeta.PNG"
+            alt="logo"
+          />
+          <img
+            className={classes.schoolLogo}
+            src="https://www.pet.ac.il/images/logo.png"
+            alt="logo"
+          />
         </div>
         <div className={classes.welcome}>
           <p>ברוכים הבאים לפלטפורמת "מוכנים ובגדול"!... התחילו כבר עכשיו...</p>
@@ -66,8 +88,20 @@ function LoginPage() {
         <div className={classes.login}>
           <h1>כניסה</h1>
           <form onSubmit={handleLogin}>
-            <input type="email" placeholder="אימייל" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input type="password" placeholder="סיסמה" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input
+              type="email"
+              placeholder="אימייל"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="סיסמה"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
             <button type="submit">התחבר</button>
           </form>
           <div className={classes.warning}>
@@ -75,7 +109,12 @@ function LoginPage() {
           </div>
         </div>
       </div>
-      <Popup header="שגיאה בהתחברות" text="שם המשתמש ו/או הסיסמה שגוים" isOpen={showPopup} onClose={() => setShowPopup(false)}>
+      <Popup
+        header="שגיאה בהתחברות"
+        text="שם המשתמש ו/או הסיסמה שגוים"
+        isOpen={showPopup}
+        onClose={() => setShowPopup(false)}
+      >
         <div className={classes.popupContent}>
           <p>שגיאה בהתחברות</p>
         </div>

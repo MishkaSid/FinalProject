@@ -1,3 +1,9 @@
+// בקובץ זה נמצאים כל הפונקציות לטיפול בקורסים במערכת
+// הקובץ מטפל בפעולות CRUD עבור קורסים: יצירה, קריאה, עדכון ומחיקה
+// הוא מתחבר למסד הנתונים ומחזיר תגובות JSON ללקוח
+//controllers
+// coursesDataController.js
+
 const db = require("../dbConnection");
 
 // Fetch all courses

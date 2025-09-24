@@ -1,4 +1,7 @@
-//Michael sidoruk, Nadav sayag class 49/1
+// בקובץ זה נמצא השרת הראשי של המערכת
+// הקובץ מגדיר את כל הנתיבים והנתבים של ה-API ומאזין על פורט מסוים
+// הוא משמש כנקודת הכניסה הראשית לכל הבקשות מהלקוח
+// server.js
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();

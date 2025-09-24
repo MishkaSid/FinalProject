@@ -1,4 +1,10 @@
-import React from 'react';
+// בקובץ זה נמצא רכיב החלון הקופץ לבחירת נושאים לתרגול
+// הקובץ מציג רשימה של נושאים זמינים עם אפשרות בחירה לתרגול או מבחן
+// הוא מטפל בטעינת נתונים, הצגת שגיאות ומספק כפתורי התחלת תרגול ומבחן
+// הוא משמש כחלון בחירה עבור סטודנטים לבחירת נושא ספציפי לתרגול
+
+// Frontend/src/pages/student/dashboard/SubjectsModal.jsx
+import React from "react";
 import { FiBook, FiCheck } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";
 import Popup from "../../../components/popup/Popup";
@@ -18,29 +24,27 @@ const SubjectsModal = ({
   onSubjectSelect,
   onStartPractice,
   onStartExam,
-  onRetryFetch
+  onRetryFetch,
 }) => {
   return (
-    <Popup
-      isOpen={isOpen}
-      onClose={onClose}
-      header="בחר נושא לתרגול מהרשימה"
-    >
+    <Popup isOpen={isOpen} onClose={onClose} header="בחר נושא לתרגול מהרשימה">
       <div className={styles.modalContent}>
         <p className={styles.modalDescription}>
           בחר את הנושא שברצונך לתרגל היום. הנושאים נטענים מהשרת
         </p>
-        
+
         {error && (
-          <div style={{
-            background: 'rgba(255,0,0,0.1)',
-            border: '1px solid rgba(255,0,0,0.3)',
-            borderRadius: '8px',
-            padding: '10px',
-            marginBottom: '15px',
-            textAlign: 'center'
-          }}>
-            <span style={{color: '#dc3545', fontSize: '0.9rem'}}>
+          <div
+            style={{
+              background: "rgba(255,0,0,0.1)",
+              border: "1px solid rgba(255,0,0,0.3)",
+              borderRadius: "8px",
+              padding: "10px",
+              marginBottom: "15px",
+              textAlign: "center",
+            }}
+          >
+            <span style={{ color: "#dc3545", fontSize: "0.9rem" }}>
               {error}
             </span>
           </div>
@@ -50,33 +54,49 @@ const SubjectsModal = ({
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner}></div>
             <p>טוען נושאים זמינים...</p>
-            <p style={{fontSize: '0.9rem', color: '#6c757d', marginTop: '0.5rem'}}>
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "#6c757d",
+                marginTop: "0.5rem",
+              }}
+            >
               אנא המתן
             </p>
-            <div style={{
-              background: 'rgba(0,123,255,0.1)',
-              border: '1px solid rgba(0,123,255,0.3)',
-              borderRadius: '5px',
-              padding: '8px',
-              marginTop: '10px',
-              textAlign: 'center'
-            }}>
-              <span style={{color: '#007bff', fontSize: '0.8rem'}}>
+            <div
+              style={{
+                background: "rgba(0,123,255,0.1)",
+                border: "1px solid rgba(0,123,255,0.3)",
+                borderRadius: "5px",
+                padding: "8px",
+                marginTop: "10px",
+                textAlign: "center",
+              }}
+            >
+              <span style={{ color: "#007bff", fontSize: "0.8rem" }}>
                 מתחבר לשרת...
               </span>
             </div>
           </div>
         ) : subjects.length > 0 ? (
           <div>
-            <div style={{
-              background: 'rgba(40,167,69,0.1)',
-              border: '1px solid rgba(40,167,69,0.3)',
-              borderRadius: '5px',
-              padding: '8px',
-              marginBottom: '15px',
-              textAlign: 'center'
-            }}>
-              <span style={{color: '#28a745', fontSize: '0.9rem', fontWeight: '500'}}>
+            <div
+              style={{
+                background: "rgba(40,167,69,0.1)",
+                border: "1px solid rgba(40,167,69,0.3)",
+                borderRadius: "5px",
+                padding: "8px",
+                marginBottom: "15px",
+                textAlign: "center",
+              }}
+            >
+              <span
+                style={{
+                  color: "#28a745",
+                  fontSize: "0.9rem",
+                  fontWeight: "500",
+                }}
+              >
                 ✅ נטענו {subjects.length} נושאים בהצלחה
               </span>
             </div>
@@ -85,9 +105,7 @@ const SubjectsModal = ({
                 <div
                   key={subject.id}
                   className={`${styles.subjectCard} ${
-                    selectedSubject?.id === subject.id
-                      ? styles.selected
-                      : ""
+                    selectedSubject?.id === subject.id ? styles.selected : ""
                   }`}
                   onClick={() => onSubjectSelect(subject)}
                 >
@@ -107,38 +125,46 @@ const SubjectsModal = ({
         ) : (
           <div className={styles.noSubjects}>
             <p>לא נמצאו נושאים זמינים כרגע</p>
-            <p style={{fontSize: '0.9rem', color: '#6c757d', marginTop: '0.5rem'}}>
-              {error ? 'שגיאה בטעינת נתונים' : 'אנא נסה שוב מאוחר יותר או פנה למנהל המערכת'}
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "#6c757d",
+                marginTop: "0.5rem",
+              }}
+            >
+              {error
+                ? "שגיאה בטעינת נתונים"
+                : "אנא נסה שוב מאוחר יותר או פנה למנהל המערכת"}
             </p>
             {error && (
-              <div style={{marginTop: '10px'}}>
-                <button 
+              <div style={{ marginTop: "10px" }}>
+                <button
                   onClick={onRetryFetch}
                   style={{
-                    background: '#007bff',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '5px',
-                    marginRight: '10px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem'
+                    background: "#007bff",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                    marginRight: "10px",
+                    cursor: "pointer",
+                    fontSize: "0.9rem",
                   }}
                 >
                   נסה שוב
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     onClose();
                   }}
                   style={{
-                    background: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem'
+                    background: "#6c757d",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 16px",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontSize: "0.9rem",
                   }}
                 >
                   סגור
