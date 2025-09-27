@@ -7,7 +7,6 @@ import styles from "./manager.module.css";
 import GradesDistributionChart from "../../../components/charts/GradeDistributionChart";
 import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
 import StudentUsageChart from "../../../components/charts/StudentUsageChart";
-import Welcome from "../../../components/welcome/Welcome";
 import { useAuth } from "../../../context/AuthContext";
 
 /**
@@ -22,16 +21,14 @@ function Manager() {
   const { user } = useAuth();
   return (
     <div className={styles.adminPage}>
-      <Welcome user={{ username: user?.name || "Manager" }}>
-        <div className={styles.background} />
-        <div className={styles.managerPage}>
-          <div className={styles.chartsGrid}>
-            {user?.role === "Teacher" && <QuestionStatsChart />}
-            <StudentUsageChart />
-            <GradesDistributionChart />
-          </div>
+      <div className={styles.background} />
+      <div className={styles.managerPage}>
+        <div className={styles.chartsGrid}>
+          {user?.role === "Teacher" && <QuestionStatsChart />}
+          <StudentUsageChart />
+          <GradesDistributionChart />
         </div>
-      </Welcome>
+      </div>
     </div>
   );
 }

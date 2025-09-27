@@ -19,10 +19,10 @@ import Card from "../../../components/card/Card";
  * @param {Function} props.onDelete - The function to call when the delete button is clicked.
  * @returns {JSX.Element} The rendered topic card component.
  */
-export default function TopicCard({ topic, onSelect, onEdit, onDelete }) {
+export default function TopicCard({ topic, onSelect, onEdit, onDelete, onManageContent }) {
   return (
     <div className={styles.topicCardContainer}>
-      <Card title={topic.TopicName} onClick={onSelect} size="medium" />
+      <Card title={topic.TopicName} onClick={() => onManageContent(topic)} size="medium" />
       <div className={styles.topicActions}>
         <button className={styles.editButtonLarge} onClick={onEdit}>
           ערוך

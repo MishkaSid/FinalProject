@@ -11,6 +11,7 @@ import CourseSelector from "./CourseSelector";
 import TopicList from "./TopicList";
 import TopicForm from "./TopicForm";
 import PracticeContentTable from "./PracticeContentTable";
+import ManageContentModal from "../../../components/admin/ManageContentModal";
 
 /**
  * @component ManageContent
@@ -49,6 +50,8 @@ export default function ManageContent() {
     open: false,
     course: null,
   });
+  const [isManageContentModalOpen, setIsManageContentModalOpen] = useState(false);
+  const [selectedTopicForModal, setSelectedTopicForModal] = useState(null);
 
   /**
    * @effect
@@ -151,6 +154,16 @@ export default function ManageContent() {
   const handleSelectTopic = (topic) => {
     setSelectedTopic(topic);
     setIsTopicPopupOpen(true);
+  };
+
+  /**
+   * @function handleManageContent
+   * @description Opens the manage content modal for a selected topic.
+   * @param {object} topic - The selected topic object.
+   */
+  const handleManageContent = (topic) => {
+    setSelectedTopicForModal(topic);
+    setIsManageContentModalOpen(true);
   };
 
   /**
@@ -421,6 +434,7 @@ export default function ManageContent() {
             onSelectTopic={handleSelectTopic}
             onEditTopic={handleEditTopic}
             onDeleteTopic={handleDeleteTopic}
+            onManageContent={handleManageContent}
           />
         </>
       )}
@@ -524,6 +538,17 @@ export default function ManageContent() {
           mode="edit"
         />
       </Popup>
+
+      {/* Manage Content Modal */}
+      <ManageContentModal
+        isOpen={isManageContentModalOpen}
+        onClose={() => {
+          setIsManageContentModalOpen(false);
+          setSelectedTopicForModal(null);
+        }}
+        topicId={selectedTopicForModal?.TopicID}
+        topicName={selectedTopicForModal?.TopicName}
+      />
     </div>
   );
 }

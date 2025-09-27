@@ -436,6 +436,22 @@ noResults td {
   background-color: color-mix(in srgb, var(--admin-error) 85%, #000);
   box-shadow: 0 4px 16px rgba(229,57,53,0.12);
 }
+.manageContentButton {
+  padding: 0.7rem 2.1rem;
+  font-size: 1.15rem;
+  border-radius: 0.7rem;
+  border: none;
+  background-color: var(--color-primary-600);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(25, 73, 115, 0.08);
+}
+.manageContentButton:hover {
+  background-color: var(--color-primary-700);
+  box-shadow: 0 4px 16px rgba(25, 73, 115, 0.12);
+}
 .tableWrapper {
   margin-bottom: 12px;
 }
@@ -499,7 +515,7 @@ noResults td {
     align-items: stretch;
     gap: 1rem;
   }
-  .addButton, .deleteButtonLarge, .editButtonLarge {
+  .addButton, .deleteButtonLarge, .editButtonLarge, .manageContentButton {
     width: 100%;
     min-width: 0;
     font-size: 1.1rem;
@@ -528,7 +544,7 @@ noResults td {
     gap: 0.7rem;
     margin-bottom: 1.2rem;
   }
-  .addButton, .deleteButtonLarge, .editButtonLarge {
+  .addButton, .deleteButtonLarge, .editButtonLarge, .manageContentButton {
     font-size: 1rem;
     padding: 0.8rem 0.3rem;
   }
