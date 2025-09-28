@@ -13,10 +13,12 @@ const API_BASE = "http://localhost:5000/api";
  */
 export const getStudentGrades = async (userId, from, to) => {
   const params = new URLSearchParams();
-  if (from) params.append('from', from);
-  if (to) params.append('to', to);
-  
-  const response = await fetch(`${API_BASE}/analytics/student/${userId}/grades?${params}`);
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+
+  const response = await fetch(
+    `${API_BASE}/analytics/student/${userId}/grades?${params}`
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch student grades: ${response.status}`);
   }
@@ -29,7 +31,9 @@ export const getStudentGrades = async (userId, from, to) => {
  * @returns {Promise<Object>} Response with items data
  */
 export const getStudentTopicAccuracy = async (userId) => {
-  const response = await fetch(`${API_BASE}/analytics/student/${userId}/topic-accuracy`);
+  const response = await fetch(
+    `${API_BASE}/analytics/student/${userId}/topic-accuracy`
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch topic accuracy: ${response.status}`);
   }
@@ -43,7 +47,9 @@ export const getStudentTopicAccuracy = async (userId) => {
  * @returns {Promise<Object>} Response with counter data
  */
 export const getExamCounters = async (userId, days = 30) => {
-  const response = await fetch(`${API_BASE}/analytics/student/${userId}/exam-counters?days=${days}`);
+  const response = await fetch(
+    `${API_BASE}/analytics/student/${userId}/exam-counters?days=${days}`
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch exam counters: ${response.status}`);
   }
@@ -56,9 +62,13 @@ export const getExamCounters = async (userId, days = 30) => {
  * @returns {Promise<Object>} Response with topic distribution data
  */
 export const getCourseTopicDistribution = async (courseId) => {
-  const response = await fetch(`${API_BASE}/analytics/course/${courseId}/topic-distribution`);
+  const response = await fetch(
+    `${API_BASE}/analytics/course/${courseId}/topic-distribution`
+  );
   if (!response.ok) {
-    throw new Error(`Failed to fetch course topic distribution: ${response.status}`);
+    throw new Error(
+      `Failed to fetch course topic distribution: ${response.status}`
+    );
   }
   return response.json();
 };
@@ -71,13 +81,36 @@ export const getCourseTopicDistribution = async (courseId) => {
  * @returns {Promise<Object>} Response with series data
  */
 export const getCourseGradesOverTime = async (courseId, from, to) => {
+  if (!courseId) throw new Error("courseId is required");
+
   const params = new URLSearchParams();
-  if (from) params.append('from', from);
-  if (to) params.append('to', to);
-  
-  const response = await fetch(`${API_BASE}/analytics/course/${courseId}/grades-over-time?${params}`);
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+
+  const url = `${API_BASE}/analytics/course/${encodeURIComponent(
+    courseId
+  )}/grades-over-time${params.toString() ? `?${params.toString()}` : ""}`;
+
+  // אופציונלי: תמיכה גם ב-Bearer אם תרצה
+  const token =
+    typeof localStorage !== "undefined"
+      ? localStorage.getItem("accessToken")
+      : null;
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  const response = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+    headers,
+  });
+
   if (!response.ok) {
-    throw new Error(`Failed to fetch course grades over time: ${response.status}`);
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `Failed to fetch course grades over time: ${response.status} ${
+        body || ""
+      }`.trim()
+    );
   }
   return response.json();
 };
@@ -89,7 +122,9 @@ export const getCourseGradesOverTime = async (courseId, from, to) => {
  * @returns {Promise<Object>} Response with series data
  */
 export const getPracticePerDay = async (userId, days = 14) => {
-  const response = await fetch(`${API_BASE}/analytics/student/${userId}/practice-per-day?days=${days}`);
+  const response = await fetch(
+    `${API_BASE}/analytics/student/${userId}/practice-per-day?days=${days}`
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch practice per day: ${response.status}`);
   }
@@ -103,7 +138,9 @@ export const getPracticePerDay = async (userId, days = 14) => {
  * @returns {Promise<Object>} Response with series data
  */
 export const getVideoMinutes = async (userId, days = 14) => {
-  const response = await fetch(`${API_BASE}/analytics/student/${userId}/video-minutes?days=${days}`);
+  const response = await fetch(
+    `${API_BASE}/analytics/student/${userId}/video-minutes?days=${days}`
+  );
   if (!response.ok) {
     throw new Error(`Failed to fetch video minutes: ${response.status}`);
   }
@@ -118,15 +155,19 @@ export const getVideoMinutes = async (userId, days = 14) => {
  * @param {string} data.selectedAnswer - The student's selected answer
  * @returns {Promise<Object>} Response with attempt result
  */
-export const postPracticeAttempt = async ({ userId, exerciseId, selectedAnswer }) => {
+export const postPracticeAttempt = async ({
+  userId,
+  exerciseId,
+  selectedAnswer,
+}) => {
   const response = await fetch(`${API_BASE}/practice-tracking/attempt`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ userId, exerciseId, selectedAnswer }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to record practice attempt: ${response.status}`);
   }
@@ -143,13 +184,13 @@ export const postPracticeAttempt = async ({ userId, exerciseId, selectedAnswer }
  */
 export const postVideoWatch = async ({ userId, videoId, seconds }) => {
   const response = await fetch(`${API_BASE}/practice-tracking/video-watch`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ userId, videoId, seconds }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to record video watch: ${response.status}`);
   }

@@ -1,40 +1,46 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  // קודם נבדוק קוקי HttpOnly
+  let token = req.cookies && req.cookies.accessToken;
+
+  // אופציונלי: תמיכה גם ב-Authorization Bearer
+  if (!token) {
+    const authHeader = req.headers["authorization"];
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.slice(7);
+    }
+  }
 
   if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
+    return res.status(401).json({ error: "Access token required" });
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      return res.status(403).json({ error: "Invalid or expired token" });
     }
     req.user = user;
     next();
   });
 };
 
-// Middleware to check admin/manager/teacher role
+// Middleware to check admin or managerial roles
 const requireAdmin = (req, res, next) => {
   if (!req.user) {
-    return res.status(401).json({ error: 'Authentication required' });
+    return res.status(401).json({ error: "Authentication required" });
   }
-
-  const allowedRoles = ['Admin', 'Manager', 'Teacher'];
+  const allowedRoles = ["Admin", "Manager", "Teacher"];
   if (!allowedRoles.includes(req.user.role)) {
-    return res.status(403).json({ error: 'Admin access required' });
+    return res.status(403).json({ error: "Admin access required" });
   }
-
   next();
 };
 
 module.exports = {
   authenticateToken,
-  requireAdmin
+  requireAdmin,
 };

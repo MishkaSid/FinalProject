@@ -4,6 +4,7 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 const path = require("path");
 const app = express();
@@ -27,10 +28,22 @@ const practiceExercisesRoutes = require("./routes/admin/practiceExercisesRoutes"
 // Auth middleware
 const { authenticateToken, requireAdmin } = require("./middleware/auth");
 
-app.use(cors());
+// CORS - מאפשר חיבור מהפרונט ב-3000 עם קוקיות
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+// JSON parser
 app.use(express.json());
+app.use(cookieParser());  
+
+// Static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Public routes
 app.use("/api/general", generalDataRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/courses", coursesRoutes);
@@ -42,7 +55,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/practice-tracking", practiceTrackingRoutes);
 
-// Admin routes with authentication
+// Admin routes - מוגנים
 app.use("/api", authenticateToken, requireAdmin, videosRoutes);
 app.use("/api", authenticateToken, requireAdmin, examQuestionsRoutes);
 app.use("/api", authenticateToken, requireAdmin, practiceExercisesRoutes);
@@ -52,4 +65,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
