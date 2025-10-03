@@ -82,37 +82,28 @@ export const getCourseTopicDistribution = async (courseId) => {
  */
 export const getCourseGradesOverTime = async (courseId, from, to) => {
   if (!courseId) throw new Error("courseId is required");
-
   const params = new URLSearchParams();
   if (from) params.append("from", from);
   if (to) params.append("to", to);
 
+  const token = localStorage.getItem("token");
   const url = `${API_BASE}/analytics/course/${encodeURIComponent(
     courseId
   )}/grades-over-time${params.toString() ? `?${params.toString()}` : ""}`;
 
-  // אופציונלי: תמיכה גם ב-Bearer אם תרצה
-  const token =
-    typeof localStorage !== "undefined"
-      ? localStorage.getItem("accessToken")
-      : null;
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-  const response = await fetch(url, {
+  const res = await fetch(url, {
     method: "GET",
-    credentials: "include",
-    headers,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
-
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
     throw new Error(
-      `Failed to fetch course grades over time: ${response.status} ${
+      `Failed to fetch course grades over time: ${res.status} ${
         body || ""
       }`.trim()
     );
   }
-  return response.json();
+  return res.json();
 };
 
 /**

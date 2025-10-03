@@ -1,11 +1,8 @@
-// בקובץ זה נמצאות פונקציות האותנטיקציה וההרשאות במערכת
-// הקובץ מטפל בתהליך התחברות המשתמשים, בדיקת סיסמאות ויצירת טוקן JWT
-// הוא מספק אבטחה למערכת ומאפשר גישה מוגבלת למשאבים לפי תפקיד המשתמש
-// auth.js - login router
+// Backend/auth/auth.js
 const express = require("express");
 const router = express.Router();
 const db = require("../dbConnection");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt"); // אם אצלך מותקן bcryptjs, החלף לשורה: const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
@@ -27,25 +24,32 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "משתמש לא נמצא" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.Password);
+    // אם הסיסמה ב־DB מוצפנת בבקריפט: השוואה עם bcrypt
+    // אם אתם בשלב מעבר ויש סיסמאות גולמיות, אפשר להוסיף בדיקת fallback לטקסט פשוט
+    const stored = user.Password || "";
+    const isBcrypt = typeof stored === "string" && stored.startsWith("$2");
+    const isMatch = isBcrypt
+      ? await bcrypt.compare(password, stored)
+      : password === stored;
+
     if (!isMatch) {
       return res.status(401).json({ message: "סיסמה לא תקינה" });
     }
 
     const token = jwt.sign(
-      { id: user.UserID, role: user.Role, name: user.Name },
+      { id: user.UserID, role: user.Role, name: user.Name, email: user.Email },
       JWT_SECRET,
-      { expiresIn: "2h" }
+      { expiresIn: "8h" }
     );
 
-    // קבע קוקי HttpOnly כדי שהדפדפן ישלח אותו אוטומטית בבקשות הבאות
-    res.cookie("accessToken", token, {
-      httpOnly: true,
-      sameSite: "Lax", // בפרודקשן בין דומיינים השתמש "None" ו-secure: true
-      secure: false, // true רק על HTTPS
-      path: "/",
-      maxAge: 1000 * 60 * 60 * 2,
-    });
+    // אופציונלי: אם תרצה גם קוקי HttpOnly בנוסף ל־token בגוף
+    // res.cookie("accessToken", token, {
+    //   httpOnly: true,
+    //   sameSite: "Lax",
+    //   secure: false,
+    //   path: "/",
+    //   maxAge: 1000 * 60 * 60 * 8
+    // });
 
     const userInfo = {
       id: user.UserID,
@@ -54,8 +58,8 @@ router.post("/login", async (req, res) => {
       role: user.Role,
     };
 
-    // מחזירים גם פרטים מינימליים לממשק
-    return res.json({ ok: true, user: userInfo });
+    // שורה קריטית: החזרת token בגוף כדי שהפרונט יעבוד כפי שמצפה
+    return res.json({ ok: true, token, user: userInfo });
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({ message: "Server error" });

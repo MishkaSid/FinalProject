@@ -1,56 +1,56 @@
 // בקובץ זה נמצא הקונטקסט לניהול האותנטיקציה במערכת
 // הקובץ מספק פונקציות להתחברות, התנתקות וניהול מצב המשתמש
 // הוא משמש כנקודת גישה מרכזית למידע על המשתמש המחובר
-// AuthContext.js
-import { createContext, useContext, useState, useEffect } from "react";
+// Frontend/src/context/AuthContext.jsx
+import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
 
-/**
- * Provides a React context for user authentication state and actions.
- 
- * @param {{children: React.ReactNode}} props
- * @returns {React.ReactElement}
- */
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // user = { name, role }
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (token) {
+  // טעינה ראשונית מהדפדפן
+  useEffect(() => {
     try {
-      const decoded = jwtDecode(token);
-      if (decoded.exp * 1000 > Date.now()) {
-        setUser(decoded);
-      } else {
-        localStorage.removeItem("token");
+      const token = localStorage.getItem("token");
+      if (token) {
+        const payload = jwtDecode(token);
+        setUser({
+          id: payload.id,
+          email: payload.email,
+          name: payload.name,
+          role: payload.role,
+          token,
+        });
       }
-    } catch {
+    } catch (e) {
+      // אם ה־token לא תקין, ננקה אותו
       localStorage.removeItem("token");
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-  }
-  setLoading(false); // ✅ done loading
-}, []);
+  }, []);
 
-
-  /**
-   * Logs in the user by setting the user in state and local storage.
-   * @param {string} token - The JSON Web Token (JWT) from the server.
-   */
+  // שמירת token ומשתמש לאחר התחברות
   const login = (token) => {
     localStorage.setItem("token", token);
-    const decoded = jwtDecode(token);
-    setUser(decoded);
+    const payload = jwtDecode(token);
+    setUser({
+      id: payload.id,
+      email: payload.email,
+      name: payload.name,
+      role: payload.role,
+      token,
+    });
   };
 
-  /**
-   * Logs out the user by removing the user from state and local storage.
-   */
+  // התנתקות
   const logout = () => {
-    setUser(null);
     localStorage.removeItem("token");
+    setUser(null);
   };
 
   return (
