@@ -86,7 +86,9 @@ export const getCourseGradesOverTime = async (courseId, from, to) => {
   if (from) params.append("from", from);
   if (to) params.append("to", to);
 
-  const token = localStorage.getItem("token");
+  const token =
+    typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+
   const url = `${API_BASE}/analytics/course/${encodeURIComponent(
     courseId
   )}/grades-over-time${params.toString() ? `?${params.toString()}` : ""}`;
@@ -187,3 +189,24 @@ export const postVideoWatch = async ({ userId, videoId, seconds }) => {
   }
   return response.json();
 };
+
+/**
+ * Gets site visit count for admin dashboard
+ * @param {string} from - Start date in YYYY-MM-DD format
+ * @param {string} to - End date in YYYY-MM-DD format
+ * @returns {Promise<Object>} Response with series data
+ */
+export async function getSiteVisitsCount(from, to) {
+  const token = localStorage.getItem("token");
+  const params = new URLSearchParams();
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+  const url = `${API_BASE}/analytics/visits/count${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`visits count failed: ${res.status}`);
+  return res.json();
+}

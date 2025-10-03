@@ -342,3 +342,47 @@ exports.getVideoMinutes = async (req, res) => {
     }
   }
 };
+
+/**
+ * @function getSiteVisitsCount
+ * @description Gets site visit count for admin dashboard
+ * @param {object} req - Express request object with from/to query params
+ * @param {object} res - Express response object
+ * @returns {Promise<Object>} Response with series data
+ */
+exports.getSiteVisitsCount = async (req, res) => {
+  const { from, to } = req.query;
+
+  // ברירות מחדל - 30 ימים אחרונים
+  const today = new Date().toISOString().slice(0, 10);
+  const d30 = new Date();
+  d30.setDate(d30.getDate() - 30);
+  const fromDate = (from && String(from)) || d30.toISOString().slice(0, 10);
+  const toDate = (to && String(to)) || today;
+
+  let connection;
+  try {
+    connection = await db.getConnection();
+    const [rows] = await connection.query(
+      `
+      SELECT DATE_FORMAT(DATE(VisitedAt), '%Y-%m-%d') AS date_str,
+             COUNT(*) AS visits
+      FROM site_visit
+      WHERE DATE(VisitedAt) BETWEEN ? AND ?
+      GROUP BY DATE(VisitedAt)
+      ORDER BY DATE(VisitedAt)
+      `,
+      [fromDate, toDate]
+    );
+    const series = rows.map((r) => ({
+      date: r.date_str,
+      count: Number(r.visits),
+    }));
+    res.json({ series });
+  } catch (err) {
+    console.error("Error getSiteVisitsCount:", err);
+    if (!res.headersSent) res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
+  }
+};
