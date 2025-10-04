@@ -210,3 +210,87 @@ export async function getSiteVisitsCount(from, to) {
   if (!res.ok) throw new Error(`visits count failed: ${res.status}`);
   return res.json();
 }
+
+/**
+ * Gets student's average grade for last X exams
+ * @param {string|number} userId - The student's user ID
+ * @param {number} [limit=3] - Number of exams to average
+ * @returns {Promise<Object>} Response with average grade
+ */
+export async function getStudentAvgLastExams(userId, limit = 3) {
+  const token = localStorage.getItem("token");
+  const url = `${API_BASE}/analytics/student/${encodeURIComponent(
+    userId
+  )}/avg-last?limit=${encodeURIComponent(limit)}`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(
+      `avg last exams failed: ${res.status} ${body || ""}`.trim()
+    );
+  }
+  return res.json();
+}
+
+/**
+ * Gets students report for admin dashboard
+ * @param {Object} params - Query parameters object
+ * @param {string|number} [params.courseId] - The course ID
+ * @param {string|number} [params.userId] - The student's user ID
+ * @returns {Promise<Object>} Response with students report data
+ */
+export async function getStudentsReport({ courseId, userId } = {}) {
+  const token = localStorage.getItem("token");
+  const params = new URLSearchParams();
+  if (courseId) params.append("courseId", courseId);
+  if (userId) params.append("userId", userId);
+  const url = `${API_BASE}/analytics/report/students${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(
+      `students report failed: ${res.status} ${body || ""}`.trim()
+    );
+  }
+  return res.json(); // { count, data: [ { name, userId, avgAll, last3: [s1,s2,s3] } ] }
+}
+
+/**
+ * Gets topic failure rates for teacher view charts
+ * @param {string|number} courseId - The course ID
+ * @param {string|number} [from] - The start date of the range, defaults to 30 days ago
+ * @param {string|number} [to] - The end date of the range, defaults to today
+ * @returns {Promise<Object>} Response with topic failure rates data
+ * @example
+ * // Get topic failure rates for course 123 from 2020-01-01 to 2020-01-31
+ * const response = await getTopicFailureRates({ courseId: 123, from: "2020-01-01", to: "2020-01-31" });
+ * console.log(response);
+ * // { courseId: "123", from: "2020-01-01", to: "2020-01-31", items: [ { topicId, topicName, total, failed, failureRate } ] }
+ */
+export async function getTopicFailureRates(courseId, from, to) {
+  if (!courseId) throw new Error("courseId is required");
+  const token = localStorage.getItem("token");
+  const params = new URLSearchParams();
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+  const url = `${API_BASE}/analytics/course/${encodeURIComponent(
+    courseId
+  )}/topic-failures${params.toString() ? `?${params.toString()}` : ""}`;
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(
+      `topic failure rates failed: ${res.status} ${body || ""}`.trim()
+    );
+  }
+  return res.json(); // { courseId, from, to, items: [ { topicId, topicName, total, failed, failureRate } ] }
+}

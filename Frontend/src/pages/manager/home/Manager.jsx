@@ -11,6 +11,11 @@ import { useAuth } from "../../../context/AuthContext";
 import React, { useEffect, useState } from "react";
 import CourseGradesOverTimeChart from "../../../components/charts/CourseGradesOverTimeChart";
 import { getSiteVisitsCount } from "../../../services/analyticsApi";
+import StudentAvgLastExamsCard from "../../../components/analytics/StudentAvgLastExamsCard";
+import StudentsReportCard from "../../../components/analytics/StudentsReportCard";
+import TopicFailureRateCard from "../../../components/analytics/TopicFailureRateCard";
+
+
 
 /**
  * The Manager component renders the main page for managers.
@@ -44,6 +49,9 @@ function Manager() {
   return (
     <div className={styles.adminPage}>
       <div className={styles.background} />
+      <div className={styles.chartCard}>
+        <StudentsReportCard />
+      </div>
       <div className={styles.managerPage}>
         <div className={styles.chartsGrid}>
           {/* Controls for courseId and date range */}
@@ -51,6 +59,10 @@ function Manager() {
             <h2 style={{ marginBottom: 12 }}>
               Course grades over time - controls
             </h2>
+            <div className={styles.chartCard}>
+              <StudentAvgLastExamsCard />
+            </div>
+
             <div
               style={{
                 display: "grid",
@@ -164,14 +176,17 @@ function Manager() {
               />
             </div>
           </div>
-
           {user?.role === "Teacher" && <QuestionStatsChart />}
           <StudentUsageChart from={visFrom} to={visTo} />
           <GradesDistributionChart />
         </div>
+        <div className={styles.chartCard}>
+          <TopicFailureRateCard />
+        </div>
       </div>
     </div>
   );
+  
 }
 
 export default Manager;
