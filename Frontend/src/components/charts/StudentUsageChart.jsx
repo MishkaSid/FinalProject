@@ -61,35 +61,52 @@ export default function StudentUsageChart({ from, to }) {
 
   return (
     <div className={styles.chartWrapper}>
-      <h2 className={styles.chartTitle}>{title}</h2>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 20, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis allowDecimals={false} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
-              borderRadius: "2rem",
-              fontSize: "1.8rem",
-            }}
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="users"
-            stroke="#1abc9c"
-            strokeWidth={3}
-            activeDot={{ r: 6 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-      {loading && (
-        <div style={{ textAlign: "center", paddingTop: 8 }}>טוען...</div>
-      )}
-      {!loading && data.length === 0 && (
-        <div style={{ textAlign: "center", paddingTop: 8 }}>
-          אין נתונים בטווח שנבחר
+      {loading ? (
+        <div className={styles.loadingState}>טוען...</div>
+      ) : data.length === 0 ? (
+        <div className={styles.emptyState}>אין נתונים בטווח שנבחר</div>
+      ) : (
+        <div className={styles.chartContainer}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 12, fill: '#666' }}
+                axisLine={{ stroke: '#ccc' }}
+                tickLine={{ stroke: '#ccc' }}
+              />
+              <YAxis 
+                allowDecimals={false}
+                tick={{ fontSize: 12, fill: '#666' }}
+                axisLine={{ stroke: '#ccc' }}
+                tickLine={{ stroke: '#ccc' }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  color: "white",
+                  border: "none"
+                }}
+                labelStyle={{ color: "white" }}
+              />
+              <Legend 
+                verticalAlign="top" 
+                height={36}
+                wrapperStyle={{ fontSize: '12px' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="users"
+                stroke="#1abc9c"
+                strokeWidth={3}
+                dot={{ fill: '#1abc9c', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#1abc9c', strokeWidth: 2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>

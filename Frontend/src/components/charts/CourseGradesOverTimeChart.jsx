@@ -54,27 +54,53 @@ export default function CourseGradesOverTimeChart({ courseId, from, to }) {
 
   return (
     <div className={styles.chartWrapper}>
-      <h3 className={styles.chartTitle}>Course grades over time</h3>
       {!isRangeValid && (
-        <div className={styles.error}>Invalid range: from is after to</div>
+        <div className={styles.errorState}>Invalid range: from is after to</div>
       )}
-      {error && <div className={styles.error}>{error}</div>}
+      {error && <div className={styles.errorState}>{error}</div>}
       {loading ? (
-        <div className={styles.loading}>Loading...</div>
+        <div className={styles.loadingState}>Loading...</div>
+      ) : data.length === 0 ? (
+        <div className={styles.emptyState}>No data available for the selected range</div>
       ) : (
-        <div style={{ width: "100%", height: 300 }}>
-          <ResponsiveContainer>
+        <div className={styles.chartContainer}>
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
-              margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
+              margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-              <Tooltip
-                formatter={(v) => [`${Number(v).toFixed(1)}`, "Avg grade"]}
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 12, fill: '#666' }}
+                axisLine={{ stroke: '#ccc' }}
+                tickLine={{ stroke: '#ccc' }}
               />
-              <Line type="monotone" dataKey="avg" dot={false} strokeWidth={2} />
+              <YAxis 
+                domain={[0, 100]} 
+                tick={{ fontSize: 12, fill: '#666' }}
+                axisLine={{ stroke: '#ccc' }}
+                tickLine={{ stroke: '#ccc' }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  color: "white",
+                  border: "none"
+                }}
+                formatter={(v) => [`${Number(v).toFixed(1)}%`, "Average Grade"]}
+                labelStyle={{ color: "white" }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="avg" 
+                stroke="#3498db"
+                strokeWidth={3}
+                dot={{ fill: '#3498db', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#3498db', strokeWidth: 2 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

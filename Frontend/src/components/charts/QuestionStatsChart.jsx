@@ -53,56 +53,88 @@ export default function QuestionStatsChart() {
   return (
     <>
       <div className={styles.chartWrapper}>
-        <h2 className={styles.chartTitle}>סוגי שאלות במערכת</h2>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={questionTypes} margin={{ top: 20, bottom: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="type" />
-            <YAxis />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: " rgba(0, 0, 0, 0.8)",
-                borderRadius: "2rem",
-                fontSize: "1.8rem",
-              }}
-            />
-            <Bar dataKey="count" fill="#3498db" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className={styles.chartContainer}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={questionTypes} margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="type" 
+                tick={{ fontSize: 12, fill: '#666' }}
+                axisLine={{ stroke: '#ccc' }}
+                tickLine={{ stroke: '#ccc' }}
+              />
+              <YAxis 
+                tick={{ fontSize: 12, fill: '#666' }}
+                axisLine={{ stroke: '#ccc' }}
+                tickLine={{ stroke: '#ccc' }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  color: "white",
+                  border: "none"
+                }}
+                labelStyle={{ color: "white" }}
+              />
+              <Bar 
+                dataKey="count" 
+                fill="#3498db" 
+                radius={[4, 4, 0, 0]}
+                stroke="#2980b9"
+                strokeWidth={1}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className={styles.chartWrapper}>
-        <h2 className={styles.chartTitle}>אחוז נכשלים לפי מקצוע</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <PieChart>
-            <Pie
-              data={difficultyStats}
-              dataKey="fails"
-              nameKey="subject"
-              cx="50%"
-              cy="50%"
-              outerRadius={90}
-              label={({ subject, percent }) =>
-                `${subject} - ${(percent * 100).toFixed(0)}%`
-              }
-            >
-              {difficultyStats.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: " rgba(255, 255, 255, 0.8)",
-                borderRadius: "2rem",
-                fontSize: "1.8rem",
-              }}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        <div className={styles.chartContainer}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
+              <Pie
+                data={difficultyStats}
+                dataKey="fails"
+                nameKey="subject"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                innerRadius={30}
+                label={({ subject, percent }) =>
+                  `${subject} - ${(percent * 100).toFixed(0)}%`
+                }
+                labelLine={false}
+              >
+                {difficultyStats.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(0, 0, 0, 0.8)",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  color: "white",
+                  border: "none"
+                }}
+                labelStyle={{ color: "white" }}
+              />
+              <Legend 
+                verticalAlign="bottom" 
+                height={36}
+                iconType="circle"
+                wrapperStyle={{ fontSize: '12px' }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </>
   );

@@ -47,16 +47,42 @@ const data = [
 export default function GradeDistributionChart() {
   return (
     <div className={styles.chartWrapper}>
-      <h2 className={styles.chartTitle}>התפלגות ציונים</h2>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="range" />
-          <YAxis allowDecimals={false} />
-          <Tooltip contentStyle={{ backgroundColor:" rgba(0, 0, 0, 0.8)", borderRadius: "2rem", fontSize: "1.8rem" }}/>
-          <Bar dataKey="students" fill="#3598db" radius={[25, 25, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
+      <div className={styles.chartContainer}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis 
+              dataKey="range" 
+              tick={{ fontSize: 12, fill: '#666' }}
+              axisLine={{ stroke: '#ccc' }}
+              tickLine={{ stroke: '#ccc' }}
+            />
+            <YAxis 
+              allowDecimals={false}
+              tick={{ fontSize: 12, fill: '#666' }}
+              axisLine={{ stroke: '#ccc' }}
+              tickLine={{ stroke: '#ccc' }}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: "rgba(0, 0, 0, 0.8)", 
+                borderRadius: "8px", 
+                fontSize: "14px",
+                color: "white",
+                border: "none"
+              }}
+              labelStyle={{ color: "white" }}
+            />
+            <Bar 
+              dataKey="students" 
+              fill="#3498db" 
+              radius={[4, 4, 0, 0]}
+              stroke="#2980b9"
+              strokeWidth={1}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

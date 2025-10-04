@@ -47,102 +47,61 @@ function Manager() {
   return (
     <div className={styles.adminPage}>
       <div className={styles.background} />
-      <div className={styles.chartCard}>
-        <StudentsReportCard />
-      </div>
+      
+      {/* Statistics Cards Grid */}
       <div className={styles.managerPage}>
-        <div className={styles.chartsGrid}>
-          {/* Controls for courseId and date range */}
-          <div className={styles.chartCard} style={{ padding: 16 }}>
-            <h2 style={{ marginBottom: 12 }}>
-              Course grades over time - controls
-            </h2>
-            <div className={styles.chartCard}>
-              <StudentAvgLastExamsCard />
-            </div>
+        <div className={styles.cardsGrid}>
+          {/* Report Cards */}
+          <div className={styles.statCard}>
+            <h3 className={styles.cardTitle}>דוח סטודנטים</h3>
+            <StudentsReportCard />
+          </div>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.cardTitle}>ממוצע ציונים אחרונים</h3>
+            <StudentAvgLastExamsCard />
+          </div>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.cardTitle}>שיעור כישלונות לפי נושא</h3>
+            <TopicFailureRateCard />
+          </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr 1fr",
-                gap: 12,
-              }}
-            >
-              <div
-                style={{
-                  marginTop: 16,
-                  padding: 12,
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                }}
-              >
-                <h3>כניסות לאתר</h3>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <label>From:</label>
-                  <input
-                    type="date"
-                    value={visFrom}
-                    onChange={(e) => setVisFrom(e.target.value)}
-                  />
-                  <label>To:</label>
-                  <input
-                    type="date"
-                    value={visTo}
-                    onChange={(e) => setVisTo(e.target.value)}
-                  />
-                </div>
-                <ul>
-                  {visSeries.map((x) => (
-                    <li key={x.date}>
-                      {x.date}: {x.count}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <label
-                style={{ display: "flex", flexDirection: "column", gap: 6 }}
-              >
-                <span>Course ID</span>
+          {/* Course Grades Card */}
+          <div className={styles.statCard}>
+            <h3 className={styles.cardTitle}>מעקב ציונים לאורך זמן</h3>
+            <div className={styles.cardControls}>
+              <div className={styles.controlRow}>
+                <label className={styles.controlLabel}>מזהה קורס</label>
                 <input
                   type="text"
-                  placeholder="Enter courseId"
+                  className={styles.controlInput}
+                  placeholder="הזן מזהה קורס"
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
                 />
-              </label>
-
-              <label
-                style={{ display: "flex", flexDirection: "column", gap: 6 }}
-              >
-                <span>From</span>
+              </div>
+              <div className={styles.controlRow}>
+                <label className={styles.controlLabel}>מתאריך</label>
                 <input
                   type="date"
+                  className={styles.controlInput}
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
                 />
-              </label>
-
-              <label
-                style={{ display: "flex", flexDirection: "column", gap: 6 }}
-              >
-                <span>To</span>
+              </div>
+              <div className={styles.controlRow}>
+                <label className={styles.controlLabel}>עד תאריך</label>
                 <input
                   type="date"
+                  className={styles.controlInput}
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
                 />
-              </label>
-
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
+              </div>
+              <div className={styles.buttonRow}>
                 <button
+                  className={styles.smallButton}
                   onClick={() => {
                     const now = new Date();
                     const toStr = now.toISOString().slice(0, 10);
@@ -153,20 +112,20 @@ function Manager() {
                     setTo(toStr);
                   }}
                 >
-                  Last 30 days
+                  30 יום אחרונים
                 </button>
                 <button
+                  className={`${styles.smallButton} ${styles.secondary}`}
                   onClick={() => {
                     setFrom("");
                     setTo("");
                   }}
                 >
-                  Clear range
+                  נקה
                 </button>
               </div>
             </div>
-
-            <div style={{ marginTop: 16 }}>
+            <div className={styles.chartContainer}>
               <CourseGradesOverTimeChart
                 courseId={courseId}
                 from={from}
@@ -174,12 +133,76 @@ function Manager() {
               />
             </div>
           </div>
-          {user?.role === "Teacher" && <QuestionStatsChart />}
-          <StudentUsageChart from={visFrom} to={visTo} />
-          <GradesDistributionChart />
-        </div>
-        <div className={styles.chartCard}>
-          <TopicFailureRateCard />
+
+          {/* Site Visits Card */}
+          <div className={styles.statCard}>
+            <h3 className={styles.cardTitle}>סטטיסטיקות כניסות לאתר</h3>
+            <div className={styles.cardControls}>
+              <div className={styles.controlRow}>
+                <label className={styles.controlLabel}>מתאריך</label>
+                <input
+                  type="date"
+                  className={styles.controlInput}
+                  value={visFrom}
+                  onChange={(e) => setVisFrom(e.target.value)}
+                />
+              </div>
+              <div className={styles.controlRow}>
+                <label className={styles.controlLabel}>עד תאריך</label>
+                <input
+                  type="date"
+                  className={styles.controlInput}
+                  value={visTo}
+                  onChange={(e) => setVisTo(e.target.value)}
+                />
+              </div>
+              <div className={styles.buttonRow}>
+                <button
+                  className={styles.smallButton}
+                  onClick={() => {
+                    const now = new Date();
+                    const toStr = now.toISOString().slice(0, 10);
+                    const fromD = new Date(now);
+                    fromD.setDate(fromD.getDate() - 30);
+                    const fromStr = fromD.toISOString().slice(0, 10);
+                    setVisFrom(fromStr);
+                    setVisTo(toStr);
+                  }}
+                >
+                  30 יום אחרונים
+                </button>
+                <button
+                  className={`${styles.smallButton} ${styles.secondary}`}
+                  onClick={() => {
+                    setVisFrom("");
+                    setVisTo("");
+                  }}
+                >
+                  נקה
+                </button>
+              </div>
+            </div>
+            <div className={styles.chartContainer}>
+              <StudentUsageChart from={visFrom} to={visTo} />
+            </div>
+          </div>
+
+          {/* Charts Cards */}
+          {user?.role === "Teacher" && (
+            <div className={styles.statCard}>
+              <h3 className={styles.cardTitle}>סטטיסטיקות שאלות</h3>
+              <div className={styles.chartContainer}>
+                <QuestionStatsChart />
+              </div>
+            </div>
+          )}
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.cardTitle}>התפלגות ציונים</h3>
+            <div className={styles.chartContainer}>
+              <GradesDistributionChart />
+            </div>
+          </div>
         </div>
       </div>
     </div>

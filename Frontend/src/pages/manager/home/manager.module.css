@@ -57,14 +57,283 @@
   font-weight: 500;
 }
 
-/* charts Grid */
-.chartsGrid {
+/* Cards Grid */
+.cardsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
   width: 100%;
-  margin-top: 16px;
-  padding: 8px;
+  margin-top: 2rem;
+  padding: 1rem;
+  direction: rtl;
+}
+
+/* Statistics Card */
+.statCard {
+  background: var(--admin-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  direction: rtl;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-strong));
+}
+
+.cardTitle {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--admin-border);
+  position: relative;
+  direction: rtl;
+}
+
+.cardTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: var(--admin-accent);
+}
+
+/* Card Controls */
+.cardControls {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--admin-surface-alt);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--admin-border);
+}
+
+.controlRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  direction: rtl;
+}
+
+.controlRow:last-of-type {
+  margin-bottom: 0;
+}
+
+.controlLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  text-align: right;
+}
+
+.controlInput {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  direction: ltr;
+  text-align: left;
+}
+
+.controlInput:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-accent) 20%, transparent);
+}
+
+.buttonRow {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.smallButton {
+  padding: 0.4rem 0.8rem;
+  background: var(--admin-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 90px;
+}
+
+.smallButton:hover {
+  background: var(--admin-accent-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(25, 73, 115, 0.3);
+}
+
+.smallButton.secondary {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border: 2px solid var(--admin-border);
+}
+
+.smallButton.secondary:hover {
+  background: var(--admin-surface-alt);
+  border-color: var(--admin-accent);
+}
+
+/* Chart Card Container */
+.chartCard {
+  background: var(--admin-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+  padding: 2rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.chartCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.chartCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-strong));
+}
+
+/* Controls Section */
+.controlsSection {
+  background: var(--admin-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.controlsSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-700));
+}
+
+.controlsTitle {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.controlsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.controlLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin-bottom: 0.5rem;
+}
+
+.controlInput {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  direction: ltr;
+}
+
+.controlInput:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 20%, transparent);
+}
+
+.controlButton {
+  padding: 0.75rem 1.5rem;
+  background: var(--admin-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.controlButton:hover {
+  background: var(--admin-accent-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(25, 73, 115, 0.3);
+}
+
+.controlButton.secondary {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border: 2px solid var(--admin-border);
+}
+
+.controlButton.secondary:hover {
+  background: var(--admin-surface-alt);
+  border-color: var(--admin-accent);
+}
+
+.controlActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 
@@ -115,17 +384,42 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .admin-page {
-    flex-direction: column;
+  .managerPage {
+    padding: 1rem;
+    margin-left: 0;
   }
 
-  .sidebar {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 0.5rem;
+  }
+
+  .statCard {
+    padding: 1.25rem;
+  }
+
+  .cardTitle {
+    font-size: 1.2rem;
+  }
+
+  .cardControls {
+    padding: 0.75rem;
+  }
+
+  .controlRow {
+    margin-bottom: 0.75rem;
+  }
+
+  .buttonRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .smallButton {
     width: 100%;
     text-align: center;
-  }
-
-  .card-container {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
   .dashboardHeader {
@@ -139,5 +433,43 @@
 
   .dashboardSubtitle {
     font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .managerPage {
+    padding: 0.5rem;
+  }
+
+  .cardsGrid {
+    padding: 0.25rem;
+    gap: 1rem;
+  }
+
+  .statCard {
+    padding: 1rem;
+  }
+
+  .cardTitle {
+    font-size: 1.1rem;
+  }
+
+  .cardControls {
+    padding: 0.5rem;
+  }
+
+  .controlInput {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .smallButton {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    min-width: 80px;
+  }
+
+  .controlLabel {
+    font-size: 0.8rem;
   }
 }
