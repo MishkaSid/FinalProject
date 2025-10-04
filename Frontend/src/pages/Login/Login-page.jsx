@@ -104,6 +104,10 @@ function LoginPage() {
             />
             <button type="submit">התחבר</button>
           </form>
+          <p style={{ textAlign: "center", marginTop: 8 }}>
+            <a href="/forgot-password">שכחתי סיסמה</a>
+          </p>
+
           <div className={classes.warning}>
             <p>שימו לב! פלטפורמה זו הינה כלי עזר ואינה תחליף ללמידה עצמית</p>
           </div>

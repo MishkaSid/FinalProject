@@ -21,6 +21,8 @@ import Exam from "../pages/student/exam/Exam";
 import AdminVideosPage from "../pages/admin/AdminVideosPage";
 import AdminExamQuestionsPage from "../pages/admin/AdminExamQuestionsPage";
 import AdminPracticeExercisesPage from "../pages/admin/AdminPracticeExercisesPage";
+import ForgotPassword from "../pages/Login/ForgotPassword";
+import ResetPassword from "../pages/Login/ResetPassword";
 
 /**
  * The main app component, which wraps the entire app in the AuthProvider and
@@ -33,6 +35,8 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/" element={<LoginPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           {/* Protected Routes */}
@@ -52,17 +56,32 @@ function App() {
                 path="/manager/manageContent"
                 element={<ManageContent />}
               />
-              <Route path="/admin/topics/:topicId/videos" element={<AdminVideosPage />} />
-              <Route path="/admin/topics/:topicId/exam" element={<AdminExamQuestionsPage />} />
-              <Route path="/admin/topics/:topicId/practice" element={<AdminPracticeExercisesPage />} />
+              <Route
+                path="/admin/topics/:topicId/videos"
+                element={<AdminVideosPage />}
+              />
+              <Route
+                path="/admin/topics/:topicId/exam"
+                element={<AdminExamQuestionsPage />}
+              />
+              <Route
+                path="/admin/topics/:topicId/practice"
+                element={<AdminPracticeExercisesPage />}
+              />
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route
                 path="/teacher/manageContent"
                 element={<ManageContent />}
               />
               <Route path="/student" element={<StudentDashboard />} />
-              <Route path="/student/practice-dashboard/:topicId" element={<PracticeDashboard />} />
-              <Route path="/student/practice-questions/:topicId" element={<PracticeQuestions />} />
+              <Route
+                path="/student/practice-dashboard/:topicId"
+                element={<PracticeDashboard />}
+              />
+              <Route
+                path="/student/practice-questions/:topicId"
+                element={<PracticeQuestions />}
+              />
               <Route path="/student/practice" element={<Practice />} />
               <Route path="/student/exam" element={<Exam />} />
             </Route>

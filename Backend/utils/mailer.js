@@ -42,4 +42,32 @@ async function sendInvitation(to, name = "") {
   });
 }
 
-module.exports = { sendInvitation };
+/**
+ * Send a simple password reset email
+ * @param {object} options - object with properties:
+ *   to {string} - recipient’s email
+ *   name {string} - recipient’s name (optional)
+ *   resetUrl {string} - link to reset password page
+ */
+async function sendPasswordResetEmail({ to, name, resetUrl }) {
+  // Simple Hebrew template. Adjust brand text as you like.
+  try {
+    await transporter.sendMail({
+      from: `"מוכנים ובגדול" <${process.env.SMTP_USER}>`,
+      to,
+      subject: "איפוס סיסמה לפלטפורמה",
+      html: `
+      <p>היי ${name || "סטודנט"},</p>
+      <p>לקביעת סיסמה חדשה, לחץ על הקישור הבא:</p>
+      <p><a href="${resetUrl}">${resetUrl}</a></p>
+      <p>הקישור זמין ל 15 דקות.</p>
+      <p>אם לא ביקשת איפוס, אפשר להתעלם מהמייל.</p>
+    `,
+    });
+  } catch (err) {
+    console.error("sendPasswordResetEmail error:", err);
+    throw err;
+  }
+}
+
+module.exports = { sendInvitation, sendPasswordResetEmail };

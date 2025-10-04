@@ -15,8 +15,6 @@ import StudentAvgLastExamsCard from "../../../components/analytics/StudentAvgLas
 import StudentsReportCard from "../../../components/analytics/StudentsReportCard";
 import TopicFailureRateCard from "../../../components/analytics/TopicFailureRateCard";
 
-
-
 /**
  * The Manager component renders the main page for managers.
  * It contains a sidebar with links to relevant pages, and a main content area
@@ -186,7 +184,6 @@ function Manager() {
       </div>
     </div>
   );
-  
 }
 
 export default Manager;
