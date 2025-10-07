@@ -43,14 +43,13 @@ export default function StudentDashboard() {
   console.log("StudentDashboard: Current dashboard data:", dashboardData);
 
   // Fetch dashboard data (includes last exam and average)
+  // בתוך הקומפוננטה StudentDashboard
   const fetchDashboardData = useCallback(
     async (forceRefresh = false) => {
-      const currentUser = user; // Capture current user to avoid stale closure issues
+      const currentUser = user;
 
+      // אימות מזהה משתמש
       if (!currentUser?.id && !currentUser?.UserID) {
-        console.log(
-          "StudentDashboard: No user ID available, setting default fallback data"
-        );
         setRefreshing(false);
         setDashboardData({
           user: { name: "משתמש לא מזוהה", role: "student" },
@@ -62,19 +61,13 @@ export default function StudentDashboard() {
       }
 
       try {
-        if (forceRefresh) {
-          console.log(
-            "StudentDashboard: Setting refreshing state to true for force refresh"
-          );
-          setRefreshing(true);
-        }
+        if (forceRefresh) setRefreshing(true);
         setError(null);
 
         const userId = currentUser?.id || currentUser?.UserID;
-        console.log(
-          "StudentDashboard: Fetching dashboard data for user ID:",
-          userId
-        );
+
+        // קבלת טוקן מהדפדפן. אם אתם עובדים עם קוקיז HttpOnly, מחק את headers והוסף credentials: "include"
+        const token = localStorage.getItem("token");
 
         const response = await fetch(
           `http://localhost:5000/api/student/dashboard/${userId}`,
@@ -82,61 +75,51 @@ export default function StudentDashboard() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
+              Authorization: token ? `Bearer ${token}` : "",
             },
+            // אם עובדים עם קוקיז HttpOnly במקום Bearer:
+            // credentials: "include"
           }
         );
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(
-            "StudentDashboard: API response error:",
-            response.status,
-            errorText
-          );
           throw new Error(
-            `Failed to fetch dashboard data: ${response.status} - ${response.statusText}`
+            `Failed to fetch dashboard data: ${response.status} - ${errorText}`
           );
         }
 
         const data = await response.json();
-        console.log("StudentDashboard: Dashboard API response received:", data);
 
-        // Validate and normalize the data structure
+        // נרמול מבנה התגובה כדי שלא יפיל את ה־UI במקרה של שדות חסרים
         const normalizedData = {
           user: {
             id: data.user?.id || userId,
             name: data.user?.name || currentUser?.name || "משתמש לא מזוהה",
-            email: data.user?.email || "student@example.com",
-            course: data.user?.course || "מתמטיקה",
+            email: data.user?.email || currentUser?.email || "",
+            course: data.user?.course || currentUser?.course || "מתמטיקה",
           },
           lastExam: data.lastExam || null,
-          overallAverage: data.overallAverage || 0,
-          totalExams: data.totalExams || 0,
+          overallAverage:
+            typeof data.overallAverage === "number" ? data.overallAverage : 0,
+          totalExams: typeof data.totalExams === "number" ? data.totalExams : 0,
         };
 
         setDashboardData(normalizedData);
-        console.log(
-          "StudentDashboard: Dashboard data updated with normalized data:",
-          normalizedData
-        );
       } catch (err) {
-        console.error(
-          "StudentDashboard: Error fetching dashboard data from server:",
-          err
-        );
+        console.error("StudentDashboard: dashboard fetch error:", err);
         setError(err.message);
-
-        // Fallback to default data with proper error handling
-        setDashboardData({
+        setDashboardData((prev) => ({
           user: {
-            id: currentUser?.id || currentUser?.UserID,
-            name: currentUser?.name || "משתמש לא מזוהה",
+            id:
+              prev?.user?.id || currentUser?.id || currentUser?.UserID || null,
+            name: prev?.user?.name || currentUser?.name || "משתמש לא מזוהה",
             role: "student",
           },
           lastExam: null,
           overallAverage: 0,
           totalExams: 0,
-        });
+        }));
       } finally {
         setRefreshing(false);
       }
@@ -461,7 +444,14 @@ export default function StudentDashboard() {
       {user?.id && (
         <div className={styles.analyticsSection}>
           <h2 className={styles.analyticsTitle}>ניתוח ביצועים</h2>
-          <p style={{textAlign: 'center', color: '#6c757d', marginBottom: '2rem', fontSize: '1.1rem'}}>
+          <p
+            style={{
+              textAlign: "center",
+              color: "#6c757d",
+              marginBottom: "2rem",
+              fontSize: "1.1rem",
+            }}
+          >
             צפה בביצועים שלך לאורך זמן
           </p>
           <div className={styles.chartsGrid}>

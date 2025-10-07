@@ -1,50 +1,103 @@
+// Backend/controllers/admin/examQuestionsController.js
+// ניהול שאלות מבחן: יצירה עם העלאת תמונה, יצירה ללא העלאה, רשימה לפי Topic, עדכון ומחיקה
+
 const { dbRun } = require("../../helpers/dbRun");
 
-// helper: basic JSON validation for options map like {"A":"..","B":".."}
+// עזר: וולידציה לפורמט אופציות מסוג אובייקט {A,B,C,D} והאם המפתח הנכון קיים
 function validateOptionsAndAnswer(options, correctKey) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
-    return "optionsJson must be a JSON object of keys like A,B,C,D";
+    return "optionsJson חייב להיות אובייקט JSON עם מפתחות כמו A,B,C,D";
   }
   if (!correctKey || typeof correctKey !== "string") {
-    return "correctAnswer is required";
+    return "correctAnswer נדרש";
   }
   if (!(correctKey in options)) {
-    return "correctAnswer key not found in optionsJson";
+    return "correctAnswer לא נמצא במפתחות של optionsJson";
   }
   return null;
 }
 
-// utils for JSON array <-> string
-const parseAnswerOptions = (str) => {
-  try {
-    return JSON.parse(str || "[]");
-  } catch {
-    return [];
+// עזר: נרמול כתובת תמונה לנתיב יחסי תחת /uploads
+// מקבל שם קובץ, נתיב יחסי, או URL מלא ומחזיר תמיד נתיב יחסי תקין
+function normalizePicUrl(raw) {
+  const val = String(raw || "").trim();
+  if (!val) return "";
+  // אם כבר תחת uploads
+  if (val.startsWith("/uploads/")) return val;
+  // אם זה URL מלא
+  if (/^https?:\/\//i.test(val)) {
+    try {
+      const u = new URL(val);
+      const isLocal =
+        u.hostname === "localhost" ||
+        u.hostname === "127.0.0.1" ||
+        u.hostname === "::1";
+      if (isLocal) {
+        // אם זה URL מקומי, קח את ה-path
+        const p = u.pathname || "";
+        if (p.startsWith("/uploads/")) return p;
+        const fileOnly = p.split("/").pop() || "";
+        return `/uploads/exam-questions/${fileOnly}`;
+      } else {
+        // דומיין חיצוני: השתמש בשם הקובץ
+        const fileOnly = u.pathname.split("/").pop() || "";
+        return `/uploads/exam-questions/${fileOnly}`;
+      }
+    } catch {
+      // URL לא תקין: ניפול לשם קובץ
+      const fileOnly = val.split("/").pop() || val;
+      return `/uploads/exam-questions/${fileOnly}`;
+    }
   }
-};
+  // שם קובץ בלבד או נתיב יחסי אחר
+  const fileOnly = val.split("/").pop() || val;
+  return `/uploads/exam-questions/${fileOnly}`;
+}
+
+// עזר: המרה בטוחה מאחסון JSON לאופציות כמערך
+function normalizeOptionsToArray(rawOptions) {
+  let opts = rawOptions;
+  if (typeof opts === "string") {
+    try {
+      const p = JSON.parse(opts);
+      if (Array.isArray(p)) return p;
+      if (p && typeof p === "object") return Object.values(p);
+      return [];
+    } catch {
+      return [];
+    }
+  }
+  if (opts && typeof opts === "object" && !Array.isArray(opts)) {
+    return Object.values(opts);
+  }
+  if (Array.isArray(opts)) return opts;
+  return [];
+}
+
+// עזר: המרה למחרוזת JSON מאופציות כמערך
 const toJSONAnswerOptions = (arr) => JSON.stringify(arr || []);
 
-// POST /api/exam-questions/upload  - multipart form with image + fields
-// fields: topicId, correctAnswer, optionsJson (stringified JSON or individual A,B,C,D)
+// POST /api/exam-questions/upload  - טופס multipart עם תמונה ושדות
+// שדות: topicId, correctAnswer, optionsJson (JSON כמחרוזת) או A,B,C,D כבודדים
 exports.createWithUpload = async (req, res) => {
   try {
-    // image
+    // תמונה נדרשת
     if (!req.file) {
       return res
         .status(400)
-        .json({ error: "Image file is required under field name 'image'" });
+        .json({ error: "יש לצרף קובץ תמונה תחת השדה image" });
     }
-    const imageUrl = `/uploads/exam-questions/${req.file.filename}`;
+    const imageUrl = normalizePicUrl(
+      `/uploads/exam-questions/${req.file.filename}`
+    );
 
-    // fields
+    // שדות חובה
     const topicId = Number(req.body.topicId);
     if (!topicId || Number.isNaN(topicId)) {
-      return res
-        .status(400)
-        .json({ error: "topicId is required and must be a number" });
+      return res.status(400).json({ error: "topicId נדרש וחייב להיות מספר" });
     }
 
-    // options
+    // אופציות תשובה
     let optionsObj;
     if (req.body.optionsJson) {
       try {
@@ -52,7 +105,7 @@ exports.createWithUpload = async (req, res) => {
       } catch {
         return res
           .status(400)
-          .json({ error: "optionsJson must be valid JSON" });
+          .json({ error: "optionsJson חייב להיות JSON תקין" });
       }
     } else {
       const { A, B, C, D } = req.body;
@@ -83,11 +136,13 @@ exports.createWithUpload = async (req, res) => {
     return res.json({ ok: true, imageUrl, questionId: result.insertId });
   } catch (error) {
     console.error("Error in createWithUpload:", error);
-    return res.status(500).json({ error: error.sqlMessage || "Server error" });
+    return res
+      .status(500)
+      .json({ error: error.sqlMessage || error.message || "Server error" });
   }
 };
 
-// GET /api/topics/:topicId/exam-questions
+// GET /api/topics/:topicId/exam-questions  - רשימת שאלות פעילות לנושא
 exports.listByTopic = async (req, res) => {
   try {
     const { topicId } = req.params;
@@ -99,33 +154,14 @@ exports.listByTopic = async (req, res) => {
       [Number(topicId)]
     );
 
-    const result = rows.map((r) => {
-      // normalize options to array
-      let opts = r.AnswerOptions;
-      if (typeof opts === "string") {
-        try {
-          const p = JSON.parse(opts);
-          if (Array.isArray(p)) opts = p;
-          else if (p && typeof p === "object") opts = Object.values(p);
-          else opts = [];
-        } catch {
-          opts = [];
-        }
-      } else if (opts && typeof opts === "object" && !Array.isArray(opts)) {
-        opts = Object.values(opts);
-      } else if (!Array.isArray(opts)) {
-        opts = [];
-      }
-
-      return {
-        questionId: r.QuestionID,
-        topicId: r.TopicID,
-        imageUrl: r.QuestionPicURL,
-        answerOptions: opts,
-        correctAnswer: r.CorrectAnswer,
-        isActive: !!r.IsActive,
-      };
-    });
+    const result = rows.map((r) => ({
+      questionId: r.QuestionID,
+      topicId: r.TopicID,
+      imageUrl: normalizePicUrl(r.QuestionPicURL), // נרמול נתיב תמונה
+      answerOptions: normalizeOptionsToArray(r.AnswerOptions),
+      correctAnswer: r.CorrectAnswer,
+      isActive: !!r.IsActive,
+    }));
 
     return res.json(result);
   } catch (e) {
@@ -134,31 +170,50 @@ exports.listByTopic = async (req, res) => {
   }
 };
 
-// POST /api/exam-questions  - create without image upload (JSON body)
+// POST /api/exam-questions  - יצירה ללא העלאת תמונה (JSON בלבד)
+// גוף לדוגמה: { topicId, questionPicURL, answerOptions: ["...","...","...","..."], correctAnswer: "A" או טקסט }
 exports.create = async (req, res) => {
   try {
     const { topicId, questionPicURL, answerOptions, correctAnswer } = req.body;
 
     if (!topicId || !questionPicURL || !answerOptions || !correctAnswer) {
-      return res.status(400).json({ error: "Missing required fields" });
+      return res.status(400).json({ error: "שדות חובה חסרים" });
     }
-    if (!Array.isArray(answerOptions) || answerOptions.length === 0) {
+
+    // נרמול כתובת התמונה
+    const picUrl = normalizePicUrl(questionPicURL);
+
+    // אופציות יכולות להגיע כמערך או כאובייקט
+    let optionsArray = [];
+    if (Array.isArray(answerOptions)) {
+      optionsArray = answerOptions;
+      if (optionsArray.length === 0) {
+        return res
+          .status(400)
+          .json({ error: "AnswerOptions חייב להיות מערך לא ריק" });
+      }
+      if (optionsArray.length > 50) {
+        return res
+          .status(400)
+          .json({ error: "יותר מידי אופציות תשובה (מקסימום 50)" });
+      }
+    } else if (answerOptions && typeof answerOptions === "object") {
+      optionsArray = Object.values(answerOptions);
+      if (optionsArray.length === 0) {
+        return res.status(400).json({ error: "אין אופציות תשובה" });
+      }
+    } else {
       return res
         .status(400)
-        .json({ error: "AnswerOptions must be a non-empty array" });
-    }
-    if (answerOptions.length > 50) {
-      return res
-        .status(400)
-        .json({ error: "Too many answer options (max 50)" });
+        .json({ error: "AnswerOptions חייב להיות מערך או אובייקט" });
     }
 
     const [result] = await dbRun(
       "INSERT INTO exam_question (TopicID, QuestionPicURL, AnswerOptions, CorrectAnswer, IsActive) VALUES (?, ?, ?, ?, 1)",
       [
         Number(topicId),
-        String(questionPicURL),
-        toJSONAnswerOptions(answerOptions),
+        picUrl,
+        toJSONAnswerOptions(optionsArray),
         String(correctAnswer),
       ]
     );
@@ -166,17 +221,19 @@ exports.create = async (req, res) => {
     return res.status(201).json({
       questionId: result.insertId,
       topicId,
-      questionPicURL,
-      answerOptions,
+      questionPicURL: picUrl,
+      answerOptions: optionsArray,
       correctAnswer,
     });
   } catch (error) {
     console.error("Error in create (exam questions):", error);
-    return res.status(500).json({ error: error.sqlMessage || "Server error" });
+    return res
+      .status(500)
+      .json({ error: error.sqlMessage || error.message || "Server error" });
   }
 };
 
-// PUT /api/exam-questions/:questionId
+// PUT /api/exam-questions/:questionId  - עדכון שדות
 exports.update = async (req, res) => {
   try {
     const { questionId } = req.params;
@@ -187,21 +244,34 @@ exports.update = async (req, res) => {
 
     if (questionPicURL !== undefined) {
       updateFields.push("QuestionPicURL = ?");
-      updateValues.push(String(questionPicURL));
+      updateValues.push(normalizePicUrl(questionPicURL));
     }
     if (answerOptions !== undefined) {
-      if (!Array.isArray(answerOptions) || answerOptions.length === 0) {
+      let optionsArray = [];
+      if (Array.isArray(answerOptions)) {
+        optionsArray = answerOptions;
+        if (optionsArray.length === 0) {
+          return res
+            .status(400)
+            .json({ error: "AnswerOptions חייב להיות מערך לא ריק" });
+        }
+        if (optionsArray.length > 50) {
+          return res
+            .status(400)
+            .json({ error: "יותר מידי אופציות תשובה (מקסימום 50)" });
+        }
+      } else if (answerOptions && typeof answerOptions === "object") {
+        optionsArray = Object.values(answerOptions);
+        if (optionsArray.length === 0) {
+          return res.status(400).json({ error: "אין אופציות תשובה" });
+        }
+      } else {
         return res
           .status(400)
-          .json({ error: "AnswerOptions must be a non-empty array" });
-      }
-      if (answerOptions.length > 50) {
-        return res
-          .status(400)
-          .json({ error: "Too many answer options (max 50)" });
+          .json({ error: "AnswerOptions חייב להיות מערך או אובייקט" });
       }
       updateFields.push("AnswerOptions = ?");
-      updateValues.push(toJSONAnswerOptions(answerOptions));
+      updateValues.push(toJSONAnswerOptions(optionsArray));
     }
     if (correctAnswer !== undefined) {
       updateFields.push("CorrectAnswer = ?");
@@ -213,7 +283,7 @@ exports.update = async (req, res) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: "No fields to update" });
+      return res.status(400).json({ error: "אין שדות לעדכן" });
     }
 
     updateValues.push(Number(questionId));
@@ -232,7 +302,9 @@ exports.update = async (req, res) => {
     return res.json({ message: "Question updated successfully" });
   } catch (error) {
     console.error("Error in update (exam questions):", error);
-    return res.status(500).json({ error: error.sqlMessage || "Server error" });
+    return res
+      .status(500)
+      .json({ error: error.sqlMessage || error.message || "Server error" });
   }
 };
 
@@ -253,6 +325,8 @@ exports.remove = async (req, res) => {
     return res.json({ message: "Question deleted successfully" });
   } catch (error) {
     console.error("Error in remove (exam questions):", error);
-    return res.status(500).json({ error: error.sqlMessage || "Server error" });
+    return res
+      .status(500)
+      .json({ error: error.sqlMessage || error.message || "Server error" });
   }
 };

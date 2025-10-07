@@ -38,31 +38,31 @@ export default function Exam() {
     startTime: null,
   });
 
-  // Server URL for images
+  // Server URL
   const SERVER_URL = "http://localhost:5000";
 
   // Exam duration in minutes
   const EXAM_DURATION_MINUTES = 60;
-  const MAX_QUESTIONS = 12;
 
-  // Check if user is authenticated
+  // auth redirect and data fetch
   useEffect(() => {
     if (!user) {
       navigate("/login");
       return;
     }
     fetchExamData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
 
+  // timer
   useEffect(() => {
     if (examStats.startTime && !examCompleted) {
       const timer = setInterval(() => {
-        const now = new Date().getTime();
+        const now = Date.now();
         const elapsed = Math.floor((now - examStats.startTime) / 1000);
         const remaining = EXAM_DURATION_MINUTES * 60 - elapsed;
 
         if (remaining <= 0) {
-          // Time's up! Auto-submit exam
           handleTimeUp();
         } else {
           setExamStats((prev) => ({
@@ -76,38 +76,88 @@ export default function Exam() {
     }
   }, [examStats.startTime, examCompleted]);
 
+  // build safe image url for display
+  // מחליף את resolveExamImageUrl הקיים
+  const resolveExamImageUrl = (val) => {
+    if (!val) return "";
+    const raw = String(val).trim();
+
+    const SERVER = "http://localhost:5000";
+
+    // אם יש URL מלא, נחליט אם לכבד או להמיר
+    if (/^https?:\/\//i.test(raw)) {
+      try {
+        const u = new URL(raw);
+        // אם זה שרת הלוקאל שלנו, כבד אותו
+        const isLocalHost =
+          u.hostname === "localhost" || u.hostname === "127.0.0.1";
+        const isOurPort = !u.port || u.port === "5000";
+        if (isLocalHost && isOurPort) {
+          return raw;
+        }
+        // אחר: ממירים לשם קובץ ולנתיב מקומי
+        const fileOnly = u.pathname.split("/").pop() || "";
+        return `${SERVER}/uploads/exam-questions/${fileOnly}`;
+      } catch {
+        // אם ה־URL לא תקין, ניפול לשם קובץ
+        const fileOnly = raw.split("/").pop() || "";
+        return `${SERVER}/uploads/exam-questions/${fileOnly}`;
+      }
+    }
+
+    // אם כבר מתחיל ב־/uploads, הפוך ל־URL מלא
+    if (raw.startsWith("/uploads/")) {
+      return `${SERVER}${raw}`;
+    }
+
+    // במקרה שנתיב פגום: "/uploads/exam-questions/https://..."
+    const httpIndex = raw.indexOf("http");
+    if (httpIndex > -1) {
+      const maybeUrl = raw.slice(httpIndex);
+      try {
+        const u = new URL(maybeUrl);
+        const fileOnly = u.pathname.split("/").pop() || "";
+        return `${SERVER}/uploads/exam-questions/${fileOnly}`;
+      } catch {
+        // ניפול לשם קובץ
+        const fileOnly = raw.split("/").pop() || "";
+        return `${SERVER}/uploads/exam-questions/${fileOnly}`;
+      }
+    }
+
+    // שם קובץ בלבד
+    const fileOnly = raw.split("/").pop() || raw;
+    return `${SERVER}/uploads/exam-questions/${fileOnly}`;
+  };
+
   /**
-   * Fetches exam data from the server and sets the state.
-   * Exam data includes a shuffled list of exercises (limited to MAX_QUESTIONS),
-   * total questions, answered questions, time remaining, and start time.
+   * Fetch exam data from server
    */
   const fetchExamData = async () => {
     try {
       setLoading(true);
-
-      // Fetch all practice exercises from all topics
-      const response = await fetch(
-        `${SERVER_URL}/api/practice/practiceExercises`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch exam data");
+      const token = localStorage.getItem("token");
+      const resp = await fetch(`${SERVER_URL}/api/exams/start`, {
+        method: "POST",
+        headers: { Authorization: token ? `Bearer ${token}` : "" },
+        // אם עובדים עם קוקיז HttpOnly במקום Bearer:
+        // credentials: "include"
+      });
+      if (!resp.ok) {
+        const t = await resp.text();
+        throw new Error(`Failed to start exam: ${resp.status} ${t}`);
       }
-
-      const allExercises = await response.json();
-
-      // Shuffle the exercises and limit to MAX_QUESTIONS
-      const shuffledExercises = shuffleArray([...allExercises]).slice(
-        0,
-        MAX_QUESTIONS
-      );
-
-      setExercises(shuffledExercises);
+      const data = await resp.json();
+      const qs = Array.isArray(data?.exam?.questions)
+        ? data.exam.questions
+        : [];
+      if (!qs.length) throw new Error("No exam questions returned");
+      setExercises(qs);
       setExamStats({
-        totalQuestions: shuffledExercises.length,
+        totalQuestions: qs.length,
         answeredQuestions: 0,
         timeRemaining: EXAM_DURATION_MINUTES * 60,
-        startTime: new Date().getTime(),
+        startTime: Date.now(),
       });
     } catch (err) {
       console.error("Error fetching exam data:", err);
@@ -117,26 +167,12 @@ export default function Exam() {
     }
   };
 
-  // Fisher-Yates shuffle algorithm for randomizing questions
-  const shuffleArray = (array) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
-  /**
-   * Handles when a user selects an answer for a question
-   * @param {String} answer The selected answer
-   */
+  // answer select
   const handleAnswerSelect = (answer) => {
     const questionId = exercises[currentExerciseIndex].ExerciseID;
     const newAnswers = { ...selectedAnswers, [questionId]: answer };
     setSelectedAnswers(newAnswers);
 
-    // Update answered questions count
     const answeredCount = Object.keys(newAnswers).length;
     setExamStats((prev) => ({
       ...prev,
@@ -144,32 +180,19 @@ export default function Exam() {
     }));
   };
 
-  /**
-   * Handles user's action of navigating to the next question.
-   * Does nothing if the user is already on the last question.
-   */
+  // nav
   const handleNextQuestion = () => {
     if (currentExerciseIndex < exercises.length - 1) {
-      setCurrentExerciseIndex(currentExerciseIndex + 1);
+      setCurrentExerciseIndex((i) => i + 1);
     }
   };
-
-  /**
-   * Handles user's action of navigating to the previous question.
-   * Does nothing if the user is already on the first question.
-   */
   const handlePreviousQuestion = () => {
     if (currentExerciseIndex > 0) {
-      setCurrentExerciseIndex(currentExerciseIndex - 1);
+      setCurrentExerciseIndex((i) => i - 1);
     }
   };
 
-  /**
-   * Handles user's action of submitting the exam.
-   * Shows a confirmation dialog, and if confirmed, calculates the results
-   * and shows them. If an error occurs while saving the results, still shows
-   * the results. If the user cancels the confirmation dialog, does nothing.
-   */
+  // submit dialog
   const handleSubmitExam = async () => {
     if (
       window.confirm(
@@ -183,7 +206,6 @@ export default function Exam() {
         setShowResults(true);
       } catch (error) {
         console.error("Error calculating results:", error);
-        // Still show results even if save failed
         setExamCompleted(true);
         setShowResults(true);
       } finally {
@@ -192,11 +214,7 @@ export default function Exam() {
     }
   };
 
-  /**
-   * Handles the event of the exam time expiring.
-   * Shows an alert to the user, and then automatically submits the exam.
-   * If there is an error while saving the results, still shows the results.
-   */
+  // time up
   const handleTimeUp = async () => {
     alert("הזמן נגמר! המבחן יוגש אוטומטית.");
     try {
@@ -205,21 +223,12 @@ export default function Exam() {
       setShowResults(true);
     } catch (error) {
       console.error("Error calculating results on time up:", error);
-      // Still show results even if save failed
       setExamCompleted(true);
       setShowResults(true);
     }
   };
 
-  /**
-   * Calculates the results of the exam by comparing the selected answers to the
-   * correct answers, and saves the results to the database. If the save fails,
-   * still shows the results. Sets the exam stats state with the final score,
-   * correct answers, and results.
-   *
-   * @returns {Promise<void>} A promise that resolves when the results have been
-   * saved, or rejects if there was an error.
-   */
+  // calculate and save
   const calculateResults = async () => {
     let correctAnswers = 0;
     const results = {};
@@ -228,8 +237,7 @@ export default function Exam() {
       const questionId = exercise.ExerciseID;
       const selectedAnswer = selectedAnswers[questionId];
 
-      if (selectedAnswer) {
-        // Parse answer options
+      if (selectedAnswer != null) {
         let answerOptions = [];
         try {
           if (exercise.AnswerOptions) {
@@ -243,63 +251,39 @@ export default function Exam() {
           answerOptions = [];
         }
 
-        // Get correct answer text
         let correctAnswerText = exercise.CorrectAnswer;
-        if (
-          ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-            String(exercise.CorrectAnswer).trim()
-          )
-        ) {
-          const letterIndex =
-            String(exercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) -
-            65;
-          if (letterIndex >= 0 && letterIndex < answerOptions.length) {
-            correctAnswerText = answerOptions[letterIndex];
+        const correctStr = String(exercise.CorrectAnswer || "").trim();
+        if (["A", "B", "C", "D"].includes(correctStr.toUpperCase())) {
+          const idx = correctStr.toUpperCase().charCodeAt(0) - 65;
+          if (idx >= 0 && idx < answerOptions.length) {
+            correctAnswerText = answerOptions[idx];
           }
         }
 
         const isCorrect =
           String(selectedAnswer).trim() === String(correctAnswerText).trim();
-        if (isCorrect) {
-          correctAnswers++;
-        }
+        if (isCorrect) correctAnswers++;
 
         results[questionId] = {
           selected: selectedAnswer,
           correct: correctAnswerText,
-          isCorrect: isCorrect,
+          isCorrect,
         };
       }
     });
 
     const finalScore = ((correctAnswers / exercises.length) * 100).toFixed(1);
-
-    // Save exam results and wait for completion
-    const saveSuccess = await saveExamResults(finalScore, results);
-
-    if (saveSuccess) {
-      console.log(
-        "Exam results saved successfully, proceeding to show results"
-      );
-    } else {
-      console.error("Failed to save exam results, but showing results anyway");
-    }
+    await saveExamResults(finalScore, results);
 
     setExamStats((prev) => ({
       ...prev,
-      finalScore: finalScore,
-      correctAnswers: correctAnswers,
-      results: results,
+      finalScore,
+      correctAnswers,
+      results,
     }));
   };
 
-  /**
-   * Saves the exam results to the server
-   * @param {number} finalScore The final score of the exam
-   * @param {Object} results The results of the exam, where each key is a question ID
-   * and the value is an object with the selected answer and whether it was correct
-   * @returns {Promise<boolean>} Whether the results were saved successfully
-   */
+  // save results
   const saveExamResults = async (finalScore, results) => {
     try {
       if (!user) {
@@ -307,26 +291,30 @@ export default function Exam() {
         return false;
       }
 
-      const userId = user?.id || user?.UserID || "1";
+      const userId = user?.id || user?.UserID;
       const examData = {
-        userId: userId,
+        userId,
         score: finalScore,
-        answers: results,
+        // מאחסן מיפוי מפורט לשימוש עתידי
+        answers: Object.entries(results).map(([qid, r], i) => ({
+          questionId: Number(qid),
+          position: i + 1,
+          isCorrect: !!r.isCorrect,
+          grade: r.isCorrect ? 100 : 0,
+        })),
         timeSpent: EXAM_DURATION_MINUTES * 60 - examStats.timeRemaining,
         completedAt: new Date().toISOString(),
       };
 
-      console.log(
-        "Submitting exam results to:",
-        `${SERVER_URL}/api/student/exam/submit`
-      );
-      console.log("Exam data:", examData);
-
+      const token = localStorage.getItem("token");
       const response = await fetch(`${SERVER_URL}/api/student/exam/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
+        // אם עובדים עם קוקיז HttpOnly:
+        // credentials: "include"
         body: JSON.stringify(examData),
       });
 
@@ -349,60 +337,22 @@ export default function Exam() {
     }
   };
 
-  /**
-   * Navigates back to the student dashboard and dispatches a custom 'examCompleted'
-   * event to notify the dashboard to refresh after an exam has been completed.
-   *
-   * The event is dispatched with the userId of the current user as a detail property
-   * before navigating to the student dashboard after a short delay.
-   *
-   * @memberof Exam
-   * @param {React.MouseEvent} event - The mouse event that triggered this action
-   */
+  // back to dashboard
   const handleBackToDashboard = () => {
-    console.log(
-      "Exam: Navigating back to dashboard and dispatching examCompleted event"
-    );
-
-    // Trigger a custom event to notify the dashboard to refresh
     const event = new CustomEvent("examCompleted", {
       detail: { userId: user?.id || user?.UserID },
     });
-    console.log(
-      "Exam: Dispatching examCompleted event with userId:",
-      user?.id || user?.UserID
-    );
     window.dispatchEvent(event);
-
-    // Navigate to student dashboard after a short delay to ensure event is processed
-    setTimeout(() => {
-      navigate("/student", { replace: true });
-    }, 100);
+    setTimeout(() => navigate("/student", { replace: true }), 100);
   };
 
-  /**
-   * Handles the retake button click.
-   *
-   * @memberof Exam
-   * @param {React.MouseEvent} event - The mouse event that triggered this action
-   *
-   * Prompts the user with a confirmation dialog asking if they are sure they want to
-   * retake the exam. If the user confirms, reloads the page to restart the exam.
-   */
   const handleRetakeExam = () => {
     if (window.confirm("האם אתה בטוח שברצונך לקחת את המבחן שוב?")) {
       window.location.reload();
     }
   };
 
-  // Helper function to get image URL
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return null;
-    if (imagePath.startsWith("http")) return imagePath;
-    return `${SERVER_URL}${imagePath}`;
-  };
-
-  // Format time display
+  // Format time
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -471,18 +421,13 @@ export default function Exam() {
     answerOptions = [];
   }
 
-  // Get the correct answer text
+  // Correct answer text (supports A,B,C,D)
   let correctAnswerText = currentExercise.CorrectAnswer;
-  if (
-    ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-      String(currentExercise.CorrectAnswer).trim()
-    )
-  ) {
-    const letterIndex =
-      String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) -
-      65;
-    if (letterIndex >= 0 && letterIndex < answerOptions.length) {
-      correctAnswerText = answerOptions[letterIndex];
+  const correctStr = String(currentExercise.CorrectAnswer || "").trim();
+  if (["A", "B", "C", "D"].includes(correctStr.toUpperCase())) {
+    const idx = correctStr.toUpperCase().charCodeAt(0) - 65;
+    if (idx >= 0 && idx < answerOptions.length) {
+      correctAnswerText = answerOptions[idx];
     }
   }
 
@@ -526,7 +471,7 @@ export default function Exam() {
         </div>
       </div>
 
-      {/* Question Navigation - Moved to top */}
+      {/* Question Navigation */}
       <div className={styles.questionNavigation}>
         <h3>ניווט בין שאלות:</h3>
         <div className={styles.questionGrid}>
@@ -568,15 +513,13 @@ export default function Exam() {
           {currentExercise.ContentType === "image" && (
             <div className={styles.imageContainer}>
               <img
-                src={getImageUrl(currentExercise.ContentValue)}
+                src={resolveExamImageUrl(currentExercise?.ContentValue)}
                 alt="Question content"
                 className={styles.questionImage}
                 onError={(e) => {
-                  console.error(
-                    "Failed to load image:",
-                    currentExercise.ContentValue
-                  );
-                  e.target.style.display = "none";
+                  console.warn("Failed to load image:", e.currentTarget.src);
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.style.display = "none";
                 }}
               />
             </div>
@@ -609,10 +552,8 @@ export default function Exam() {
                     <span className={styles.optionText}>{option}</span>
                     {examCompleted && showResults && (
                       <>
-                        {/* Show correct icon only for the correct answer */}
                         {examStats.results?.[currentQuestionId]?.correct ===
                           option && <FiCheck className={styles.correctIcon} />}
-                        {/* Show incorrect icon only for selected wrong answer */}
                         {examStats.results?.[currentQuestionId]?.selected ===
                           option &&
                           !examStats.results?.[currentQuestionId]
@@ -684,7 +625,7 @@ export default function Exam() {
           </button>
         </div>
 
-        {/* Results Display */}
+        {/* Results */}
         {examCompleted && showResults && (
           <div className={styles.resultsContainer}>
             <div className={styles.resultsHeader}>
