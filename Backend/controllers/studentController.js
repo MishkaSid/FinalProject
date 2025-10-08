@@ -7,21 +7,25 @@ const db = require("../dbConnection");
 
 // Get all courses
 exports.getAllCourses = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM course ORDER BY CourseName");
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllCourses:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get course by ID
 exports.getCourseById = async (req, res) => {
   const { id } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM course WHERE CourseID = ?", [id]);
     if (rows.length === 0) {
       return res.status(404).json({ error: "Course not found" });
@@ -30,13 +34,16 @@ exports.getCourseById = async (req, res) => {
   } catch (err) {
     console.error("Error in getCourseById:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get all topics
 exports.getAllTopics = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(`
       SELECT t.*, c.CourseName 
       FROM topic t 
@@ -47,14 +54,17 @@ exports.getAllTopics = async (req, res) => {
   } catch (err) {
     console.error("Error in getAllTopics:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get topics by course ID
 exports.getTopicsByCourse = async (req, res) => {
   const { courseId } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM topic WHERE CourseID = ? ORDER BY TopicName",
       [courseId]
@@ -63,14 +73,17 @@ exports.getTopicsByCourse = async (req, res) => {
   } catch (err) {
     console.error("Error in getTopicsByCourse:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get topic by ID
 exports.getTopicById = async (req, res) => {
   const { id } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(`
       SELECT t.*, c.CourseName 
       FROM topic t 
@@ -84,14 +97,17 @@ exports.getTopicById = async (req, res) => {
   } catch (err) {
     console.error("Error in getTopicById:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get practice exercises by topic ID
 exports.getPracticeExercisesByTopic = async (req, res) => {
   const { topicId } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM practice_exercise WHERE TopicID = ? ORDER BY ExerciseID",
       [topicId]
@@ -100,14 +116,17 @@ exports.getPracticeExercisesByTopic = async (req, res) => {
   } catch (err) {
     console.error("Error in getPracticeExercisesByTopic:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get practice videos by topic ID
 exports.getPracticeVideosByTopic = async (req, res) => {
   const { topicId } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM practice_video WHERE TopicID = ? ORDER BY VideoID",
       [topicId]
@@ -116,14 +135,17 @@ exports.getPracticeVideosByTopic = async (req, res) => {
   } catch (err) {
     console.error("Error in getPracticeVideosByTopic:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get exam questions by topic ID
 exports.getExamQuestionsByTopic = async (req, res) => {
   const { topicId } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM exam_question WHERE TopicID = ? ORDER BY QuestionID",
       [topicId]
@@ -132,14 +154,17 @@ exports.getExamQuestionsByTopic = async (req, res) => {
   } catch (err) {
     console.error("Error in getExamQuestionsByTopic:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get student's exam history
 exports.getStudentExamHistory = async (req, res) => {
   const { studentId } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM exam WHERE UserID = ? ORDER BY ExamDate DESC",
       [studentId]
@@ -148,14 +173,17 @@ exports.getStudentExamHistory = async (req, res) => {
   } catch (err) {
     console.error("Error in getStudentExamHistory:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get exam results for a specific exam
 exports.getExamResults = async (req, res) => {
   const { examId } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(`
       SELECT er.*, eq.QuestionPicURL, eq.AnswerOptions, eq.CorrectAnswer
       FROM exam_result er
@@ -166,6 +194,8 @@ exports.getExamResults = async (req, res) => {
   } catch (err) {
     console.error("Error in getExamResults:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -176,8 +206,9 @@ exports.getExamResults = async (req, res) => {
 // Get practice session data
 exports.getPracticeSessionData = async (req, res) => {
   const { topicId } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     
     // Get topic info
     const [topicRows] = await connection.query(`
@@ -219,5 +250,7 @@ exports.getPracticeSessionData = async (req, res) => {
   } catch (err) {
     console.error("Error in getPracticeSessionData:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };

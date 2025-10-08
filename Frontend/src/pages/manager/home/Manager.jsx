@@ -46,10 +46,10 @@ function Manager() {
 
   return (
     <div className={styles.adminPage}>
-      <div className={styles.background} />
+        <div className={styles.background} />
       
       {/* Statistics Cards Grid */}
-      <div className={styles.managerPage}>
+        <div className={styles.managerPage}>
         <div className={styles.cardsGrid}>
           {/* Report Cards */}
           <div className={styles.statCard}>
@@ -200,9 +200,9 @@ function Manager() {
           <div className={styles.statCard}>
             <h3 className={styles.cardTitle}>התפלגות ציונים</h3>
             <div className={styles.chartContainer}>
-              <GradesDistributionChart />
-            </div>
+            <GradesDistributionChart />
           </div>
+        </div>
         </div>
       </div>
     </div>

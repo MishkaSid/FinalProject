@@ -22,13 +22,16 @@ const db = require("../dbConnection");
  * @returns {void}
  */
 exports.getUsers = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const rows = await connection.query("SELECT * FROM users");
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getUsers:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -40,8 +43,9 @@ exports.getUsers = async (req, res) => {
  * @returns {void}
  */
 exports.getAdmins = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM users WHERE role = 'Admin'"
     );
@@ -49,6 +53,8 @@ exports.getAdmins = async (req, res) => {
   } catch (err) {
     console.error("❌ Error in getAdmins:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -60,8 +66,9 @@ exports.getAdmins = async (req, res) => {
  * @returns {void}
  */
 exports.getTeachers = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM users WHERE role = 'Teacher'"
     );
@@ -69,6 +76,8 @@ exports.getTeachers = async (req, res) => {
   } catch (err) {
     console.error("❌ Error in getTeachers:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -80,8 +89,9 @@ exports.getTeachers = async (req, res) => {
  * @returns {void}
  */
 exports.getExaminees = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query(
       "SELECT * FROM users WHERE role = 'Examinee'"
     );
@@ -89,6 +99,8 @@ exports.getExaminees = async (req, res) => {
   } catch (err) {
     console.error("❌ Error in getExaminees:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -100,13 +112,16 @@ exports.getExaminees = async (req, res) => {
  * @returns {void}
  */
 exports.getPracticeData = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM practice_content");
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getPracticeData:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -118,13 +133,16 @@ exports.getPracticeData = async (req, res) => {
  * @returns {void}
  */
 exports.getExamData = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM exam_questions");
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getPracticeData:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -136,23 +154,29 @@ exports.getExamData = async (req, res) => {
  * @returns {void}
  */
 exports.getVideos = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM practice_videos");
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getVideos:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 exports.getTopics = async (req, res) => {
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
     const [rows] = await connection.query("SELECT * FROM topics");
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getTopics:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
   }
 };
