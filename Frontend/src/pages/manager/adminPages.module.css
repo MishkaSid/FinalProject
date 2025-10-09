@@ -120,16 +120,17 @@
 }
 
 .searchInput {
-  padding: var(--pad-sm);
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 1.5rem;
-  border-radius: var(--radius-sm);
+  padding: 0.7rem 1.5rem;
+  width: 180px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--admin-border);
   text-align: right;
   background: #fff;
   color: var(--admin-text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 1.4rem;
+  font-weight: 700;
+  height: auto;
 }
 
 /* Transparent select in course selector */
@@ -152,7 +153,7 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Flex line */
+/* Flex line - Container for buttons and inputs in a row */
 .addingLine {
   display: flex;
   align-items: center;
@@ -165,39 +166,40 @@
 }
 
 .addingLine > * {
-  height: 48px;
-  display: flex;
+  height: auto;
+  display: inline-flex;
   align-items: center;
 }
 
-/* Small buttons for course selector */
+/* Ensure all buttons in addingLine have consistent sizing */
 .addingLine .addButton,
-.addingLine .deleteButtonLarge {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  font-weight: 900;
-  height: 36px;
-  min-width: 100px;
+.addingLine .deleteButtonLarge,
+.addingLine .searchInput {
+  padding: 0.7rem 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  height: auto;
+  width: 180px;
 }
 
-/* ✅ Restored your nice add button */
+/* ✅ Consistent Add Button */
 .addButton {
-  padding: 12px 24px;
+  padding: 0.7rem 1.5rem;
   border: none;
   border-radius: var(--radius-md);
   background-color: var(--admin-accent);
   color: #fff;
-  font-weight: 600;
-  font-size: 1.2rem;
+  font-weight: 700;
+  font-size: 1.4rem;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s ease;
   box-shadow: var(--admin-shadow);
   letter-spacing: 0.5px;
-  height: 48px;
-  display: flex;
+  height: auto;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 120px;
+  width: 180px;
 }
 
 .addButton:hover {
@@ -214,23 +216,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: var(--admin-text);
   padding: 0;
-  height: 48px;
-  margin-top: 1.5rem;  
+  height: auto;
+  margin-top: 1.5rem;
 }
 
 .sort select {
-  height: 48px;
-  padding: 12px 16px;
+  height: auto;
+  padding: 0.7rem 1.5rem;
   border: 1px solid var(--admin-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--admin-surface);
   color: var(--admin-text);
-  font-size: 1.2rem;
-  min-width: 150px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  width: 180px;
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -273,24 +276,24 @@
   color: var(--admin-text);
 }
 
-/* ✅ Edit/Delete buttons now match your theme */
+/* ✅ Consistent Action Buttons (Edit/Delete in tables) */
 .actionButton {
-  padding: 12px 16px;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
+  padding: 0.7rem 2.1rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
   margin-left: 6px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s;
   color: white;
   min-width: 100px;
-  height: 40px;
+  height: auto;
   text-align: center;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 .noResults {
@@ -309,39 +312,68 @@ noResults td {
 
 .editButton {
   background-color: var(--admin-accent);
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
 }
 
 .editButton:hover {
   background-color: var(--admin-accent-strong);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
 }
 
 .deleteButton {
-  background-color: color-mix(in srgb, var(--admin-error) 85%, transparent);
+  background-color: var(--admin-error);
+  box-shadow: 0 2px 8px rgba(229,57,53,0.08);
 }
 
 .deleteButton:hover {
-  background-color: var(--admin-error);
+  background-color: color-mix(in srgb, var(--admin-error) 85%, #000);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(229,57,53,0.12);
 }
 
+/* Small buttons for secondary actions */
 .smallButton {
-  padding: 0.32rem 1.1rem;
-  font-size: 1.05rem;
-  border-radius: 6px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
   border: none;
-  background-color: var(--clr-blue-2);
-  color: #fff;
+  background-color: var(--admin-surface);
+  color: var(--admin-text);
   font-weight: 600;
   cursor: pointer;
   margin-left: 8px;
-  margin-right: 2px;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid var(--admin-border);
 }
 .smallButton:hover {
+  background-color: var(--admin-surface-alt);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transform: translateY(-1px);
+}
+
+/* Submit button for forms */
+.submitButton {
+  padding: 0.7rem 2.1rem;
+  font-size: 1.15rem;
+  border-radius: var(--radius-md);
+  border: none;
   background-color: var(--admin-accent);
-  box-shadow: 0 4px 16px rgba(79,140,255,0.12);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s ease;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.submitButton:hover {
+  background-color: var(--admin-accent-strong);
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
@@ -353,11 +385,17 @@ noResults td {
     font-size: 1.1rem;
   }
 
-  .actionButton {
+  .actionButton,
+  .addButton,
+  .submitButton {
     font-size: 1rem;
-    padding: 10px 12px;
+    padding: 0.6rem 1.5rem;
     min-width: 80px;
-    height: 36px;
+  }
+
+  .smallButton {
+    font-size: 0.9rem;
+    padding: 0.4rem 1rem;
   }
 
   .addingLine {
@@ -369,9 +407,8 @@ noResults td {
   .addingLine .deleteButtonLarge {
     width: 100%;
     min-width: 0;
-    font-size: 0.8rem;
-    padding: 0.6rem 0.3rem;
-    height: 32px;
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
   }
 }
 
@@ -405,52 +442,67 @@ noResults td {
 }
 
 .editButtonLarge {
-  padding: 0.7rem 2.1rem;
-  font-size: 1.15rem;
-  border-radius: 0.7rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.4rem;
+  border-radius: var(--radius-md);
   border: none;
   background-color: var(--admin-accent);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
   box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
 }
 .editButtonLarge:hover {
   background-color: var(--admin-accent-strong);
   box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+  transform: translateY(-1px);
 }
 .deleteButtonLarge {
-  padding: 0.7rem 2.1rem;
-  font-size: 1.15rem;
-  border-radius: 0.7rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.4rem;
+  border-radius: var(--radius-md);
   border: none;
   background-color: var(--admin-error);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
   box-shadow: 0 2px 8px rgba(229,57,53,0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
 }
 .deleteButtonLarge:hover {
   background-color: color-mix(in srgb, var(--admin-error) 85%, #000);
   box-shadow: 0 4px 16px rgba(229,57,53,0.12);
+  transform: translateY(-1px);
 }
 .manageContentButton {
-  padding: 0.7rem 2.1rem;
-  font-size: 1.15rem;
-  border-radius: 0.7rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.4rem;
+  border-radius: var(--radius-md);
   border: none;
   background-color: var(--color-primary-600);
   color: white;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
   box-shadow: 0 2px 8px rgba(25, 73, 115, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
 }
 .manageContentButton:hover {
   background-color: var(--color-primary-700);
   box-shadow: 0 4px 16px rgba(25, 73, 115, 0.12);
+  transform: translateY(-1px);
 }
 .tableWrapper {
   margin-bottom: 12px;
@@ -515,11 +567,11 @@ noResults td {
     align-items: stretch;
     gap: 1rem;
   }
-  .addButton, .deleteButtonLarge, .editButtonLarge, .manageContentButton {
+  .addButton, .deleteButtonLarge, .editButtonLarge, .manageContentButton, .submitButton {
     width: 100%;
     min-width: 0;
     font-size: 1.1rem;
-    padding: 1.1rem 0.5rem;
+    padding: 0.7rem 1.5rem;
   }
   .topicsList {
     flex-direction: column;
@@ -544,16 +596,26 @@ noResults td {
     gap: 0.7rem;
     margin-bottom: 1.2rem;
   }
-  .addButton, .deleteButtonLarge, .editButtonLarge, .manageContentButton {
+  .addButton, .deleteButtonLarge, .editButtonLarge, .manageContentButton, .submitButton {
     font-size: 1rem;
-    padding: 0.8rem 0.3rem;
+    padding: 0.6rem 1.2rem;
+  }
+  
+  .actionButton {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    min-width: 70px;
+  }
+  
+  .smallButton {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
   }
   
   .addingLine .addButton,
   .addingLine .deleteButtonLarge {
-    font-size: 0.75rem;
-    padding: 0.5rem 0.2rem;
-    height: 28px;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
   }
   .topicsList {
     gap: 0.7rem;

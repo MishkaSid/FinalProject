@@ -1,4 +1,4 @@
-//* Frontend/src/components/loading spinner/loading.css */
+/* Frontend/src/components/loading spinner/loading.css */
 .background{
   position: fixed;
   top: 0;
@@ -6,11 +6,10 @@
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  background-image: url("../../assets//images/notFoundBackground.webp"), linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));
+  background-image: url("../../assets//images/loading_background_center_header_blurred.png"), linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(8px);
 }
 .loader {
   --background: linear-gradient(135deg, #23C4F8, #275EFE);

@@ -31,7 +31,6 @@ export default function CourseSelector({
 }) {
   return (
     <div className={styles.addingLine}>
-      <label htmlFor="courseSelect" style={{ fontWeight: 600 }}>בחר קורס:</label>
       <select
         id="courseSelect"
         className={styles.searchInput}

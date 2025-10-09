@@ -1,18 +1,23 @@
 
 .container {
-  display: flex;
+  display: inline-flex;
   position: relative;
   justify-content: center;
   align-items: center;
   background-color: #307750;
   color: #fff;
   border-style: none;
-  padding: 1em 2em;
-  border-radius: 0.5em;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-md);
   overflow: hidden;
   z-index: 1;
-  box-shadow: 4px 8px 10px -3px rgba(0, 0, 0, 0.356);
+  box-shadow: 0 2px 8px rgba(48, 119, 80, 0.2);
   transition: all 250ms;
+  font-size: 1.4rem;
+  font-weight: 700;
+  height: auto;
+  width: 180px;
+  cursor: pointer;
 }
 .container input[type="file"] {
   position: absolute;
@@ -38,6 +43,16 @@
   width: 100%;
 }
 .container:hover {
-  background-color:#307750;
-  box-shadow: 0 0 10px rgba(75, 218, 77, 0.5);
+  background-color: #469b61;
+  box-shadow: 0 4px 16px rgba(48, 119, 80, 0.3);
+  transform: translateY(-1px);
+}
+
+.container:active {
+  transform: translateY(0);
+}
+
+.container:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
