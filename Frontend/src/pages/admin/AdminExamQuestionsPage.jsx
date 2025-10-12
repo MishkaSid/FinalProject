@@ -11,6 +11,7 @@ const AdminExamQuestionsPage = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const [imagePopup, setImagePopup] = useState({ isOpen: false, imageUrl: "" });
 
   // הוסף למעלה, מחוץ לקומפוננטה או בתוכה לפני השימוש
   const normalizeOptions = (val) => {
@@ -31,10 +32,23 @@ const AdminExamQuestionsPage = () => {
 
   const resolveImg = (src) => {
     if (!src) return "";
-    // אם זה כבר URL מלא או מתחיל ב־/
-    if (/^https?:\/\//i.test(src) || src.startsWith("/")) return src;
-    // אם זה שם קובץ כמו q1.png
-    return `/uploads/exam-questions/${src}`;
+    const SERVER = "http://localhost:5000";
+    
+    // אם זה כבר URL מלא עם http/https
+    if (/^https?:\/\//i.test(src)) {
+      console.log("Full URL detected:", src);
+      return src;
+    }
+    
+    // אם זה מתחיל ב־/ (נתיב יחסי מהשרת)
+    if (src.startsWith("/")) {
+      console.log("Relative path detected, adding server:", `${SERVER}${src}`);
+      return `${SERVER}${src}`;
+    }
+    
+    // אם זה רק שם קובץ
+    console.log("File name detected, building full path:", `${SERVER}/uploads/exam-questions/${src}`);
+    return `${SERVER}/uploads/exam-questions/${src}`;
   };
 
   // תמונת שאלה חדשה בעת יצירה
@@ -255,6 +269,15 @@ const AdminExamQuestionsPage = () => {
     }
   };
 
+  const handleImageClick = (imageUrl) => {
+    console.log("Opening image popup with URL:", imageUrl);
+    setImagePopup({ isOpen: true, imageUrl });
+  };
+
+  const closeImagePopup = () => {
+    setImagePopup({ isOpen: false, imageUrl: "" });
+  };
+
   if (loading) {
     return (
       <div className={styles.adminPage}>
@@ -417,11 +440,16 @@ const AdminExamQuestionsPage = () => {
                 <tr key={question.questionId}>
                   <td>
                     {img ? (
-                      <img
-                        src={img}
-                        alt="Question"
-                        className={styles.questionImage}
-                      />
+                      <div className={styles.thumbnailWrapper}>
+                        <img
+                          src={img}
+                          alt="Question"
+                          className={styles.questionImage}
+                          onClick={() => handleImageClick(img)}
+                          title="לחץ להגדלה"
+                        />
+                        <div className={styles.zoomHint}>🔍</div>
+                      </div>
                     ) : (
                       <span>ללא תמונה</span>
                     )}
@@ -456,6 +484,35 @@ const AdminExamQuestionsPage = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Image Popup Modal */}
+      {imagePopup.isOpen && (
+        <div className={styles.imagePopupOverlay} onClick={closeImagePopup}>
+          <div className={styles.imagePopupContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closePopupButton} onClick={closeImagePopup}>
+              ×
+            </button>
+            <div style={{ marginBottom: '10px', textAlign: 'center', color: '#666', fontSize: '0.85rem' }}>
+              URL: {imagePopup.imageUrl}
+            </div>
+            <img
+              src={imagePopup.imageUrl}
+              alt="Full size question"
+              className={styles.fullSizeImage}
+              onError={(e) => {
+                console.error("Failed to load image:", imagePopup.imageUrl);
+                e.target.style.display = 'none';
+                e.target.parentElement.insertAdjacentHTML('beforeend', 
+                  '<div style="padding: 40px; text-align: center; color: red;">שגיאה בטעינת התמונה<br/>' + imagePopup.imageUrl + '</div>');
+              }}
+              onLoad={() => console.log("Image loaded successfully:", imagePopup.imageUrl)}
+            />
+            <div className={styles.imagePopupHint}>
+              לחץ על הרקע או X לסגירה
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
