@@ -77,3 +77,19 @@
   transform: translateY(-1px);
 }
 
+.secondaryButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--admin-surface);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+.secondaryButton:hover {
+  background-color: var(--admin-hover);
+  border-color: var(--admin-accent);
+  transform: translateY(-1px);
+}
+

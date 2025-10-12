@@ -15,12 +15,16 @@ const FIELD_CONFIG = {
     type: "select",
     options: ["Admin", "Teacher", "Examinee"],
   },
+  CourseID: {
+    label: "קורס",
+    type: "course-select", // Special type for course selection
+  },
 };
 
 const MODE_FIELDS = {
   login: ["Email", "Password"],
-  add: ["UserID", "Name", "Email", "Password", "Role"],
-  edit: ["UserID", "Name", "Email", "Role"], // Password not shown in edit
+  add: ["UserID", "Name", "Email", "Password", "Role", "CourseID"],
+  edit: ["UserID", "Name", "Email", "Role", "CourseID"], // Password not shown in edit
 };
 
 /**
@@ -58,10 +62,13 @@ function validate(fields, values, mode) {
       return "הסיסמה חייבת להכיל לפחות אות אחת, מספר אחד, ואורכה בין 3 ל-8 תווים.";
     }
   }
-  // All required fields must be filled (except password for Examinee users)
+  // All required fields must be filled (except password for Examinee users and CourseID which is optional)
   for (const field of fields) {
     if (field === "Password" && values.Role === "Examinee") {
       continue; // Skip password validation for Examinee users
+    }
+    if (field === "CourseID") {
+      continue; // CourseID is optional
     }
     if (!values[field]) {
       return `יש למלא את שדה ${FIELD_CONFIG[field].label}`;
@@ -90,6 +97,8 @@ export default function UserForm({
   onSubmit,
   onValidationError,
   className = "",
+  courses = [], // Available courses from parent
+  onCreateCourse, // Callback to create new course
 }) {
   const [values, setValues] = useState({
     UserID: initialValues.UserID || "",
@@ -97,9 +106,12 @@ export default function UserForm({
     Email: initialValues.Email || "",
     Password: initialValues.Password || "",
     Role: initialValues.Role || "Examinee",
+    CourseID: initialValues.CourseID || "",
   });
   const [showPopup, setShowPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState("");
+  const [showNewCourseInput, setShowNewCourseInput] = useState(false);
+  const [newCourseName, setNewCourseName] = useState("");
 
   const fields = MODE_FIELDS[mode];
 
@@ -149,11 +161,96 @@ export default function UserForm({
     }
   };
 
+  /**
+   * @function handleCreateNewCourse
+   * @description Handles creating a new course
+   */
+  const handleCreateNewCourse = async () => {
+    if (!newCourseName.trim()) {
+      setPopupMsg("יש להזין שם קורס");
+      setShowPopup(true);
+      return;
+    }
+    
+    if (onCreateCourse) {
+      const newCourse = await onCreateCourse(newCourseName);
+      if (newCourse) {
+        setValues((prev) => ({ ...prev, CourseID: newCourse.CourseID }));
+        setShowNewCourseInput(false);
+        setNewCourseName("");
+      }
+    }
+  };
+
   return (
     <>
       <form className={`${styles.form} ${className}`} onSubmit={handleSubmit}>
         {fields.map((field) => {
           const config = FIELD_CONFIG[field];
+          
+          // Special handling for course selection
+          if (config.type === "course-select") {
+            return (
+              <div className={styles.inputContainer} key={field}>
+                <label className={styles.label}>{config.label}</label>
+                {!showNewCourseInput ? (
+                  <>
+                    <select
+                      className={styles.input}
+                      name={field}
+                      value={values[field]}
+                      onChange={handleChange}
+                    >
+                      <option value="">בחר קורס (אופציונלי)</option>
+                      {courses.map((course) => (
+                        <option key={course.CourseID} value={course.CourseID}>
+                          {course.CourseName}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={() => setShowNewCourseInput(true)}
+                      style={{ marginTop: "0.5rem" }}
+                    >
+                      + צור קורס חדש
+                    </button>
+                  </>
+                ) : (
+                  <div style={{ display: "flex", gap: "0.5rem", flexDirection: "column" }}>
+                    <input
+                      className={styles.input}
+                      type="text"
+                      placeholder="שם הקורס החדש"
+                      value={newCourseName}
+                      onChange={(e) => setNewCourseName(e.target.value)}
+                    />
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={handleCreateNewCourse}
+                      >
+                        שמור קורס
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={() => {
+                          setShowNewCourseInput(false);
+                          setNewCourseName("");
+                        }}
+                      >
+                        ביטול
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+          
           if (config.type === "select") {
             return (
               <div className={styles.inputContainer} key={field}>

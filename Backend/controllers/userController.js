@@ -159,61 +159,14 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
-  let connection;
-
   try {
-    connection = await db.getConnection();
-    
-    // Start a transaction to ensure all deletions succeed or none do
-    await connection.beginTransaction();
-    
-    // First, get all exam IDs for this user
-    const [examRows] = await connection.query("SELECT ExamID FROM exam WHERE UserID = ?", [id]);
-    console.log(`Found ${examRows.length} exam records for user ${id}`);
-    
-    // Delete all exam_result records for these exams
-    if (examRows.length > 0) {
-      const examIds = examRows.map(row => row.ExamID);
-      const placeholders = examIds.map(() => '?').join(',');
-      const [examResultResult] = await connection.query(`DELETE FROM exam_result WHERE ExamID IN (${placeholders})`, examIds);
-      console.log(`Deleted ${examResultResult.affectedRows} exam_result records`);
-    }
-    
-    // Then delete all exam records for this user
-    const [examResult] = await connection.query("DELETE FROM exam WHERE UserID = ?", [id]);
-    console.log(`Deleted ${examResult.affectedRows} exam records`);
-    
-    // Finally delete the user
-    const [result] = await connection.query("DELETE FROM users WHERE UserID = ?", [id]);
-    console.log(`Deleted user with ID ${id}`);
-    
-    // Check if user was actually deleted
-    if (result.affectedRows === 0) {
-      await connection.rollback();
-      return res.status(404).json({ error: "המשתמש לא נמצא" });
-    }
-    
-    // Commit the transaction
-    await connection.commit();
-    
-    res.json({ message: `User with ID ${id} and all related data deleted successfully` });
+    const connection = await db.getConnection();
+    await connection.query("DELETE FROM users WHERE UserID = ?", [id]);
+    connection.release();
+    res.json({ message: `User with ID ${id} deleted` });
   } catch (err) {
     console.error("Error in deleteUser:", err);
-    
-    // Rollback transaction if there was an error
-    if (connection) {
-      try {
-        await connection.rollback();
-      } catch (rollbackErr) {
-        console.error("Error rolling back transaction:", rollbackErr);
-      }
-    }
-    
     res.status(500).json({ error: "Server error" });
-  } finally {
-    if (connection && typeof connection.release === 'function') {
-      connection.release();
-    }
   }
 };
 
@@ -224,6 +177,10 @@ exports.bulkUploadUsers = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded." });
     }
+
+    // Get courseId from form data (optional)
+    const bulkCourseId = req.body.courseId || null;
+    console.log(`Bulk upload with courseId: ${bulkCourseId}`);
 
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(req.file.buffer);
@@ -326,7 +283,8 @@ exports.bulkUploadUsers = async (req, res) => {
         const connection = await db.getConnection();
 
         const role = "Examinee";
-        const courseId = null;
+        // Use the bulk courseId from form data
+        const courseId = bulkCourseId || null;
         const rawPassword = String(idToUse);
         const hashedPassword = await bcrypt.hash(rawPassword, 10);
 

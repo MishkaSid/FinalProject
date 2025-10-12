@@ -34,14 +34,17 @@ export default function UserPermissions() {
   const [popupConfig, setPopupConfig] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
   const [originalId, setOriginalId] = useState(null);
+  const [courses, setCourses] = useState([]);
 
   /**
    * @effect
-   * @description Fetches all users from the server when the component mounts.
+   * @description Fetches all users and courses from the server when the component mounts.
    */
   useEffect(() => {
     // Test backend connectivity first
     console.log("Testing backend connectivity...");
+    
+    // Fetch users
     axios
       .get("/api/general/users")
       .then((res) => {
@@ -53,7 +56,26 @@ export default function UserPermissions() {
         console.error("Error fetching users:", err);
         console.error("Error details:", err.response?.data);
       });
+    
+    // Fetch courses
+    fetchCourses();
   }, []);
+
+  /**
+   * @function fetchCourses
+   * @description Fetches all available courses from the server
+   */
+  function fetchCourses() {
+    axios
+      .get("/api/courses/getCourses")
+      .then((res) => {
+        console.log("Courses fetched:", res.data);
+        setCourses(res.data || []);
+      })
+      .catch((err) => {
+        console.error("Error fetching courses:", err);
+      });
+  }
 
   // Filter users based on the search input (name or ID).
   const filtered = Array.isArray(users)
@@ -153,6 +175,44 @@ export default function UserPermissions() {
         setUsers(fetchedUsers);
       })
       .catch((err) => console.error("Error refreshing users:", err));
+  }
+
+  /**
+   * @function handleCreateCourse
+   * @description Creates a new course and refreshes the courses list
+   * @param {string} courseName - The name of the new course
+   * @returns {Promise<object>} The newly created course object
+   */
+  async function handleCreateCourse(courseName) {
+    try {
+      const response = await axios.post("/api/courses/addCourse", {
+        CourseName: courseName,
+      });
+      
+      const newCourse = response.data;
+      
+      // Refresh courses list
+      fetchCourses();
+      
+      // Show success popup
+      setPopupConfig({
+        title: "הצלחה",
+        message: `הקורס "${courseName}" נוסף בהצלחה!`,
+        confirmLabel: "סגור",
+        onConfirm: () => setPopupConfig(null),
+      });
+      
+      return newCourse;
+    } catch (err) {
+      console.error("Error creating course:", err);
+      setPopupConfig({
+        title: "שגיאה",
+        message: err.response?.data?.error || "שגיאה ביצירת קורס",
+        confirmLabel: "סגור",
+        onConfirm: () => setPopupConfig(null),
+      });
+      return null;
+    }
   }
 
   /**
@@ -345,6 +405,8 @@ export default function UserPermissions() {
             mode={isEditMode ? "edit" : "add"}
             initialValues={formData}
             onSubmit={handleSubmitUser}
+            courses={courses}
+            onCreateCourse={handleCreateCourse}
             onValidationError={(msg) =>
               setPopupConfig({
                 title: "שגיאה",

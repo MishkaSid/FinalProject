@@ -343,7 +343,7 @@ exports.getStudentDashboardData = async (req, res) => {
       UserID: studentId,
       Name: "סטודנט",
       Email: "student@example.com",
-      CourseName: "מתמטיקה"
+      CourseName: "Math"
     };
     
     // Get latest exam result from the exam table
@@ -393,7 +393,7 @@ exports.getStudentDashboardData = async (req, res) => {
         id: user.UserID,
         name: user.Name,
         email: user.Email,
-        course: user.CourseName || "מתמטיקה"
+        course: user.CourseName || "Math"
       },
       lastExam: latestExamRows.length > 0 ? {
         examId: latestExamRows[0].ExamID,
@@ -416,7 +416,7 @@ exports.getStudentDashboardData = async (req, res) => {
           id: studentId,
           name: "סטודנט",
           email: "student@example.com",
-          course: "מתמטיקה"
+          course: "Math"
         },
         lastExam: null,
         overallAverage: 0,
