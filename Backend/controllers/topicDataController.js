@@ -85,14 +85,14 @@ exports.createTopic = async (req, res) => {
 // Update a topic
 exports.updateTopic = async (req, res) => {
   const { id } = req.params;
-  const { TopicName, CourseID, TopicDescription } = req.body;
+  const { TopicName, CourseID } = req.body;
   let connection;
 
   try {
     connection = await db.getConnection();
     await connection.query(
       "UPDATE topic SET TopicName = ?, CourseID = ? WHERE TopicID = ?",
-      [TopicName, CourseID, TopicDescription, id]
+      [TopicName, CourseID, id]
     );
     res.json({ TopicID: id, TopicName, CourseID });
   } catch (err) {
