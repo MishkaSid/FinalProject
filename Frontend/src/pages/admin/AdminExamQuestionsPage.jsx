@@ -62,10 +62,6 @@ const AdminExamQuestionsPage = () => {
     correctAnswer: "",
   });
 
-  useEffect(() => {
-    fetchQuestions();
-  }, [topicId]);
-
   const fetchQuestions = async () => {
     try {
       setLoading(true);
@@ -91,6 +87,11 @@ const AdminExamQuestionsPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topicId]);
 
   // ממפה מערך אפשרויות ל־A,B,C,D
   const mapOptionsToABCD = (arr) => {
