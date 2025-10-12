@@ -247,23 +247,17 @@ export default function UserPermissions() {
         setIsFormOpen(false);
       })
       .catch((err) => {
+        console.error("Error saving user:", err);
         const backendMsg = err.response?.data?.error;
-        if (
-          err.response?.status === 400 &&
-          (backendMsg === "משתמש זה כבר קיים" ||
-            backendMsg === "אימייל זה כבר קיים" ||
-            backendMsg === "תעודת זהות זו כבר קיימת")
-        ) {
-          setPopupConfig({
-            title: "שגיאה",
-            message: backendMsg,
-            confirmLabel: "סגור",
-            onConfirm: () => setPopupConfig(null),
-          });
-        } else {
-          console.error("Error saving user:", err);
-          setIsFormOpen(false);
-        }
+        
+        // Always show a popup with the error message, regardless of what it is
+        setPopupConfig({
+          title: "שגיאה",
+          message: backendMsg || "אירעה שגיאה בשמירת המשתמש. אנא בדוק את הפרטים ונסה שוב.",
+          confirmLabel: "סגור",
+          onConfirm: () => setPopupConfig(null),
+        });
+        // Don't close the form - let the user fix the error
       });
   }
 
