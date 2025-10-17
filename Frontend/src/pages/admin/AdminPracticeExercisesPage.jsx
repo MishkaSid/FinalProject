@@ -18,10 +18,24 @@ const AdminPracticeExercisesPage = () => {
     correctAnswer: '',
     difficulty: 'easy'
   });
+  const [fileUpload, setFileUpload] = useState(null);
+  const [filePreview, setFilePreview] = useState('');
 
   useEffect(() => {
     fetchExercises();
   }, [topicId]);
+
+  // ממפה מערך אפשרויות לאותיות A,B,C,D,E,F וכו'
+  const mapOptionsToLetters = (arr) => {
+    const mapped = {};
+    arr.forEach((option, index) => {
+      if (option && option.trim()) {
+        const letter = String.fromCharCode(65 + index); // A=65, B=66, etc.
+        mapped[letter] = option;
+      }
+    });
+    return mapped;
+  };
 
   const fetchExercises = async () => {
     try {
@@ -50,6 +64,27 @@ const AdminPracticeExercisesPage = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
+      
+      // Handle file upload for new exercises with image/video content
+      let contentValue = formData.contentValue;
+      if (!editingExercise && (formData.contentType === 'image' || formData.contentType === 'video')) {
+        if (fileUpload) {
+          contentValue = await uploadFileToServer();
+        } else {
+          setError('יש לבחור קובץ לתמונה או וידאו');
+          return;
+        }
+      }
+
+      // Validate correct answer
+      const optionsObj = mapOptionsToLetters(formData.answerOptions);
+      const correct = String(formData.correctAnswer || "").trim();
+      if (!correct || !optionsObj[correct]) {
+        const availableKeys = Object.keys(optionsObj).join(", ");
+        setError(`התשובה הנכונה חייבת להיות אחת מהמפתחות ${availableKeys} שקיבלו ערך`);
+        return;
+      }
+
       const url = editingExercise 
         ? `http://localhost:5000/api/practice-exercises/${editingExercise.exerciseId}`
         : 'http://localhost:5000/api/practice-exercises';
@@ -57,7 +92,7 @@ const AdminPracticeExercisesPage = () => {
       const method = editingExercise ? 'PUT' : 'POST';
       const body = editingExercise 
         ? formData 
-        : { ...formData, topicId: parseInt(topicId) };
+        : { ...formData, topicId: parseInt(topicId), contentValue };
 
       const response = await fetch(url, {
         method,
@@ -81,6 +116,9 @@ const AdminPracticeExercisesPage = () => {
         correctAnswer: '', 
         difficulty: 'easy' 
       });
+      setFileUpload(null);
+      setFilePreview('');
+      setError(null);
       fetchExercises();
     } catch (err) {
       setError(err.message);
@@ -96,6 +134,8 @@ const AdminPracticeExercisesPage = () => {
       correctAnswer: exercise.correctAnswer,
       difficulty: exercise.difficulty
     });
+    setFileUpload(null);
+    setFilePreview('');
     setShowForm(true);
   };
 
@@ -153,6 +193,52 @@ const AdminPracticeExercisesPage = () => {
     });
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setFileUpload(file);
+    
+    // Create preview URL
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      setFilePreview(url);
+    } else if (file.type.startsWith('video/')) {
+      const url = URL.createObjectURL(file);
+      setFilePreview(url);
+    } else {
+      setFilePreview('');
+    }
+  };
+
+  const uploadFileToServer = async () => {
+    if (!fileUpload) return null;
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', fileUpload);
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/practice/practiceExercise/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+      
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.adminPage}>
@@ -179,6 +265,9 @@ const AdminPracticeExercisesPage = () => {
               correctAnswer: '', 
               difficulty: 'easy' 
             });
+            setFileUpload(null);
+            setFilePreview('');
+            setError(null);
             setShowForm(true);
           }}
         >
@@ -219,13 +308,43 @@ const AdminPracticeExercisesPage = () => {
                     required
                   />
                 ) : (
-                  <input
-                    type="url"
-                    value={formData.contentValue}
-                    onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
-                    placeholder="קישור לתמונה או וידאו"
-                    required
-                  />
+                  <div>
+                    {!editingExercise ? (
+                      <div>
+                        <input
+                          type="file"
+                          accept={formData.contentType === 'image' ? 'image/*' : 'video/*'}
+                          onChange={handleFileUpload}
+                          required
+                        />
+                        {filePreview && (
+                          <div style={{ marginTop: '10px' }}>
+                            {formData.contentType === 'image' ? (
+                              <img 
+                                src={filePreview} 
+                                alt="Preview" 
+                                style={{ maxWidth: '200px', maxHeight: '200px' }}
+                              />
+                            ) : (
+                              <video 
+                                src={filePreview} 
+                                controls 
+                                style={{ maxWidth: '200px', maxHeight: '200px' }}
+                              />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <input
+                        type="url"
+                        value={formData.contentValue}
+                        onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
+                        placeholder="קישור לתמונה או וידאו"
+                        required
+                      />
+                    )}
+                  </div>
                 )}
               </div>
               
@@ -262,12 +381,24 @@ const AdminPracticeExercisesPage = () => {
 
               <div className={styles.formGroup}>
                 <label>תשובה נכונה:</label>
-                <input
-                  type="text"
+                <select
                   value={formData.correctAnswer}
                   onChange={(e) => setFormData({...formData, correctAnswer: e.target.value})}
                   required
-                />
+                >
+                  <option value="">בחר תשובה</option>
+                  {formData.answerOptions.map((option, index) => {
+                    if (option && option.trim()) {
+                      const letter = String.fromCharCode(65 + index);
+                      return (
+                        <option key={index} value={letter}>
+                          {letter}
+                        </option>
+                      );
+                    }
+                    return null;
+                  })}
+                </select>
               </div>
 
               <div className={styles.formGroup}>

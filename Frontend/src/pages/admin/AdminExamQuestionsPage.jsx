@@ -93,15 +93,15 @@ const AdminExamQuestionsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topicId]);
 
-  // ממפה מערך אפשרויות ל־A,B,C,D
-  const mapOptionsToABCD = (arr) => {
-    const [A, B, C, D, ...rest] = arr;
+  // ממפה מערך אפשרויות לאותיות A,B,C,D,E,F וכו'
+  const mapOptionsToLetters = (arr) => {
     const mapped = {};
-    if (A) mapped.A = A;
-    if (B) mapped.B = B;
-    if (C) mapped.C = C;
-    if (D) mapped.D = D;
-    // מתעלמים מעודפים מעבר ל־4
+    arr.forEach((option, index) => {
+      if (option && option.trim()) {
+        const letter = String.fromCharCode(65 + index); // A=65, B=66, etc.
+        mapped[letter] = option;
+      }
+    });
     return mapped;
   };
 
@@ -139,13 +139,14 @@ const AdminExamQuestionsPage = () => {
           return;
         }
 
-        // בונים JSON של אופציות A,B,C,D
-        const optionsObj = mapOptionsToABCD(formData.answerOptions);
+        // בונים JSON של אופציות A,B,C,D,E,F וכו'
+        const optionsObj = mapOptionsToLetters(formData.answerOptions);
 
         // ולידציה בסיסית לתשובה נכונה
         const correct = String(formData.correctAnswer || "").trim();
         if (!correct || !optionsObj[correct]) {
-          setError("התשובה הנכונה חייבת להיות אחת מהמפתחות A,B,C,D שקיבלו ערך");
+          const availableKeys = Object.keys(optionsObj).join(", ");
+          setError(`התשובה הנכונה חייבת להיות אחת מהמפתחות ${availableKeys} שקיבלו ערך`);
           return;
         }
 
@@ -398,10 +399,17 @@ const AdminExamQuestionsPage = () => {
                   required
                 >
                   <option value="">בחר תשובה</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
+                  {formData.answerOptions.map((option, index) => {
+                    if (option && option.trim()) {
+                      const letter = String.fromCharCode(65 + index);
+                      return (
+                        <option key={index} value={letter}>
+                          {letter}
+                        </option>
+                      );
+                    }
+                    return null;
+                  })}
                 </select>
               </div>
 
