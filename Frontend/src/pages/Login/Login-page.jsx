@@ -78,9 +78,6 @@ function LoginPage() {
             alt="logo"
           />
         </div>
-        <div className={classes.welcome}>
-          <p>ברוכים הבאים לפלטפורמת "מוכנים ובגדול"!... התחילו כבר עכשיו...</p>
-        </div>
         <div className={classes.login}>
           <h1>כניסה</h1>
           <form onSubmit={handleLogin}>

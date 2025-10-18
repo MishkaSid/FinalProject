@@ -105,13 +105,23 @@ exports.getTopicById = async (req, res) => {
 // Get practice exercises by topic ID
 exports.getPracticeExercisesByTopic = async (req, res) => {
   const { topicId } = req.params;
+  const { difficulty } = req.query;
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query(
-      "SELECT * FROM practice_exercise WHERE TopicID = ? ORDER BY ExerciseID",
-      [topicId]
-    );
+    
+    let query = "SELECT * FROM practice_exercise WHERE TopicID = ?";
+    let params = [topicId];
+    
+    // Add difficulty filter if provided and valid
+    if (difficulty && ['easy', 'medium', 'exam'].includes(difficulty)) {
+      query += " AND Difficulty = ?";
+      params.push(difficulty);
+    }
+    
+    query += " ORDER BY ExerciseID";
+    
+    const [rows] = await connection.query(query, params);
     res.json(rows);
   } catch (err) {
     console.error("Error in getPracticeExercisesByTopic:", err);

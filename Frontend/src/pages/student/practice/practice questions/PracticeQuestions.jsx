@@ -30,13 +30,23 @@ export default function PracticeQuestions() {
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [difficulty, setDifficulty] = useState('easy');
 
   // Server URL for images
   const SERVER_URL = "http://localhost:5000";
 
+  // Get difficulty from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const levelParam = urlParams.get('level');
+    if (levelParam && ['easy', 'medium', 'exam'].includes(levelParam)) {
+      setDifficulty(levelParam);
+    }
+  }, []);
+
   useEffect(() => {
     fetchPracticeData();
-  }, [topicId]);
+  }, [topicId]); // Only refetch when topicId changes, not when difficulty changes
 
   /**
    * Fetches practice data from the server and sets the state.
@@ -47,17 +57,63 @@ export default function PracticeQuestions() {
   const fetchPracticeData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `${SERVER_URL}/api/student/practice/topic/${topicId}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch practice data");
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        // Redirect to login if no token
+        navigate('/');
+        throw new Error("No authentication token found. Redirecting to login.");
       }
 
-      const data = await response.json();
-      setTopicData(data.topic);
-      setExercises(data.exercises);
+      // Fetch topic data
+      const topicResponse = await fetch(
+        `${SERVER_URL}/api/student/practice/topic/${topicId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (!topicResponse.ok) {
+        if (topicResponse.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/');
+          throw new Error("Authentication failed. Redirecting to login.");
+        }
+        throw new Error(`Failed to fetch topic data: ${topicResponse.status}`);
+      }
+
+      const topicData = await topicResponse.json();
+      setTopicData(topicData.topic);
+
+      // Fetch exercises with difficulty filter
+      const exercisesResponse = await fetch(
+        `${SERVER_URL}/api/student/practice/exercises/${topicId}?difficulty=${difficulty}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (!exercisesResponse.ok) {
+        if (exercisesResponse.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/');
+          throw new Error("Authentication failed. Redirecting to login.");
+        }
+        throw new Error(`Failed to fetch exercises: ${exercisesResponse.status}`);
+      }
+
+      const exercises = await exercisesResponse.json();
+      setExercises(exercises);
+      
+      // Reset practice state when exercises change
+      setCurrentExerciseIndex(0);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setScore(0);
     } catch (err) {
       console.error("Error fetching practice data:", err);
       setError(err.message);
@@ -166,6 +222,7 @@ export default function PracticeQuestions() {
     // You can save the practice results here if needed
     navigate(`/student/practice-dashboard/${topicId}?score=${finalScore}`);
   };
+
 
   /**
    * Navigates back to the student dashboard if topicId is not defined, otherwise
@@ -288,7 +345,9 @@ export default function PracticeQuestions() {
         </button>
         <div className={styles.headerInfo}>
           <h1>{topicData?.name}</h1>
-          <p>תרגול שאלות</p>
+          <h3 className={styles.difficultyTitle}>
+          רמת קושי: {difficulty === 'easy' ? 'קל' : difficulty === 'medium' ? 'בינוני' : 'מבחן'}
+        </h3>
         </div>
         <div className={styles.progressInfo}>
           <span>

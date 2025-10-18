@@ -444,7 +444,6 @@ export default function Exam() {
         </button>
         <div className={styles.headerInfo}>
           <h1>מבחן כללי - כל הנושאים</h1>
-          <p>בדוק את הידע שלך בכל הנושאים</p>
         </div>
         <div className={styles.examInfo}>
           <div className={styles.timeDisplay}>

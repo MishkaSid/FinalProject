@@ -318,7 +318,6 @@ export default function Practice() {
         </button>
         <div className={styles.headerInfo}>
           <h1>תרגול כללי - כל הנושאים</h1>
-          <p>תרגול שאלות מכל הנושאים הזמינים</p>
         </div>
         <div className={styles.progressInfo}>
           <span>
@@ -367,7 +366,7 @@ export default function Practice() {
           )}
 
           <div className={styles.answerOptions}>
-            <h3>בחר תשובה:</h3>
+
             <div className={styles.answerOptionsGrid}>
               {answerOptions.map((option, index) => {
                 // Get the correct answer text (handle both letter and text formats)

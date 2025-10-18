@@ -7,35 +7,20 @@ import styles from "./passwordReset.module.css";
 const API = "http://localhost:5000";
 
 export default function ResetPassword() {
-  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [pwd, setPwd] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
-  const [step, setStep] = useState(2); // 1: email, 2: code, 3: password, 4: done - Start at step 2 since user already requested code
+  const [step, setStep] = useState(2); // 2: code, 3: password, 4: done
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErr("");
-    try {
-      await axios.post(`${API}/api/auth/forgot-password`, { email });
-      setStep(2);
-    } catch (e) {
-      console.error("forgot password error:", e);
-      setErr("שגיאה בשליחת קוד האימות");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCodeSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErr("");
     try {
-      await axios.post(`${API}/api/auth/verify-reset-code`, { email, code });
+      await axios.post(`${API}/api/auth/verify-reset-code`, { code });
       setStep(3);
     } catch (e) {
       console.error("verify code error:", e);
@@ -60,7 +45,6 @@ export default function ResetPassword() {
     setErr("");
     try {
       await axios.post(`${API}/api/auth/reset-password`, {
-        email,
         code,
         newPassword: pwd,
       });
@@ -92,6 +76,7 @@ export default function ResetPassword() {
   if (step === 4) {
     return (
       <div className={styles.container}>
+        <div className={styles.background}></div>
         <div className={styles.card}>
           <div className={styles.header}>
             <div className={styles.icon}>✅</div>
@@ -105,6 +90,7 @@ export default function ResetPassword() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.background}></div>
       <div className={styles.card}>
         <div className={styles.stepIndicator}>
           <div className={`${styles.step} ${step >= 2 ? styles.active : ''}`}></div>
@@ -112,66 +98,16 @@ export default function ResetPassword() {
           <div className={`${styles.step} ${step >= 4 ? styles.active : ''}`}></div>
         </div>
 
-        {step === 1 && (
-          <div>
-            <div className={styles.header}>
-              <div className={styles.icon}>📧</div>
-              <h1 className={styles.title}>איפוס סיסמה - שלב 1</h1>
-              <p className={styles.subtitle}>הזן את כתובת האימייל שלך:</p>
-            </div>
-            
-            <form onSubmit={handleEmailSubmit} className={styles.form}>
-              <div className={styles.inputGroup}>
-                <input
-                  type="email"
-                  placeholder="כתובת אימייל"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className={styles.input}
-                />
-              </div>
-              
-              {err && <div className={styles.error}>{err}</div>}
-              
-              <button 
-                type="submit" 
-                className={styles.primaryButton}
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className={styles.loading}>
-                    <div className={styles.spinner}></div>
-                    שולח...
-                  </div>
-                ) : (
-                  "שלח קוד אימות"
-                )}
-              </button>
-            </form>
-          </div>
-        )}
 
         {step === 2 && (
           <div>
             <div className={styles.header}>
               <div className={styles.icon}>🔢</div>
               <h1 className={styles.title}>הזנת קוד אימות</h1>
-              <p className={styles.subtitle}>הזן את כתובת האימייל וקוד האימות:</p>
+              <p className={styles.subtitle}>הזן את קוד האימות שקיבלת במייל:</p>
             </div>
             
             <form onSubmit={handleCodeSubmit} className={styles.form}>
-              <div className={styles.inputGroup}>
-                <input
-                  type="email"
-                  placeholder="כתובת אימייל"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className={styles.input}
-                />
-              </div>
-              
               <div className={styles.inputGroup}>
                 <input
                   type="text"
@@ -217,8 +153,7 @@ export default function ResetPassword() {
             <div className={styles.header}>
               <div className={styles.icon}>🔑</div>
               <h1 className={styles.title}>סיסמה חדשה</h1>
-              <p className={styles.subtitle}>הזן סיסמה חדשה עבור:</p>
-              <div className={styles.emailDisplay}>{email}</div>
+              <p className={styles.subtitle}>הזן סיסמה חדשה:</p>
             </div>
             
             <form onSubmit={handlePasswordSubmit} className={styles.form}>

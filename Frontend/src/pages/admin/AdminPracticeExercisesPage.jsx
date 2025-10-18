@@ -305,7 +305,7 @@ const AdminPracticeExercisesPage = () => {
                     value={formData.contentValue}
                     onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
                     rows={4}
-                    required
+                    required={!editingExercise}
                   />
                 ) : (
                   <div>
@@ -337,11 +337,11 @@ const AdminPracticeExercisesPage = () => {
                       </div>
                     ) : (
                       <input
-                        type="url"
+                        type={editingExercise ? "text" : "url"}
                         value={formData.contentValue}
                         onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
                         placeholder="קישור לתמונה או וידאו"
-                        required
+                        required={!editingExercise}
                       />
                     )}
                   </div>
@@ -357,7 +357,7 @@ const AdminPracticeExercisesPage = () => {
                       value={option}
                       onChange={(e) => updateAnswerOption(index, e.target.value)}
                       placeholder={`אפשרות ${index + 1}`}
-                      required
+                      required={!editingExercise}
                     />
                     {formData.answerOptions.length > 2 && (
                       <button 
@@ -384,7 +384,7 @@ const AdminPracticeExercisesPage = () => {
                 <select
                   value={formData.correctAnswer}
                   onChange={(e) => setFormData({...formData, correctAnswer: e.target.value})}
-                  required
+                  required={!editingExercise}
                 >
                   <option value="">בחר תשובה</option>
                   {formData.answerOptions.map((option, index) => {

@@ -122,46 +122,39 @@ router.post("/forgot-password", async (req, res) => {
 });
 
 // POST /api/auth/verify-reset-code
-// body: { email, code }
+// body: { code }
 router.post("/verify-reset-code", async (req, res) => {
-  const { email, code } = req.body;
+  const { code } = req.body;
   
-  if (!email || !code) {
-    return res.status(400).json({ error: "Missing email or code" });
+  if (!code) {
+    return res.status(400).json({ error: "Missing code" });
   }
 
-  let connection;
   try {
-    connection = await db.getConnection();
-
-    // Find user by Email
-    const [rows] = await connection.query(
-      "SELECT UserID FROM users WHERE Email = ?",
-      [email]
-    );
-
-    if (!rows || rows.length === 0) {
-      return res.status(400).json({ error: "Invalid email" });
+    // Check if any stored code matches
+    if (!global.resetCodes) {
+      return res.status(400).json({ error: "No reset code found" });
     }
 
-    const user = rows[0];
-    
-    // Check if code exists and is valid
-    if (!global.resetCodes || !global.resetCodes[user.UserID]) {
-      return res.status(400).json({ error: "No reset code found for this email" });
+    let foundUserID = null;
+    let storedData = null;
+
+    // Search through all stored codes to find a match
+    for (const [userID, data] of Object.entries(global.resetCodes)) {
+      if (data.code === code) {
+        // Check if code has expired
+        if (new Date(data.expiresAt) < new Date()) {
+          delete global.resetCodes[userID];
+          continue;
+        }
+        foundUserID = userID;
+        storedData = data;
+        break;
+      }
     }
 
-    const storedData = global.resetCodes[user.UserID];
-    
-    // Check if code matches
-    if (storedData.code !== code) {
-      return res.status(400).json({ error: "Invalid reset code" });
-    }
-
-    // Check if code has expired
-    if (new Date(storedData.expiresAt) < new Date()) {
-      delete global.resetCodes[user.UserID];
-      return res.status(400).json({ error: "Reset code has expired" });
+    if (!foundUserID || !storedData) {
+      return res.status(400).json({ error: "Invalid or expired reset code" });
     }
 
     // Code is valid - return success
@@ -169,63 +162,57 @@ router.post("/verify-reset-code", async (req, res) => {
   } catch (err) {
     console.error("verify reset code error:", err);
     return res.status(500).json({ error: "Server error" });
-  } finally {
-    if (connection) connection.release();
   }
 });
 
 // POST /api/auth/reset-password
-// body: { email, code, newPassword }
+// body: { code, newPassword }
 router.post("/reset-password", async (req, res) => {
-  const { email, code, newPassword } = req.body;
-  if (!email || !code || !newPassword) {
-    return res.status(400).json({ error: "Missing email, code, or new password" });
+  const { code, newPassword } = req.body;
+  if (!code || !newPassword) {
+    return res.status(400).json({ error: "Missing code or new password" });
   }
 
   let connection;
   try {
-    connection = await db.getConnection();
-
-    // Find user by Email
-    const [rows] = await connection.query(
-      "SELECT UserID FROM users WHERE Email = ?",
-      [email]
-    );
-
-    if (!rows || rows.length === 0) {
-      return res.status(400).json({ error: "Invalid email" });
+    // Check if any stored code matches
+    if (!global.resetCodes) {
+      return res.status(400).json({ error: "No reset code found" });
     }
 
-    const user = rows[0];
-    
-    // Check if code exists and is valid
-    if (!global.resetCodes || !global.resetCodes[user.UserID]) {
-      return res.status(400).json({ error: "No reset code found for this email" });
+    let foundUserID = null;
+    let storedData = null;
+
+    // Search through all stored codes to find a match
+    for (const [userID, data] of Object.entries(global.resetCodes)) {
+      if (data.code === code) {
+        // Check if code has expired
+        if (new Date(data.expiresAt) < new Date()) {
+          delete global.resetCodes[userID];
+          continue;
+        }
+        foundUserID = userID;
+        storedData = data;
+        break;
+      }
     }
 
-    const storedData = global.resetCodes[user.UserID];
-    
-    // Check if code matches
-    if (storedData.code !== code) {
-      return res.status(400).json({ error: "Invalid reset code" });
-    }
-
-    // Check if code has expired
-    if (new Date(storedData.expiresAt) < new Date()) {
-      delete global.resetCodes[user.UserID];
-      return res.status(400).json({ error: "Reset code has expired" });
+    if (!foundUserID || !storedData) {
+      return res.status(400).json({ error: "Invalid or expired reset code" });
     }
 
     // Update user password
     const bcrypt = require("bcrypt");
     const newHash = await bcrypt.hash(newPassword, 12);
+    
+    connection = await db.getConnection();
     await connection.query(
       "UPDATE users SET Password = ? WHERE UserID = ?",
-      [newHash, user.UserID]
+      [newHash, foundUserID]
     );
 
     // Remove the used code
-    delete global.resetCodes[user.UserID];
+    delete global.resetCodes[foundUserID];
 
     return res.json({ message: "Password updated successfully. You can login now." });
   } catch (err) {
