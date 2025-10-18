@@ -45,24 +45,44 @@ async function sendInvitation(to, name = "") {
 /**
  * Send a simple password reset email
  * @param {object} options - object with properties:
- *   to {string} - recipient’s email
- *   name {string} - recipient’s name (optional)
- *   resetUrl {string} - link to reset password page
+ *   to {string} - recipient's email
+ *   name {string} - recipient's name (optional)
+ *   resetUrl {string} - link to reset password page (optional)
+ *   resetCode {string} - verification code for password reset (optional)
  */
-async function sendPasswordResetEmail({ to, name, resetUrl }) {
+async function sendPasswordResetEmail({ to, name, resetUrl, resetCode }) {
   // Simple Hebrew template. Adjust brand text as you like.
   try {
+    let emailContent;
+    let subject;
+    
+    if (resetCode) {
+      // Code-based reset
+      subject = "קוד איפוס סיסמה לפלטפורמה";
+      emailContent = `
+        <p>היי ${name || "סטודנט"},</p>
+        <p>לקביעת סיסמה חדשה, השתמש בקוד האימות הבא:</p>
+        <h2 style="color: #007bff; font-size: 24px; text-align: center; background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">${resetCode}</h2>
+        <p>הקוד זמין ל-10 דקות בלבד.</p>
+        <p>אם לא ביקשת איפוס, אפשר להתעלם מהמייל.</p>
+      `;
+    } else {
+      // URL-based reset (fallback)
+      subject = "איפוס סיסמה לפלטפורמה";
+      emailContent = `
+        <p>היי ${name || "סטודנט"},</p>
+        <p>לקביעת סיסמה חדשה, לחץ על הקישור הבא:</p>
+        <p><a href="${resetUrl}">${resetUrl}</a></p>
+        <p>הקישור זמין ל-15 דקות.</p>
+        <p>אם לא ביקשת איפוס, אפשר להתעלם מהמייל.</p>
+      `;
+    }
+    
     await transporter.sendMail({
       from: `"מוכנים ובגדול" <${process.env.SMTP_USER}>`,
       to,
-      subject: "איפוס סיסמה לפלטפורמה",
-      html: `
-      <p>היי ${name || "סטודנט"},</p>
-      <p>לקביעת סיסמה חדשה, לחץ על הקישור הבא:</p>
-      <p><a href="${resetUrl}">${resetUrl}</a></p>
-      <p>הקישור זמין ל 15 דקות.</p>
-      <p>אם לא ביקשת איפוס, אפשר להתעלם מהמייל.</p>
-    `,
+      subject,
+      html: emailContent,
     });
   } catch (err) {
     console.error("sendPasswordResetEmail error:", err);

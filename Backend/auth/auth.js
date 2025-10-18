@@ -44,15 +44,6 @@ router.post("/login", async (req, res) => {
       { expiresIn: "8h" }
     );
 
-    // אופציונלי: אם תרצה גם קוקי HttpOnly בנוסף ל־token בגוף
-    // res.cookie("accessToken", token, {
-    //   httpOnly: true,
-    //   sameSite: "Lax",
-    //   secure: false,
-    //   path: "/",
-    //   maxAge: 1000 * 60 * 60 * 8
-    // });
-
     const userInfo = {
       id: user.UserID,
       email: user.Email,
@@ -74,7 +65,7 @@ router.post("/login", async (req, res) => {
 // body: { email }
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
-  const genericMsg = { message: "אם הכתובת קיימת, נשלח מייל עם קישור לאיפוס" };
+  const genericMsg = { message: "אם הכתובת קיימת, נשלח מייל עם קוד לאיפוס" };
 
   let connection;
   try {
@@ -93,24 +84,32 @@ router.post("/forgot-password", async (req, res) => {
 
     const user = rows[0];
 
-    // Generate token and store hash in password_resets
-    const tokenPlain = crypto.randomBytes(32).toString("hex");
-    const bcrypt = require("bcrypt"); // keep same lib as login
-    const tokenHash = await bcrypt.hash(tokenPlain, 12);
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    // Generate 6-digit verification code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    await connection.query(
-      "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)",
-      [user.UserID, tokenHash, expiresAt]
-    );
+    // Store code in user's session/memory (or you could use a simple in-memory store)
+    // For now, we'll store it in a global object (in production, use Redis or similar)
+    if (!global.resetCodes) global.resetCodes = {};
+    global.resetCodes[user.UserID] = {
+      code: resetCode,
+      email: user.Email,
+      expiresAt: expiresAt
+    };
 
-    const resetUrl = `${process.env.APP_URL}/reset-password?token=${tokenPlain}&uid=${user.UserID}`;
+    // Clean up expired codes
+    Object.keys(global.resetCodes).forEach(uid => {
+      if (new Date(global.resetCodes[uid].expiresAt) < new Date()) {
+        delete global.resetCodes[uid];
+      }
+    });
 
-
+    // Send email with verification code
     await sendPasswordResetEmail({
       to: user.Email,
       name: user.Name,
-      resetUrl,
+      resetCode: resetCode,
+      resetUrl: null // No URL needed for code-based reset
     });
 
     return res.json(genericMsg);
@@ -122,48 +121,53 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// GET /api/auth/reset-password/validate?token=...&uid=...
-router.get("/reset-password/validate", async (req, res) => {
-  const { token, uid } = req.query;
-  if (!token || !uid) {
-    return res.status(400).json({ error: "Missing token or uid" });
+// POST /api/auth/verify-reset-code
+// body: { email, code }
+router.post("/verify-reset-code", async (req, res) => {
+  const { email, code } = req.body;
+  
+  if (!email || !code) {
+    return res.status(400).json({ error: "Missing email or code" });
   }
 
   let connection;
   try {
     connection = await db.getConnection();
 
-    // Get all active unused tokens for this user, newest first
+    // Find user by Email
     const [rows] = await connection.query(
-      "SELECT id, token_hash, expires_at, used FROM password_resets WHERE user_id = ? AND used = 0 ORDER BY id DESC",
-      [uid]
+      "SELECT UserID FROM users WHERE Email = ?",
+      [email]
     );
 
     if (!rows || rows.length === 0) {
-      return res.status(400).json({ error: "Invalid or used token" });
+      return res.status(400).json({ error: "Invalid email" });
     }
 
-    const bcrypt = require("bcrypt");
-    // Find a matching token by comparing hash
-    const now = new Date();
-    let match = null;
-    for (const r of rows) {
-      const ok = await bcrypt.compare(token, r.token_hash || "");
-      if (ok) {
-        if (new Date(r.expires_at) > now && r.used === 0) {
-          match = r;
-        }
-        break;
-      }
+    const user = rows[0];
+    
+    // Check if code exists and is valid
+    if (!global.resetCodes || !global.resetCodes[user.UserID]) {
+      return res.status(400).json({ error: "No reset code found for this email" });
     }
 
-    if (!match) {
-      return res.status(400).json({ error: "Invalid or expired token" });
+    const storedData = global.resetCodes[user.UserID];
+    
+    // Check if code matches
+    if (storedData.code !== code) {
+      return res.status(400).json({ error: "Invalid reset code" });
     }
 
-    return res.json({ ok: true });
+    // Check if code has expired
+    if (new Date(storedData.expiresAt) < new Date()) {
+      delete global.resetCodes[user.UserID];
+      return res.status(400).json({ error: "Reset code has expired" });
+    }
+
+    // Code is valid - return success
+    return res.json({ ok: true, message: "Code verified successfully" });
   } catch (err) {
-    console.error("validate token error:", err);
+    console.error("verify reset code error:", err);
     return res.status(500).json({ error: "Server error" });
   } finally {
     if (connection) connection.release();
@@ -171,56 +175,59 @@ router.get("/reset-password/validate", async (req, res) => {
 });
 
 // POST /api/auth/reset-password
-// body: { token, uid, newPassword }
+// body: { email, code, newPassword }
 router.post("/reset-password", async (req, res) => {
-  const { token, uid, newPassword } = req.body;
-  if (!token || !uid || !newPassword) {
-    return res.status(400).json({ error: "Missing fields" });
+  const { email, code, newPassword } = req.body;
+  if (!email || !code || !newPassword) {
+    return res.status(400).json({ error: "Missing email, code, or new password" });
   }
 
   let connection;
   try {
     connection = await db.getConnection();
 
-    // Load active resets for user
+    // Find user by Email
     const [rows] = await connection.query(
-      "SELECT id, token_hash, expires_at, used FROM password_resets WHERE user_id = ? AND used = 0 ORDER BY id DESC",
-      [uid]
+      "SELECT UserID FROM users WHERE Email = ?",
+      [email]
     );
+
     if (!rows || rows.length === 0) {
-      return res.status(400).json({ error: "Invalid or used token" });
+      return res.status(400).json({ error: "Invalid email" });
     }
 
-    const bcrypt = require("bcrypt");
-    const now = new Date();
-    let match = null;
-    for (const r of rows) {
-      const ok = await bcrypt.compare(token, r.token_hash || "");
-      if (ok) {
-        if (new Date(r.expires_at) > now && r.used === 0) {
-          match = r;
-        }
-        break;
-      }
+    const user = rows[0];
+    
+    // Check if code exists and is valid
+    if (!global.resetCodes || !global.resetCodes[user.UserID]) {
+      return res.status(400).json({ error: "No reset code found for this email" });
     }
-    if (!match) {
-      return res.status(400).json({ error: "Invalid or expired token" });
+
+    const storedData = global.resetCodes[user.UserID];
+    
+    // Check if code matches
+    if (storedData.code !== code) {
+      return res.status(400).json({ error: "Invalid reset code" });
+    }
+
+    // Check if code has expired
+    if (new Date(storedData.expiresAt) < new Date()) {
+      delete global.resetCodes[user.UserID];
+      return res.status(400).json({ error: "Reset code has expired" });
     }
 
     // Update user password
+    const bcrypt = require("bcrypt");
     const newHash = await bcrypt.hash(newPassword, 12);
     await connection.query(
       "UPDATE users SET Password = ? WHERE UserID = ?",
-      [newHash, uid]
+      [newHash, user.UserID]
     );
 
-    // Mark token as used and optionally invalidate all other tokens for this user
-    await connection.query(
-      "UPDATE password_resets SET used = 1 WHERE id = ?",
-      [match.id]
-    );
+    // Remove the used code
+    delete global.resetCodes[user.UserID];
 
-    return res.json({ message: "Password updated. You can login now." });
+    return res.json({ message: "Password updated successfully. You can login now." });
   } catch (err) {
     console.error("reset-password error:", err);
     return res.status(500).json({ error: "Server error" });
