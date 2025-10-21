@@ -10,7 +10,6 @@ import {
   FiX,
   FiClock,
   FiAlertTriangle,
-  FiSave,
 } from "react-icons/fi";
 import styles from "./exam.module.css";
 import { useAuth } from "../../../context/AuthContext";
@@ -406,6 +405,11 @@ export default function Exam() {
   const progress = ((currentExerciseIndex + 1) / exercises.length) * 100;
   const isLastQuestion = currentExerciseIndex === exercises.length - 1;
   const isFirstQuestion = currentExerciseIndex === 0;
+  
+  // Check if all questions are answered
+  const allQuestionsAnswered = exercises.every(
+    (exercise) => selectedAnswers[exercise.ExerciseID] !== undefined
+  );
 
   // Parse answer options safely
   let answerOptions = [];
@@ -443,7 +447,7 @@ export default function Exam() {
           חזור לדשבורד
         </button>
         <div className={styles.headerInfo}>
-          <h1>מבחן כללי - כל הנושאים</h1>
+          <h1> כל הנושאים - הדמיית מבחן</h1>
         </div>
         <div className={styles.examInfo}>
           <div className={styles.timeDisplay}>
@@ -568,39 +572,6 @@ export default function Exam() {
           </div>
         </div>
 
-        {/* Submit Button */}
-        {!examCompleted && (
-          <div className={styles.submitSection}>
-            <div className={styles.submitInfo}>
-              <FiAlertTriangle className={styles.warningIcon} />
-              <span>
-                ענית על {examStats.answeredQuestions} מתוך{" "}
-                {examStats.totalQuestions} שאלות
-              </span>
-            </div>
-            <button
-              className={styles.submitExamButton}
-              onClick={handleSubmitExam}
-              disabled={submittingExam}
-            >
-              {submittingExam ? (
-                <>
-                  <div
-                    className={styles.miniSpinner}
-                    style={{ marginRight: "8px" }}
-                  ></div>
-                  מגיש מבחן...
-                </>
-              ) : (
-                <>
-                  <FiSave />
-                  הגש מבחן
-                </>
-              )}
-            </button>
-          </div>
-        )}
-
         {/* Navigation Buttons */}
         <div className={styles.navigationButtons}>
           <button
@@ -623,6 +594,21 @@ export default function Exam() {
             שאלה הבאה
           </button>
         </div>
+
+        {/* Submit Button */}
+        {!examCompleted && (
+          <div className={styles.submitSection}>
+            <button
+              className={`${styles.submitExamButton} ${
+                allQuestionsAnswered ? styles.allAnswered : styles.notAllAnswered
+              }`}
+              onClick={handleSubmitExam}
+              disabled={submittingExam}
+            >
+              {submittingExam ? "מגיש מבחן..." : "הגש מבחן"}
+            </button>
+          </div>
+        )}
 
         {/* Results */}
         {examCompleted && showResults && (

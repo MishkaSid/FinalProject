@@ -9,6 +9,17 @@ const { sendPasswordResetEmail } = require("../utils/mailer");
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
+function hasDatePassed(createdDate) {
+  // Convert string (like "2025-11-17T22:00:00.000Z") to a Date object
+  const targetDate = new Date(createdDate);
+
+  // Get current date and time (UTC-based)
+  const now = new Date();
+
+  // Compare
+  return now > targetDate;
+}
+
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -26,6 +37,9 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "משתמש לא נמצא" });
     }
 
+    const expired_date = user.expired_date;
+
+
     // אם הסיסמה ב־DB מוצפנת בבקריפט: השוואה עם bcrypt
     // אם אתם בשלב מעבר ויש סיסמאות גולמיות, אפשר להוסיף בדיקת fallback לטקסט פשוט
     const stored = user.Password || "";
@@ -38,8 +52,18 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "סיסמה לא תקינה" });
     }
 
+
+
+   if (user.Role == 'Examinee'){
+    if (hasDatePassed(expired_date)) {
+      return res.status(401).json({ message: "משתמש פג תוקף" });
+     }
+   }
+
+     
+
     const token = jwt.sign(
-      { id: user.UserID, role: user.Role, name: user.Name, email: user.Email },
+      { id: user.UserID, role: user.Role, name: user.Name, email: user.Email, courseId: user.CourseID },
       JWT_SECRET,
       { expiresIn: "8h" }
     );
@@ -49,6 +73,7 @@ router.post("/login", async (req, res) => {
       email: user.Email,
       name: user.Name,
       role: user.Role,
+      courseId: user.CourseID,
     };
 
     // שורה קריטית: החזרת token בגוף כדי שהפרונט יעבוד כפי שמצפה
@@ -94,11 +119,11 @@ router.post("/forgot-password", async (req, res) => {
     global.resetCodes[user.UserID] = {
       code: resetCode,
       email: user.Email,
-      expiresAt: expiresAt
+      expiresAt: expiresAt,
     };
 
     // Clean up expired codes
-    Object.keys(global.resetCodes).forEach(uid => {
+    Object.keys(global.resetCodes).forEach((uid) => {
       if (new Date(global.resetCodes[uid].expiresAt) < new Date()) {
         delete global.resetCodes[uid];
       }
@@ -109,7 +134,7 @@ router.post("/forgot-password", async (req, res) => {
       to: user.Email,
       name: user.Name,
       resetCode: resetCode,
-      resetUrl: null // No URL needed for code-based reset
+      resetUrl: null, // No URL needed for code-based reset
     });
 
     return res.json(genericMsg);
@@ -125,7 +150,7 @@ router.post("/forgot-password", async (req, res) => {
 // body: { code }
 router.post("/verify-reset-code", async (req, res) => {
   const { code } = req.body;
-  
+
   if (!code) {
     return res.status(400).json({ error: "Missing code" });
   }
@@ -204,17 +229,19 @@ router.post("/reset-password", async (req, res) => {
     // Update user password
     const bcrypt = require("bcrypt");
     const newHash = await bcrypt.hash(newPassword, 12);
-    
+
     connection = await db.getConnection();
-    await connection.query(
-      "UPDATE users SET Password = ? WHERE UserID = ?",
-      [newHash, foundUserID]
-    );
+    await connection.query("UPDATE users SET Password = ? WHERE UserID = ?", [
+      newHash,
+      foundUserID,
+    ]);
 
     // Remove the used code
     delete global.resetCodes[foundUserID];
 
-    return res.json({ message: "Password updated successfully. You can login now." });
+    return res.json({
+      message: "Password updated successfully. You can login now.",
+    });
   } catch (err) {
     console.error("reset-password error:", err);
     return res.status(500).json({ error: "Server error" });
@@ -222,6 +249,5 @@ router.post("/reset-password", async (req, res) => {
     if (connection) connection.release();
   }
 });
-
 
 module.exports = router;

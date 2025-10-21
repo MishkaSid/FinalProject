@@ -12,6 +12,7 @@ import TopicList from "./TopicList";
 import TopicForm from "./TopicForm";
 import PracticeContentTable from "./PracticeContentTable";
 import ManageContentModal from "../../../components/admin/ManageContentModal";
+import { useAuth } from "../../../context/AuthContext";
 
 /**
  * @component ManageContent
@@ -22,6 +23,7 @@ import ManageContentModal from "../../../components/admin/ManageContentModal";
  * @returns {JSX.Element} The rendered content management page.
  */
 export default function ManageContent() {
+  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [topics, setTopics] = useState([]);
@@ -31,9 +33,7 @@ export default function ManageContent() {
   const [isEditTopicOpen, setIsEditTopicOpen] = useState(false);
   const [editTopic, setEditTopic] = useState(null);
   const [addTopicInitial, setAddTopicInitial] = useState({
-    TopicID: "",
     TopicName: "",
-    CourseID: "",
   });
   const [practiceContent, setPracticeContent] = useState({}); // { [topicId]: [content, ...] }
   const [isAddContentPopupOpen, setIsAddContentPopupOpen] = useState(false);
@@ -56,12 +56,31 @@ export default function ManageContent() {
   /**
    * @effect
    * @description Fetches all courses from the server when the component mounts.
+   * Filters courses based on user's courseId if user is not an Admin.
    */
   useEffect(() => {
     axios.get("/api/courses/getCourses").then((res) => {
-      setCourses(res.data || []);
+      const allCourses = res.data || [];
+      
+      // If user is Admin, show all courses
+      // Otherwise, filter by user's courseId
+      if (user?.role === 'Admin') {
+        setCourses(allCourses);
+      } else if (user?.courseId) {
+        const filteredCourses = allCourses.filter(
+          course => course.CourseID === user.courseId
+        );
+        setCourses(filteredCourses);
+        
+        // Auto-select the user's course if only one course
+        if (filteredCourses.length === 1) {
+          setSelectedCourse(filteredCourses[0].CourseID);
+        }
+      } else {
+        setCourses([]);
+      }
     });
-  }, []);
+  }, [user]);
 
   /**
    * @effect
@@ -125,9 +144,7 @@ export default function ManageContent() {
    */
   const handleAddTopic = () => {
     setAddTopicInitial({
-      TopicID: "",
       TopicName: "",
-      CourseID: selectedCourse,
     });
     setIsAddTopicOpen(true);
   };
@@ -169,15 +186,24 @@ export default function ManageContent() {
   /**
    * @function handleAddTopicSubmit
    * @description Handles the form submission for adding a new topic. It sends the new topic data
-   * to the server and updates the local state on success.
+   * to the server and updates the local state on success. CourseID is inferred from JWT token.
    * @param {object} values - The form values for the new topic.
    */
   const handleAddTopicSubmit = (values) => {
-    const payload = { TopicName: values.TopicName, CourseID: selectedCourse };
-    if (values.TopicID) payload.TopicID = Number(values.TopicID);
-    axios.post("/api/topics/addTopic", payload).then((res) => {
+    const token = localStorage.getItem("token");
+    axios.post("/api/topics/addTopic", 
+      { TopicName: values.TopicName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    ).then((res) => {
       setTopics((prev) => [...prev, res.data]);
       setIsAddTopicOpen(false);
+    }).catch((err) => {
+      console.error("Error adding topic:", err);
+      alert(err.response?.data?.error || "שגיאה בהוספת נושא");
     });
   };
   /**
@@ -187,20 +213,28 @@ export default function ManageContent() {
    * @param {object} values - The updated form values for the topic.
    */
   const handleEditTopicSubmit = (values) => {
+    const token = localStorage.getItem("token");
     axios
-      .put(`/api/topics/updateTopic/${editTopic.TopicID}`, {
-        TopicName: values.TopicName,
-        CourseID: selectedCourse,
-        TopicID: values.TopicID,
-      })
+      .put(`/api/topics/updateTopic/${editTopic.TopicID}`, 
+        { TopicName: values.TopicName },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then((res) => {
         setTopics((prev) =>
           prev.map((t) =>
-            t.TopicID === editTopic.TopicID ? { ...t, ...values } : t
+            t.TopicID === editTopic.TopicID ? { ...t, TopicName: values.TopicName } : t
           )
         );
         setIsEditTopicOpen(false);
         setEditTopic(null);
+      })
+      .catch((err) => {
+        console.error("Error updating topic:", err);
+        alert(err.response?.data?.error || "שגיאה בעדכון נושא");
       });
   };
 
@@ -460,9 +494,7 @@ export default function ManageContent() {
         <TopicForm
           initialValues={
             editTopic || {
-              TopicID: "",
               TopicName: "",
-              CourseID: selectedCourse,
             }
           }
           onSubmit={handleEditTopicSubmit}

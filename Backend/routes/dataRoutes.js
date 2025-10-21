@@ -1,6 +1,19 @@
 // בקובץ זה נמצאים נתיבים כלליים לנתונים במערכת
 // הקובץ מגדיר endpoints לנתונים בסיסיים כמו משתמשים, קורסים, נושאים ותרגילים
 // הוא משמש כנקודת גישה מרכזית לנתונים סטטיים במערכת
+//
+// ⚠️ NOTE: This file is currently NOT being used in server.js
+// Most routes from this file have been moved to:
+// - generalDataRoutes.js (for /api/general endpoints)
+// - userRoutes.js (for user operations)
+// - coursesRoutes.js (for course operations)
+// - topicRoutes.js (for topic operations)
+//
+// This file is kept for reference and possible future use.
+// If you need to use these routes, add to server.js:
+// const dataRoutes = require("./routes/dataRoutes");
+// app.use("/api/data", dataRoutes);
+//
 //routes
 // dataRoutes.js
 const express = require('express');

@@ -27,6 +27,7 @@
 }
 
 .input {
+  width: 100%;
   padding: 0.75rem;
   font-size: 1.6rem;
   border: 1px solid var(--admin-border);
@@ -35,6 +36,7 @@
   color: var(--admin-text);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
 }
 
 .input:focus {

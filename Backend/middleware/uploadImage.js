@@ -4,6 +4,7 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
 // ודא שהנתיב הוא ../uploads/exam-questions ביחס לקובץ זה
 const uploadDir = path.join(__dirname, "..", "uploads", "exam-questions");
@@ -14,13 +15,7 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // ניקוי והאחדת שם קובץ: מוריד רווחים, מנרמל ל-ASCII בסיסי, מוריד אותיות גדולות
-function sanitizeBaseName(str) {
-  return String(str || "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w.-]+/g, "") // אותיות, ספרות, קו תחתון, נקודה ומקף
-    .toLowerCase();
-}
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -28,10 +23,9 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname || ".jpg").toLowerCase();
-    const base =
-      sanitizeBaseName(path.basename(file.originalname, ext)) || "math";
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${base}-${unique}${ext}`);
+    const uniqueId = uuidv4();
+    console.log(`${uniqueId}${ext}`)
+    cb(null, `${uniqueId}${ext}`);
   },
 });
 

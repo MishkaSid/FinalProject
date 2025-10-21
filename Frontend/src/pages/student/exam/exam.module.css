@@ -351,12 +351,13 @@
   border: none;
   padding: 1rem 2rem;
   border-radius: 10px;
-  font-size: 1rem;
+  font-size: 1.6rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 150px;
   box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  width: auto; 
 }
 
 .navButton:hover:not(:disabled) {
@@ -398,28 +399,56 @@
 }
 
 .submitExamButton {
-  background: #28a745;
   color: white;
   border: none;
   padding: 1.2rem 2.5rem;
   border-radius: 15px;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 200px;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   margin: 0 auto;
+  width: auto; 
 }
 
-.submitExamButton:hover {
+/* Gray state - not all questions answered */
+.submitExamButton.notAllAnswered {
+  background: #6c757d;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.submitExamButton.notAllAnswered:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+/* Green state - all questions answered */
+.submitExamButton.allAnswered {
+  background: #28a745;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  animation: readyPulse 2s ease-in-out infinite;
+}
+
+.submitExamButton.allAnswered:hover {
   background: #218838;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+  animation: none;
+}
+
+@keyframes readyPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+  }
 }
 
 /* Results Container */

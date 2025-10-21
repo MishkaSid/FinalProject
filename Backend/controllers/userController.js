@@ -44,7 +44,7 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-  let { UserID, Name, Email, Password, Role, CourseID } = req.body;
+  let { UserID, Name, Email, Password, Role, CourseID, expired_date } = req.body;
 
   // require exactly 9 digits and valid checksum on direct create
   const idDigits = digitsOnly(UserID);
@@ -83,8 +83,8 @@ exports.createUser = async (req, res) => {
     }
 
     await connection.query(
-      "INSERT INTO users (UserID, Name, Email, Password, Role, CourseID) VALUES (?, ?, ?, ?, ?, ?)",
-      [idFinal, Name, Email, hashedPassword, Role, CourseID]
+      "INSERT INTO users (UserID, Name, Email, Password, Role, CourseID, expired_date) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [idFinal, Name, Email, hashedPassword, Role, CourseID, expired_date || null]
     );
 
     connection.release();
@@ -93,16 +93,16 @@ exports.createUser = async (req, res) => {
       console.error("Failed sending email to", Email, err)
     );
 
-    res.status(201).json({ UserID: idFinal, Name, Email, Role, CourseID });
+    res.status(201).json({ UserID: idFinal, Name, Email, Role, CourseID, expired_date });
   } catch (err) {
     console.error("Error in createUser:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: String(err?.message || err) });
   }
 };
 
 exports.updateUser = async (req, res) => {
   const { id } = req.params; // old ID
-  const { UserID: newId, Name, Email, Role } = req.body;
+  const { UserID: newId, Name, Email, Role, CourseID, expired_date } = req.body;
 
   const newIdDigits = digitsOnly(newId);
   const newIdFinal = padToNine(newIdDigits);
@@ -145,12 +145,12 @@ exports.updateUser = async (req, res) => {
     }
 
     await connection.query(
-      "UPDATE users SET UserID = ?, Name = ?, Email = ?, Role = ? WHERE UserID = ?",
-      [newIdFinal, Name, Email, Role, id]
+      "UPDATE users SET UserID = ?, Name = ?, Email = ?, Role = ?, CourseID = ?, expired_date = ? WHERE UserID = ?",
+      [newIdFinal, Name, Email, Role, CourseID, expired_date || null, id]
     );
 
     connection.release();
-    res.json({ UserID: newIdFinal, Name, Email, Role });
+    res.json({ UserID: newIdFinal, Name, Email, Role, CourseID, expired_date });
   } catch (err) {
     console.error("Error in updateUser:", err);
     res.status(500).json({ error: "Server error" });
@@ -347,12 +347,12 @@ exports.bulkUploadUsers = async (req, res) => {
         );
         return res.status(200).send(pdf);
       } catch (pdfErr) {
-        console.error("PDF generation failed. Falling back to JSON:", pdfErr);
+        console.error("PDF generation failed. Falling back to JSON:", String(pdfErr?.message || pdfErr));
         return res.status(200).json({
           added: results.added,
           errors: results.errors,
           paddedWarnings: results.paddedWarnings,
-          message: `Bulk upload completed. Added ${results.added}. Errors ${results.errors.length}. Padded ${results.paddedWarnings.length}.`,
+          message: `PDF generated failed. Bulk upload completed. Added ${results.added}. Errors ${results.errors.length}. Padded ${results.paddedWarnings.length}.`,
         });
       }
     }

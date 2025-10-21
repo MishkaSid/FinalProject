@@ -53,17 +53,7 @@ router.post(
   examResultController.submitExamResults
 );
 
-// Metrics ודשבורד
-router.get(
-  "/exam/last/:userId",
-  authenticateToken,
-  examResultController.getLastExam
-);
-router.get(
-  "/metrics/:userId",
-  authenticateToken,
-  examResultController.getStudentMetrics
-);
+// Student dashboard - provides profile statistics (last exam, average, total exams)
 router.get(
   "/dashboard/:studentId",
   authenticateToken,

@@ -19,12 +19,13 @@ const FIELD_CONFIG = {
     label: "קורס",
     type: "course-select", // Special type for course selection
   },
+  expired_date: { label: "תאריך תפוגה", type: "date" },
 };
 
 const MODE_FIELDS = {
   login: ["Email", "Password"],
-  add: ["UserID", "Name", "Email", "Password", "Role", "CourseID"],
-  edit: ["UserID", "Name", "Email", "Role", "CourseID"], // Password not shown in edit
+  add: ["UserID", "Name", "Email", "Password", "Role", "CourseID", "expired_date"],
+  edit: ["UserID", "Name", "Email", "Role", "CourseID", "expired_date"], // Password not shown in edit
 };
 
 /**
@@ -53,6 +54,18 @@ function validate(fields, values, mode) {
       return "יש להזין כתובת אימייל תקינה.";
     }
   }
+  if (fields.includes("expired_date")) {
+    if (!values.expired_date) {
+      return "יש לבחור תאריך תפוגה.";
+    }
+    // Validate that the date is not in the past
+    const selectedDate = new Date(values.expired_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today
+    if (selectedDate < today) {
+      return "תאריך התפוגה לא יכול להיות בעבר.";
+    }
+  }
   if (fields.includes("Password") && mode !== "edit") {
     // Skip password validation for Examinee users (password is auto-reset to ID in backend)
     if (
@@ -69,6 +82,9 @@ function validate(fields, values, mode) {
     }
     if (field === "CourseID") {
       continue; // CourseID is optional
+    }
+    if (field === "expired_date") {
+      continue; // expired_date validation is handled above
     }
     if (!values[field]) {
       return `יש למלא את שדה ${FIELD_CONFIG[field].label}`;
@@ -107,11 +123,14 @@ export default function UserForm({
     Password: initialValues.Password || "",
     Role: initialValues.Role || "Examinee",
     CourseID: initialValues.CourseID || "",
+    expired_date: initialValues.expired_date || "",
   });
   const [showPopup, setShowPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState("");
   const [showNewCourseInput, setShowNewCourseInput] = useState(false);
   const [newCourseName, setNewCourseName] = useState("");
+
+
 
   const fields = MODE_FIELDS[mode];
 
@@ -210,15 +229,14 @@ export default function UserForm({
                     </select>
                     <button
                       type="button"
-                      className={styles.secondaryButton}
                       onClick={() => setShowNewCourseInput(true)}
-                      style={{ marginTop: "0.5rem" }}
+                      style={{ marginTop: "0.5rem" , color:'white !important', marginInline:'auto'}}
                     >
                       + צור קורס חדש
                     </button>
                   </>
                 ) : (
-                  <div style={{ display: "flex", gap: "0.5rem", flexDirection: "column" }}>
+                  <div style={{ display: "flex", gap: "0.5rem", flexDirection: "column",width:'100%' }}>
                     <input
                       className={styles.input}
                       type="text"
@@ -282,6 +300,7 @@ export default function UserForm({
                 autoComplete={
                   field === "Password" ? "current-password" : undefined
                 }
+                min={field === "expired_date" ? new Date().toISOString().split('T')[0] : undefined}
               />
             </div>
           );

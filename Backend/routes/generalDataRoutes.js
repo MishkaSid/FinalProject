@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const generalDataController = require('../controllers/generalDataController');
+const examResultController = require('../controllers/examResultController');
 
 // Route for fetching all users
 router.get('/users', generalDataController.getUsers);
@@ -21,5 +22,8 @@ router.get('/practice', generalDataController.getPracticeData);
 router.get('/exams', generalDataController.getExamData);
 // Route for fetching all videos
 router.get('/videos', generalDataController.getVideos);
+
+// Test endpoint to verify and create database tables (public for setup)
+router.get('/test-exam-table', examResultController.testExamTable);
 
 module.exports = router; 

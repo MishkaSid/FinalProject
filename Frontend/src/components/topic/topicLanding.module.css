@@ -433,6 +433,7 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  width: fit-content;
 }
 
 .ctaBtn::before {
@@ -535,17 +536,18 @@
   margin-top: 1rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 1rem 1.8rem;
+  gap: 0.6rem;
+  padding: 0.8rem 1.4rem;
   border: 0;
   border-radius: 1rem;
   cursor: pointer;
   color: #fff;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  width: fit-content;
 }
 
 /* Custom styling for each difficulty level practice button */

@@ -25,7 +25,9 @@ exports.getUsers = async (req, res) => {
   let connection;
   try {
     connection = await db.getConnection();
-    const rows = await connection.query("SELECT * FROM users");
+    const rows = await connection.query(
+      "SELECT UserID, Name, Email, Password, Role, CourseID, DATE_FORMAT(expired_date, '%Y-%m-%d') as expired_date FROM users"
+    );
     res.json(rows);
   } catch (err) {
     console.error("❌ Error in getUsers:", err);

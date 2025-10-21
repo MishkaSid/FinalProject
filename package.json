@@ -1,0 +1,21 @@
+{
+  "name": "finalproject",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently --kill-others-on-fail --names \"FRONTEND,BACKEND\" --prefix-colors \"cyan,magenta\" \"npm start --prefix ./Frontend\" \"npm start --prefix ./Backend\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gen": "kysely-gen ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "kysely-codegen": {
+    "outFile": "./db.d.ts",
+    "url": "mysql://root@localhost:3306/final_project"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

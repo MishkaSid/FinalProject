@@ -4,7 +4,7 @@
 // הוא מטפל בתהליך האותנטיקציה ומנווט למשתמש לפי תפקידו
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import classes from "./login.module.css";
 import Popup from "../../components/popup/Popup";
 import { useAuth } from "../../context/AuthContext";
@@ -16,6 +16,7 @@ import { useAuth } from "../../context/AuthContext";
  */
 function LoginPage() {
   const [email, setEmail] = useState("");
+  const [message, setErrorMessage] = useState("Error");
   const [password, setPassword] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
@@ -58,6 +59,15 @@ function LoginPage() {
           navigate("/not-found");
       }
     } catch (error) {
+      let msg = String(error?.message || e);
+
+      if (error instanceof AxiosError) {
+        msg = error.response.data.message;
+      }
+
+
+      setErrorMessage(msg)
+
       setShowPopup(true);
     }
   };
@@ -174,7 +184,7 @@ function LoginPage() {
 
       <Popup
         header="שגיאה בהתחברות"
-        text="שם המשתמש ו/או הסיסמה שגוים"
+        text={message}
         isOpen={showPopup}
         onClose={() => setShowPopup(false)}
       >

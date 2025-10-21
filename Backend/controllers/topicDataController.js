@@ -50,14 +50,23 @@ exports.getTopicById = async (req, res) => {
 
 // Create a new topic
 exports.createTopic = async (req, res) => {
-  const { TopicName, CourseID } = req.body;
+  const { TopicName } = req.body;
   let connection;
 
   try {
+    // Get CourseID from JWT token
+    const userCourseId = req.user?.courseId;
+    
+    if (!userCourseId) {
+      return res.status(400).json({ error: "User has no assigned course" });
+    }
+
     connection = await db.getConnection();
+    
+    // Verify course exists
     const [courseRows] = await connection.query(
       "SELECT * FROM course WHERE CourseID = ?",
-      [CourseID]
+      [userCourseId]
     );
     if (courseRows.length === 0) {
       if (!res.headersSent) {
@@ -65,11 +74,13 @@ exports.createTopic = async (req, res) => {
       }
       return;
     }
+    
+    // Insert topic with auto-generated TopicID
     const [result] = await connection.query(
       "INSERT INTO topic (TopicName, CourseID) VALUES (?, ?)",
-      [TopicName, CourseID]
+      [TopicName, userCourseId]
     );
-    res.json({ TopicID: result.insertId, TopicName, CourseID });
+    res.json({ TopicID: result.insertId, TopicName, CourseID: userCourseId });
   } catch (err) {
     console.error("Error in createTopic:", err);
     if (!res.headersSent) {
@@ -85,16 +96,51 @@ exports.createTopic = async (req, res) => {
 // Update a topic
 exports.updateTopic = async (req, res) => {
   const { id } = req.params;
-  const { TopicName, CourseID } = req.body;
+  const { TopicName } = req.body;
   let connection;
 
   try {
+    // Get CourseID from JWT token for validation
+    const userCourseId = req.user?.courseId;
+    const userRole = req.user?.role;
+    
     connection = await db.getConnection();
+    
+    // If not admin, verify the topic belongs to the user's course
+    if (userRole !== 'Admin' && userCourseId) {
+      const [topicRows] = await connection.query(
+        "SELECT CourseID FROM topic WHERE TopicID = ?",
+        [id]
+      );
+      
+      if (topicRows.length === 0) {
+        if (!res.headersSent) {
+          return res.status(404).json({ error: "Topic not found" });
+        }
+        return;
+      }
+      
+      if (topicRows[0].CourseID !== userCourseId) {
+        if (!res.headersSent) {
+          return res.status(403).json({ error: "Not authorized to update this topic" });
+        }
+        return;
+      }
+    }
+    
+    // Update only the topic name, CourseID remains unchanged
     await connection.query(
-      "UPDATE topic SET TopicName = ?, CourseID = ? WHERE TopicID = ?",
-      [TopicName, CourseID, id]
+      "UPDATE topic SET TopicName = ? WHERE TopicID = ?",
+      [TopicName, id]
     );
-    res.json({ TopicID: id, TopicName, CourseID });
+    
+    // Get the updated topic to return full data
+    const [updatedRows] = await connection.query(
+      "SELECT * FROM topic WHERE TopicID = ?",
+      [id]
+    );
+    
+    res.json(updatedRows[0]);
   } catch (err) {
     console.error("Error in updateTopic:", err);
     if (!res.headersSent) {

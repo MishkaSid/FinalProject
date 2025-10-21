@@ -14,6 +14,29 @@ import {
 } from "react-icons/fi";
 
 /**
+ * Check if a URL is a YouTube URL.
+ *
+ * @param {string|null|undefined} url The URL to check.
+ * @returns {boolean} True if the URL is a YouTube URL.
+ */
+function isYoutubeUrl(url) {
+  if (!url) return false;
+  const raw = String(url).trim();
+  
+  // If it doesn't start with http/https, assume it's a YouTube ID
+  if (!/^https?:\/\//i.test(raw)) {
+    return true;
+  }
+  
+  try {
+    const u = new URL(raw);
+    return u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Given a URL or ID, returns a YouTube embed URL.
  *
  * @param {string|null|undefined} urlOrId The URL or ID to convert.
@@ -46,6 +69,30 @@ function toYoutubeEmbed(urlOrId) {
     return idOnly ? `https://www.youtube.com/embed/${idOnly}` : null;
   }
   return null;
+}
+
+/**
+ * Resolve video URL for local files.
+ *
+ * @param {string} url The URL to resolve.
+ * @returns {string} The resolved URL.
+ */
+function resolveVideoUrl(url) {
+  if (!url) return "";
+  const SERVER = "http://localhost:5000";
+  
+  // If it's already a full URL
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+  
+  // If it starts with /
+  if (url.startsWith("/")) {
+    return `${SERVER}${url}`;
+  }
+  
+  // Otherwise assume it's a filename in uploads
+  return `${SERVER}/uploads/${url}`;
 }
 
 /**
@@ -273,14 +320,25 @@ export default function TopicLandingTemplate() {
         <article className={styles.introCard}>
           <div className={styles.introFrame}>
             {intro?.VideoUrl ? (
-              <iframe
-                className={styles.videoFrame}
-                src={toYoutubeEmbed(intro.VideoUrl)}
-                title={intro?.VideoTopic || "סרטון פתיחה"}
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              isYoutubeUrl(intro.VideoUrl) ? (
+                <iframe
+                  className={styles.videoFrame}
+                  src={toYoutubeEmbed(intro.VideoUrl)}
+                  title={intro?.VideoTopic || "סרטון פתיחה"}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  className={styles.videoFrame}
+                  controls
+                  preload="metadata"
+                >
+                  <source src={resolveVideoUrl(intro.VideoUrl)} type="video/mp4" />
+                  הדפדפן שלך אינו תומך בתגית וידאו.
+                </video>
+              )
             ) : (
               <div className={styles.placeholder}>אין כתובת וידאו להצגה</div>
             )}
@@ -321,14 +379,25 @@ export default function TopicLandingTemplate() {
                 >
                   <div className={styles.levelFrame}>
                     {v?.VideoUrl ? (
-                      <iframe
-                        className={styles.videoFrame}
-                        src={toYoutubeEmbed(v.VideoUrl)}
-                        title={v?.VideoTopic || label}
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
+                      isYoutubeUrl(v.VideoUrl) ? (
+                        <iframe
+                          className={styles.videoFrame}
+                          src={toYoutubeEmbed(v.VideoUrl)}
+                          title={v?.VideoTopic || label}
+                          loading="lazy"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video
+                          className={styles.videoFrame}
+                          controls
+                          preload="metadata"
+                        >
+                          <source src={resolveVideoUrl(v.VideoUrl)} type="video/mp4" />
+                          הדפדפן שלך אינו תומך בתגית וידאו.
+                        </video>
+                      )
                     ) : (
                       <div className={styles.placeholder}>
                         אין כתובת וידאו להצגה

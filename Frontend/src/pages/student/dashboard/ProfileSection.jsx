@@ -1,24 +1,22 @@
 // בקובץ זה נמצא רכיב הפרופיל של הסטודנט במערכת
 // הקובץ מציג מידע אישי על הסטודנט כולל מבחן אחרון, ממוצע ציונים ומספר מבחנים
-// הוא מספק כפתור רענון נתונים ומציג סטטוס טעינה ושגיאות
+// הוא מציג סטטוס טעינה ושגיאות
 // הוא משמש כחלק מדף הבית של הסטודנט ומציג את המידע האישי שלו
 
 // Frontend/src/pages/student/dashboard/ProfileSection.jsx
 import React from "react";
-import { FiUser, FiAward, FiTrendingUp, FiRefreshCw } from "react-icons/fi";
+import { FiUser, FiAward, FiTrendingUp } from "react-icons/fi";
 import styles from "./student.module.css";
 
 /**
  * ProfileSection component displays the student's profile information
- * including last exam, average grade, total exams, and refresh functionality
+ * including last exam, average grade, and total exams
  */
 const ProfileSection = ({
   studentData,
   refreshing,
   error,
   hasValidData,
-  onRefresh,
-  onRetryWithBackoff,
 }) => {
   return (
     <div className={styles.heroProfile}>
@@ -93,54 +91,20 @@ const ProfileSection = ({
               color: "white",
               fontSize: "12px",
               display: "block",
-              marginBottom: "5px",
             }}
           >
             שגיאה בטעינת נתונים: {error}
           </span>
-          <button
-            onClick={onRefresh}
+          <span
             style={{
-              background: "rgba(255,255,255,0.2)",
-              color: "white",
-              border: "none",
-              padding: "3px 10px",
-              borderRadius: "3px",
+              color: "rgba(255,255,255,0.8)",
               fontSize: "11px",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
+              display: "block",
+              marginTop: "5px",
             }}
-            onMouseOver={(e) =>
-              (e.target.style.background = "rgba(255,255,255,0.3)")
-            }
-            onMouseOut={(e) =>
-              (e.target.style.background = "rgba(255,255,255,0.2)")
-            }
           >
-            נסה שוב
-          </button>
-          <button
-            onClick={onRetryWithBackoff}
-            style={{
-              background: "rgba(0,123,255,0.2)",
-              color: "white",
-              border: "none",
-              padding: "3px 10px",
-              borderRadius: "3px",
-              fontSize: "11px",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              marginLeft: "5px",
-            }}
-            onMouseOver={(e) =>
-              (e.target.style.background = "rgba(0,123,255,0.3)")
-            }
-            onMouseOut={(e) =>
-              (e.target.style.background = "rgba(0,123,255,0.2)")
-            }
-          >
-            נסה עם ניסיונות חוזרים
-          </button>
+            רענן את הדף כדי לנסות שוב
+          </span>
         </div>
       )}
 
@@ -207,21 +171,6 @@ const ProfileSection = ({
           </div>
         </div>
       </div>
-
-      {/* Refresh button for manual data refresh */}
-      <button
-        onClick={onRefresh}
-        className={styles.refreshButton}
-        title="רענן נתונים מהשרת"
-        disabled={refreshing}
-      >
-        {refreshing ? (
-          <div className={styles.miniSpinner}></div>
-        ) : (
-          <FiRefreshCw size={16} />
-        )}
-        {refreshing ? "מרענן..." : "רענן נתונים"}
-      </button>
     </div>
   );
 };

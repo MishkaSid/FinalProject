@@ -301,12 +301,28 @@ export default function StudentDashboard() {
         throw new Error("Invalid data format received from server");
       }
 
+      // Get user's courseId for filtering
+      const userCourseId = user?.courseId;
+      console.log("StudentDashboard: Filtering topics for courseId:", userCourseId);
+
+      // Filter topics by user's courseId if available
+      let filteredData = data;
+      if (userCourseId) {
+        filteredData = data.filter((topic) => topic.CourseID === userCourseId);
+        console.log(
+          `StudentDashboard: Filtered ${filteredData.length} topics out of ${data.length} for courseId ${userCourseId}`
+        );
+      } else {
+        console.warn("StudentDashboard: No courseId found for user, showing all topics");
+      }
+
       // Transform the data to match our component structure
-      const transformedSubjects = data.map((topic) => ({
+      const transformedSubjects = filteredData.map((topic) => ({
         id: topic.TopicID,
         name: topic.TopicName,
         description: `נושא: ${topic.TopicName}`,
         courseName: topic.CourseName || "מתמטיקה",
+        courseId: topic.CourseID,
       }));
 
       setSubjects(transformedSubjects);
@@ -343,13 +359,13 @@ export default function StudentDashboard() {
     } finally {
       setSubjectsLoading(false);
     }
-  }, []); // Empty dependency array since this function doesn't depend on any props or state
+  }, [user?.courseId]); // Depend on user's courseId for filtering
 
   const handlePracticeClick = useCallback(() => {
     setShowSubjectModal(true);
     setError(null); // Clear any previous errors
     fetchSubjects(); // Fetch subjects when modal opens
-  }, []); // Remove fetchSubjects dependency to prevent loops
+  }, [fetchSubjects]); // Add fetchSubjects dependency
 
   const handleSubjectSelect = useCallback((subject) => {
     setSelectedSubject(subject);
@@ -391,38 +407,27 @@ export default function StudentDashboard() {
           refreshing={refreshing}
           error={error}
           hasValidData={hasValidData}
-          onRefresh={handleRefresh}
-          onRetryWithBackoff={retryDashboardFetch}
         />
       </div>
 
       {/* Dashboard Section */}
       <div className={styles.dashboard}>
         <h2 className={styles.dashboardTitle}>מה תרצו לעשות היום?</h2>
-        <p
-          style={{
-            textAlign: "center",
-            color: "#6c757d",
-            marginBottom: "2rem",
-            fontSize: "1.1rem",
-          }}
-        >
-          בחר מהאפשרויות הבאות כדי להתחיל
-        </p>
+        
         <div className={styles.cardContainer}>
-          <Card
-            title="תרגול כללי"
-            description="תרגול שאלות מכל הנושאים הזמינים במערכת"
-            icon={<FiBook size={30} />}
-            onClick={() => navigate("/student/practice")}
-            size="large"
-            layout="horizontal"
-          />
           <Card
             title="תרגול נושא ספציפי"
             description="תרגול שאלות מנושא מסוים לפי בחירתך"
             icon={<FiBook size={30} />}
             onClick={handlePracticeClick}
+            size="large"
+            layout="horizontal"
+          />
+          <Card
+            title="תרגול כללי"
+            description="תרגול שאלות מכל הנושאים הזמינים במערכת"
+            icon={<FiBook size={30} />}
+            onClick={() => navigate("/student/practice")}
             size="large"
             layout="horizontal"
           />

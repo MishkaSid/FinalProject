@@ -21,6 +21,10 @@ exports.testExamTable = async (req, res) => {
     
     console.log('Tables found:', tables);
     
+    let examTableCreated = false;
+    let hasGradeColumn = false;
+    let examRecordCount = 0;
+    
     if (tables.length === 0) {
       console.log('Exam table does not exist, creating it...');
       
@@ -30,24 +34,13 @@ exports.testExamTable = async (req, res) => {
           ExamID INT AUTO_INCREMENT PRIMARY KEY,
           UserID INT NOT NULL,
           ExamDate DATE NOT NULL,
-          Grade DECIMAL(5,2) NOT NULL
+          Grade DECIMAL(5,2) DEFAULT NULL
         )
       `);
       
       console.log('Exam table created successfully');
-      
-      // Insert a test record
-      const [insertResult] = await connection.query(`
-        INSERT INTO exam (UserID, ExamDate, Grade) VALUES (1, CURDATE(), 85.5)
-      `);
-      
-      console.log('Test record inserted with ID:', insertResult.insertId);
-      
-      res.json({ 
-        message: "Exam table created and test record inserted", 
-        tableCreated: true,
-        testRecordId: insertResult.insertId
-      });
+      examTableCreated = true;
+      hasGradeColumn = true;
     } else {
       console.log('Exam table already exists');
       
@@ -58,14 +51,15 @@ exports.testExamTable = async (req, res) => {
       
       console.log('Table structure:', columns);
       
-      const hasGradeColumn = columns.some(col => col.Field === 'Grade');
+      hasGradeColumn = columns.some(col => col.Field === 'Grade');
       
       if (!hasGradeColumn) {
         console.log('Adding Grade column to existing table...');
         await connection.query(`
-          ALTER TABLE exam ADD COLUMN Grade DECIMAL(5,2) NOT NULL DEFAULT 0.00
+          ALTER TABLE exam ADD COLUMN Grade DECIMAL(5,2) DEFAULT NULL
         `);
         console.log('Grade column added successfully');
+        hasGradeColumn = true;
       }
       
       // Count records
@@ -73,16 +67,56 @@ exports.testExamTable = async (req, res) => {
         SELECT COUNT(*) as recordCount FROM exam
       `);
       
-      console.log('Record count:', countResult[0].recordCount);
-      
-      res.json({ 
-        message: "Exam table exists", 
-        tableExists: true,
-        recordCount: countResult[0].recordCount,
-        structure: columns,
-        gradeColumnAdded: !hasGradeColumn
-      });
+      examRecordCount = countResult[0].recordCount;
+      console.log('Record count:', examRecordCount);
     }
+    
+    // Check if exam_result table exists
+    const [examResultTables] = await connection.query(`
+      SHOW TABLES LIKE 'exam_result'
+    `);
+    
+    if (examResultTables.length === 0) {
+      console.log('exam_result table does not exist, creating it...');
+      
+      await connection.query(`
+        CREATE TABLE exam_result (
+          ResultID INT AUTO_INCREMENT PRIMARY KEY,
+          ExamID INT NOT NULL,
+          QuestionID INT NOT NULL,
+          Position INT NOT NULL DEFAULT 0,
+          IsCorrect TINYINT(1) NOT NULL DEFAULT 0,
+          Grade DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+          FOREIGN KEY (ExamID) REFERENCES exam(ExamID) ON DELETE CASCADE,
+          INDEX idx_exam_id (ExamID),
+          INDEX idx_question_id (QuestionID)
+        )
+      `);
+      
+      console.log('exam_result table created successfully');
+    }
+    
+    // Count exam_result records
+    const [examResultCount] = await connection.query(`
+      SELECT COUNT(*) as recordCount FROM exam_result
+    `);
+    
+    console.log('exam_result record count:', examResultCount[0].recordCount);
+    
+    res.json({ 
+      message: "Database tables verified and configured", 
+      examTable: {
+        exists: true,
+        created: examTableCreated,
+        recordCount: examRecordCount,
+        hasGradeColumn: hasGradeColumn
+      },
+      examResultTable: {
+        exists: true,
+        created: examResultTables.length === 0,
+        recordCount: examResultCount[0].recordCount
+      }
+    });
     
   } catch (err) {
     console.error("Error in testExamTable:", err);
@@ -170,153 +204,8 @@ exports.submitExamResults = async (req, res) => {
 };
 
 
-// Get the last exam for a student
-exports.getLastExam = async (req, res) => {
-  const { userId } = req.params;
-  let connection;
-  try {
-    connection = await db.getConnection();
-
-    // ננסה להביא את המבחן האחרון עם ממוצע ציון מתוך exam_result
-    const [rows] = await connection.query(
-      `
-      SELECT e.ExamID,
-             e.UserID,
-             e.ExamDate,
-             ROUND(AVG(er.Grade), 2) AS Grade
-      FROM exam e
-      JOIN exam_result er ON er.ExamID = e.ExamID
-      WHERE e.UserID = ?
-      GROUP BY e.ExamID, e.UserID, e.ExamDate
-      ORDER BY e.ExamDate DESC, e.ExamID DESC
-      LIMIT 1
-    `,
-      [userId]
-    );
-
-    if (rows.length > 0) {
-      return res.json(rows[0]);
-    }
-
-    // fallback אם אין exam_result - נשתמש בעמודה Grade אם קיימת ב-exam
-    const [fallback] = await connection.query(
-      `
-      SELECT ExamID, UserID, ExamDate, Grade
-      FROM exam
-      WHERE UserID = ?
-      ORDER BY ExamDate DESC, ExamID DESC
-      LIMIT 1
-    `,
-      [userId]
-    );
-
-    return res.json(fallback[0] || null);
-  } catch (err) {
-    console.error("Error in getLastExam:", err);
-    if (!res.headersSent) res.status(500).json({ error: "Server error" });
-  } finally {
-    if (connection && connection.release) connection.release();
-  }
-};
-
-
-// Get exam results for a specific student
-exports.getStudentExamResults = async (req, res) => {
-  const { studentId } = req.params;
-  let connection;
-  try {
-    connection = await db.getConnection();
-    const [rows] = await connection.query(
-      `
-      SELECT e.ExamID,
-             e.UserID,
-             e.ExamDate,
-             ROUND(AVG(er.Grade), 2) AS Grade
-      FROM exam e
-      JOIN exam_result er ON er.ExamID = e.ExamID
-      WHERE e.UserID = ?
-      GROUP BY e.ExamID, e.UserID, e.ExamDate
-      ORDER BY e.ExamDate DESC, e.ExamID DESC
-      LIMIT 50
-    `,
-      [studentId]
-    );
-    res.json(rows);
-  } catch (err) {
-    console.error("Error in getStudentExamResults:", err);
-    if (!res.headersSent) res.status(500).json({ error: "Server error" });
-  } finally {
-    if (connection && connection.release) connection.release();
-  }
-};
-
-
-// Get student exam statistics
-exports.getStudentExamStats = async (req, res) => {
-  const { studentId } = req.params;
-  let connection;
-  try {
-    connection = await db.getConnection();
-
-    // סטטיסטיקות מהתכנסויות של exam_result לפי מבחן
-    const [stats] = await connection.query(
-      `
-      SELECT COUNT(*) AS totalExams,
-             ROUND(AVG(exam_avg), 2) AS averageGrade,
-             MAX(exam_avg) AS highestGrade,
-             MIN(exam_avg) AS lowestGrade,
-             SUM(CASE WHEN exam_avg >= 60 THEN 1 ELSE 0 END) AS passedExams,
-             SUM(CASE WHEN exam_avg < 60 THEN 1 ELSE 0 END) AS failedExams
-      FROM (
-        SELECT e.ExamID, AVG(er.Grade) AS exam_avg
-        FROM exam e
-        JOIN exam_result er ON er.ExamID = e.ExamID
-        WHERE e.UserID = ?
-        GROUP BY e.ExamID
-      ) t
-    `,
-      [studentId]
-    );
-
-    const [history] = await connection.query(
-      `
-      SELECT e.ExamID,
-             e.ExamDate,
-             ROUND(AVG(er.Grade), 2) AS Grade
-      FROM exam e
-      JOIN exam_result er ON er.ExamID = e.ExamID
-      WHERE e.UserID = ?
-      GROUP BY e.ExamID, e.ExamDate
-      ORDER BY e.ExamDate DESC, e.ExamID DESC
-      LIMIT 10
-    `,
-      [studentId]
-    );
-
-    const s = stats[0] || {};
-    res.json({
-      totalExams: s.totalExams || 0,
-      averageGrade: s.averageGrade || 0,
-      highestGrade: s.highestGrade || 0,
-      lowestGrade: s.lowestGrade || 0,
-      passedExams: s.passedExams || 0,
-      failedExams: s.failedExams || 0,
-      examHistory: history.map((r) => ({
-        examId: r.ExamID,
-        date: r.ExamDate,
-        grade: Number(r.Grade || 0),
-      })),
-    });
-  } catch (err) {
-    console.error("Error in getStudentExamStats:", err);
-    if (!res.headersSent) res.status(500).json({ error: "Server error" });
-  } finally {
-    if (connection && connection.release) connection.release();
-  }
-};
-
-
 // Get student dashboard data (profile + recent results)
+// This is the main endpoint used by the student dashboard
 exports.getStudentDashboardData = async (req, res) => {
   const { studentId } = req.params;
   let connection;
@@ -431,102 +320,7 @@ exports.getStudentDashboardData = async (req, res) => {
   }
 };
 
-// Get comprehensive student metrics (new endpoint)
-// Get comprehensive student metrics (reworked to use exam_result)
-exports.getStudentMetrics = async (req, res) => {
-  const { userId } = req.params;
-  let connection;
-
-  try {
-    connection = await db.getConnection();
-
-    // המבחן האחרון לפי ExamDate וממוצע ציונים מתוך exam_result
-    const [latestExamRows] = await connection.query(
-      `
-      SELECT e.ExamID, e.ExamDate, ROUND(AVG(er.Grade), 2) AS Grade
-      FROM exam e
-      JOIN exam_result er ON er.ExamID = e.ExamID
-      WHERE e.UserID = ?
-      GROUP BY e.ExamID, e.ExamDate
-      ORDER BY e.ExamDate DESC, e.ExamID DESC
-      LIMIT 1
-      `,
-      [userId]
-    );
-
-    // סטטיסטיקות גלובליות לפי ממוצע לכל מבחן
-    const [statsRows] = await connection.query(
-      `
-      SELECT 
-        COUNT(*) AS totalExams,
-        ROUND(AVG(t.exam_avg), 2) AS averageGrade,
-        MAX(t.exam_avg) AS highestGrade,
-        MIN(t.exam_avg) AS lowestGrade,
-        SUM(CASE WHEN t.exam_avg >= 60 THEN 1 ELSE 0 END) AS passedExams,
-        SUM(CASE WHEN t.exam_avg < 60 THEN 1 ELSE 0 END) AS failedExams
-      FROM (
-        SELECT e.ExamID, AVG(er.Grade) AS exam_avg
-        FROM exam e
-        JOIN exam_result er ON er.ExamID = e.ExamID
-        WHERE e.UserID = ?
-        GROUP BY e.ExamID
-      ) t
-      `,
-      [userId]
-    );
-
-    // היסטוריה אחרונה של מבחנים עם ממוצע מה־exam_result
-    const [historyRows] = await connection.query(
-      `
-      SELECT e.ExamID, e.ExamDate, ROUND(AVG(er.Grade), 2) AS Grade
-      FROM exam e
-      JOIN exam_result er ON er.ExamID = e.ExamID
-      WHERE e.UserID = ?
-      GROUP BY e.ExamID, e.ExamDate
-      ORDER BY e.ExamDate DESC, e.ExamID DESC
-      LIMIT 5
-      `,
-      [userId]
-    );
-
-    const metrics = {
-      lastExam: latestExamRows.length
-        ? {
-            examId: latestExamRows[0].ExamID,
-            date: latestExamRows[0].ExamDate,
-            grade: Math.round(latestExamRows[0].Grade || 0),
-          }
-        : null,
-      statistics: {
-        totalExams: statsRows[0]?.totalExams || 0,
-        averageGrade: statsRows[0]?.averageGrade || 0,
-        highestGrade: statsRows[0]?.highestGrade || 0,
-        lowestGrade: statsRows[0]?.lowestGrade || 0,
-        passedExams: statsRows[0]?.passedExams || 0,
-        failedExams: statsRows[0]?.failedExams || 0,
-      },
-      examHistory: historyRows.map((row) => ({
-        examId: row.ExamID,
-        date: row.ExamDate,
-        grade: Math.round(row.Grade || 0),
-      })),
-    };
-
-    res.json(metrics);
-  } catch (err) {
-    console.error("Error in getStudentMetrics:", err);
-    if (!res.headersSent) {
-      res.status(500).json({ error: "Server error", details: err.message });
-    }
-  } finally {
-    if (connection && typeof connection.release === "function") {
-      connection.release();
-    }
-  }
-};
-
-
-// Migrate existing exam records to include grades if missing
+// Migrate existing exam records to include grades if missing (utility function, not actively used)
 exports.migrateExamGrades = async (req, res) => {
   console.log('migrateExamGrades called');
   let connection;

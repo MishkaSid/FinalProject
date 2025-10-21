@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
           email: payload.email,
           name: payload.name,
           role: payload.role,
+          courseId: payload.courseId,
           token,
         });
       }
@@ -43,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       email: payload.email,
       name: payload.name,
       role: payload.role,
+      courseId: payload.courseId,
       token,
     });
   };

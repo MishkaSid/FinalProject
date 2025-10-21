@@ -6,17 +6,20 @@
 const db = require("../dbConnection");
 const path = require("path");
 const multer = require("multer");
-
+const { v4: uuidv4 } = require("uuid");
 // Multer setup for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, "../uploads"));
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || ".jpg").toLowerCase();
+    const uniqueId = uuidv4();
+    console.log(`${uniqueId}${ext}`)
+    cb(null, `${uniqueId}${ext}`);
   },
 });
+
 const upload = multer({ storage });
 
 /**

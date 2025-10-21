@@ -17,8 +17,8 @@
   background-color: var(--admin-surface);
   padding: var(--pad-lg);
   border-radius: var(--radius-lg);
-  max-width: 600px;
-  width: 90%;
+  max-width: 1000px;
+  width: 95%;
   box-shadow: var(--admin-shadow);
   border: 1px solid var(--admin-border);
   text-align: center;

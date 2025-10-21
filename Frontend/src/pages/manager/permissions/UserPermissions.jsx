@@ -30,6 +30,7 @@ export default function UserPermissions() {
     Password: "",
     Role: "Examinee",
     CourseID: null,
+    expired_date: "",
   });
   const [popupConfig, setPopupConfig] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
@@ -144,6 +145,7 @@ export default function UserPermissions() {
       Password: "", // Will be auto-reset to ID for Examinee users
       Role: "Examinee",
       CourseID: null,
+      expired_date: new Date().toISOString().split('T')[0], // Set current date as default
     });
     setIsEditMode(false);
     setIsFormOpen(true);
@@ -156,7 +158,31 @@ export default function UserPermissions() {
    */
   function handleEditUser(user) {
     const { Password, ...rest } = user;
-    setFormData({ ...rest });
+    // Format the expired_date for the date input (YYYY-MM-DD format)
+    // Use a local date to avoid timezone conversion issues
+    let formattedDate = "";
+    if (user.expired_date) {
+      // Handle different date formats from backend
+      let dateStr;
+      if (typeof user.expired_date === 'string') {
+        // If it's already a string, extract YYYY-MM-DD part
+        dateStr = user.expired_date.split('T')[0];
+      } else if (user.expired_date instanceof Date) {
+        // If it's a Date object, format it without timezone conversion
+        const year = user.expired_date.getFullYear();
+        const month = String(user.expired_date.getMonth() + 1).padStart(2, '0');
+        const day = String(user.expired_date.getDate()).padStart(2, '0');
+        dateStr = `${year}-${month}-${day}`;
+      }
+      formattedDate = dateStr || "";
+      console.log("Original expired_date:", user.expired_date);
+      console.log("Formatted expired_date:", formattedDate);
+    }
+    const formattedUser = {
+      ...rest,
+      expired_date: formattedDate
+    };
+    setFormData(formattedUser);
     setOriginalId(user.UserID);
     setIsEditMode(true);
     setIsFormOpen(true);
@@ -285,6 +311,7 @@ export default function UserPermissions() {
       Password: values.Password || "", // Ensure password is never undefined
       Role: values.Role,
       CourseID: values.CourseID || null,
+      expired_date: values.expired_date || new Date().toISOString().split('T')[0],
     };
 
     console.log("Processed user data:", userData);

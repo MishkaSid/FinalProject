@@ -5,7 +5,7 @@
 
 // Frontend/src/pages/student/dashboard/SubjectsModal.jsx
 import React from "react";
-import { FiBook, FiCheck } from "react-icons/fi";
+import { FiBook, FiCheck, FiAlertCircle } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";
 import Popup from "../../../components/popup/Popup";
 import styles from "./student.module.css";
@@ -27,95 +27,45 @@ const SubjectsModal = ({
   onRetryFetch,
 }) => {
   return (
-    <Popup isOpen={isOpen} onClose={onClose} header="בחר נושא לתרגול מהרשימה">
+    <Popup isOpen={isOpen} onClose={onClose} header="בחירת נושא ללמידה">
       <div className={styles.modalContent}>
         <p className={styles.modalDescription}>
-          בחר את הנושא שברצונך לתרגל היום. הנושאים נטענים מהשרת
+          בחר נושא לתרגול או למבחן מהרשימה המוצגת למטה
         </p>
 
         {error && (
-          <div
-            style={{
-              background: "rgba(255,0,0,0.1)",
-              border: "1px solid rgba(255,0,0,0.3)",
-              borderRadius: "8px",
-              padding: "10px",
-              marginBottom: "15px",
-              textAlign: "center",
-            }}
-          >
-            <span style={{ color: "#dc3545", fontSize: "0.9rem" }}>
-              {error}
-            </span>
+          <div className={styles.errorAlert}>
+            <FiAlertCircle className={styles.errorIcon} />
+            <div className={styles.errorContent}>
+              <span className={styles.errorText}>{error}</span>
+            </div>
           </div>
         )}
 
         {subjectsLoading ? (
-          <div className={styles.loadingContainer}>
+          <div className={styles.modalLoadingState}>
             <div className={styles.loadingSpinner}></div>
-            <p>טוען נושאים זמינים...</p>
-            <p
-              style={{
-                fontSize: "0.9rem",
-                color: "#6c757d",
-                marginTop: "0.5rem",
-              }}
-            >
-              אנא המתן
-            </p>
-            <div
-              style={{
-                background: "rgba(0,123,255,0.1)",
-                border: "1px solid rgba(0,123,255,0.3)",
-                borderRadius: "5px",
-                padding: "8px",
-                marginTop: "10px",
-                textAlign: "center",
-              }}
-            >
-              <span style={{ color: "#007bff", fontSize: "0.8rem" }}>
-                מתחבר לשרת...
-              </span>
-            </div>
+            <p className={styles.loadingText}>טוען נושאים זמינים...</p>
+            <p className={styles.loadingSubtext}>אנא המתן, מתחבר לשרת</p>
           </div>
         ) : subjects.length > 0 ? (
-          <div>
-            <div
-              style={{
-                background: "rgba(40,167,69,0.1)",
-                border: "1px solid rgba(40,167,69,0.3)",
-                borderRadius: "5px",
-                padding: "8px",
-                marginBottom: "15px",
-                textAlign: "center",
-              }}
-            >
-              <span
-                style={{
-                  color: "#28a745",
-                  fontSize: "0.9rem",
-                  fontWeight: "500",
-                }}
-              >
-                ✅ נטענו {subjects.length} נושאים בהצלחה
-              </span>
-            </div>
+          <div className={styles.subjectsContainer}>
+            
             <div className={styles.subjectsGrid}>
               {subjects.map((subject) => (
                 <div
                   key={subject.id}
                   className={`${styles.subjectCard} ${
-                    selectedSubject?.id === subject.id ? styles.selected : ""
+                    selectedSubject?.id === subject.id ? styles.selectedCard : ""
                   }`}
                   onClick={() => onSubjectSelect(subject)}
                 >
-                  <div className={styles.subjectInfo}>
-                    <h3>{subject.name}</h3>
-                    <p>{subject.description}</p>
+                  <div className={styles.subjectCardContent}>
+                    <h3 className={styles.subjectTitle}>{subject.name}</h3>
                   </div>
                   {selectedSubject?.id === subject.id && (
-                    <div className={styles.checkIcon}>
-                      <FiCheck />
+                    <div className={styles.checkIconWrapper}>
+                      <FiCheck className={styles.checkIconSvg} />
                     </div>
                   )}
                 </div>
@@ -123,49 +73,25 @@ const SubjectsModal = ({
             </div>
           </div>
         ) : (
-          <div className={styles.noSubjects}>
-            <p>לא נמצאו נושאים זמינים כרגע</p>
-            <p
-              style={{
-                fontSize: "0.9rem",
-                color: "#6c757d",
-                marginTop: "0.5rem",
-              }}
-            >
+          <div className={styles.noSubjectsState}>
+            <FiAlertCircle className={styles.noSubjectsIcon} />
+            <p className={styles.noSubjectsTitle}>לא נמצאו נושאים זמינים</p>
+            <p className={styles.noSubjectsSubtext}>
               {error
-                ? "שגיאה בטעינת נתונים"
+                ? "שגיאה בטעינת הנתונים מהשרת"
                 : "אנא נסה שוב מאוחר יותר או פנה למנהל המערכת"}
             </p>
             {error && (
-              <div style={{ marginTop: "10px" }}>
+              <div className={styles.noSubjectsActions}>
                 <button
                   onClick={onRetryFetch}
-                  style={{
-                    background: "#007bff",
-                    color: "white",
-                    border: "none",
-                    padding: "8px 16px",
-                    borderRadius: "5px",
-                    marginRight: "10px",
-                    cursor: "pointer",
-                    fontSize: "0.9rem",
-                  }}
+                  className={styles.retryButtonStyled}
                 >
                   נסה שוב
                 </button>
                 <button
-                  onClick={() => {
-                    onClose();
-                  }}
-                  style={{
-                    background: "#6c757d",
-                    color: "white",
-                    border: "none",
-                    padding: "8px 16px",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    fontSize: "0.9rem",
-                  }}
+                  onClick={onClose}
+                  className={styles.closeButtonStyled}
                 >
                   סגור
                 </button>
@@ -176,26 +102,26 @@ const SubjectsModal = ({
       </div>
 
       <div className={styles.modalFooter}>
-        <div className={styles.modalActions}>
+        <div className={styles.modalActionsGrid}>
           <button
-            className={`${styles.startButton} ${styles.practiceButton} ${
-              selectedSubject ? styles.active : styles.disabled
+            className={`${styles.actionButton} ${styles.practiceActionButton} ${
+              !selectedSubject ? styles.actionButtonDisabled : ""
             }`}
             onClick={onStartPractice}
             disabled={!selectedSubject}
           >
-            <FiBook />
-            התחל תרגול בנושא
+            <FiBook className={styles.actionButtonIcon} />
+            <span className={styles.actionButtonText}>התחל תרגול</span>
           </button>
           <button
-            className={`${styles.startButton} ${styles.examButton} ${
-              selectedSubject ? styles.active : styles.disabled
+            className={`${styles.actionButton} ${styles.examActionButton} ${
+              !selectedSubject ? styles.actionButtonDisabled : ""
             }`}
             onClick={onStartExam}
             disabled={!selectedSubject}
           >
-            <LuNotebookPen />
-            התחל מבחן בנושא
+            <LuNotebookPen className={styles.actionButtonIcon} />
+            <span className={styles.actionButtonText}>התחל מבחן</span>
           </button>
         </div>
       </div>

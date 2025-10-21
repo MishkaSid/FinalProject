@@ -12,7 +12,7 @@ const AdminPracticeExercisesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingExercise, setEditingExercise] = useState(null);
   const [formData, setFormData] = useState({
-    contentType: 'text',
+    contentType: 'image', // Always image type
     contentValue: '',
     answerOptions: ['', '', '', ''],
     correctAnswer: '',
@@ -20,6 +20,7 @@ const AdminPracticeExercisesPage = () => {
   });
   const [fileUpload, setFileUpload] = useState(null);
   const [filePreview, setFilePreview] = useState('');
+  const [imagePopup, setImagePopup] = useState({ isOpen: false, imageUrl: '' });
 
   useEffect(() => {
     fetchExercises();
@@ -65,13 +66,13 @@ const AdminPracticeExercisesPage = () => {
     try {
       const token = localStorage.getItem('token');
       
-      // Handle file upload for new exercises with image/video content
+      // Handle file upload for new exercises
       let contentValue = formData.contentValue;
-      if (!editingExercise && (formData.contentType === 'image' || formData.contentType === 'video')) {
+      if (!editingExercise) {
         if (fileUpload) {
           contentValue = await uploadFileToServer();
         } else {
-          setError('יש לבחור קובץ לתמונה או וידאו');
+          setError('יש לבחור תמונה');
           return;
         }
       }
@@ -110,7 +111,7 @@ const AdminPracticeExercisesPage = () => {
       setShowForm(false);
       setEditingExercise(null);
       setFormData({ 
-        contentType: 'text', 
+        contentType: 'image', 
         contentValue: '', 
         answerOptions: ['', '', '', ''], 
         correctAnswer: '', 
@@ -165,6 +166,33 @@ const AdminPracticeExercisesPage = () => {
 
   const handleBack = () => {
     navigate('/manager/manageContent');
+  };
+
+  const handleImageClick = (imageUrl) => {
+    console.log('Opening image popup with URL:', imageUrl);
+    setImagePopup({ isOpen: true, imageUrl });
+  };
+
+  const closeImagePopup = () => {
+    setImagePopup({ isOpen: false, imageUrl: '' });
+  };
+
+  const resolveImageUrl = (contentValue) => {
+    if (!contentValue) return '';
+    const SERVER = 'http://localhost:5000';
+    
+    // אם זה כבר URL מלא עם http/https
+    if (/^https?:\/\//i.test(contentValue)) {
+      return contentValue;
+    }
+    
+    // אם זה מתחיל ב־/ (נתיב יחסי מהשרת)
+    if (contentValue.startsWith('/')) {
+      return `${SERVER}${contentValue}`;
+    }
+    
+    // אם זה רק שם קובץ
+    return `${SERVER}/uploads/practice-exercises/${contentValue}`;
   };
 
   const addAnswerOption = () => {
@@ -259,7 +287,7 @@ const AdminPracticeExercisesPage = () => {
           onClick={() => {
             setEditingExercise(null);
             setFormData({ 
-              contentType: 'text', 
+              contentType: 'image', 
               contentValue: '', 
               answerOptions: ['', '', '', ''], 
               correctAnswer: '', 
@@ -286,67 +314,36 @@ const AdminPracticeExercisesPage = () => {
           <div className={styles.formContent}>
             <h2>{editingExercise ? 'עריכת תרגיל' : 'הוספת תרגיל חדש'}</h2>
             <form onSubmit={handleSubmit}>
-              <div className={styles.formGroup}>
-                <label>סוג תוכן:</label>
-                <select
-                  value={formData.contentType}
-                  onChange={(e) => setFormData({...formData, contentType: e.target.value})}
-                >
-                  <option value="text">טקסט</option>
-                  <option value="image">תמונה</option>
-                  <option value="video">וידאו</option>
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>תוכן:</label>
-                {formData.contentType === 'text' ? (
-                  <textarea
+              {!editingExercise ? (
+                <div className={styles.formGroup}>
+                  <label>תמונת תרגיל:</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    required
+                  />
+                  {filePreview && (
+                    <img 
+                      src={filePreview} 
+                      alt="Preview" 
+                      style={{ maxWidth: '240px', display: 'block', marginTop: '8px' }}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className={styles.formGroup}>
+                  <label>קישור תמונה קיים:</label>
+                  <input
+                    type="url"
                     value={formData.contentValue}
                     onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
-                    rows={4}
-                    required={!editingExercise}
+                    placeholder="קישור קיים בלבד בעריכה"
+                    disabled
                   />
-                ) : (
-                  <div>
-                    {!editingExercise ? (
-                      <div>
-                        <input
-                          type="file"
-                          accept={formData.contentType === 'image' ? 'image/*' : 'video/*'}
-                          onChange={handleFileUpload}
-                          required
-                        />
-                        {filePreview && (
-                          <div style={{ marginTop: '10px' }}>
-                            {formData.contentType === 'image' ? (
-                              <img 
-                                src={filePreview} 
-                                alt="Preview" 
-                                style={{ maxWidth: '200px', maxHeight: '200px' }}
-                              />
-                            ) : (
-                              <video 
-                                src={filePreview} 
-                                controls 
-                                style={{ maxWidth: '200px', maxHeight: '200px' }}
-                              />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <input
-                        type={editingExercise ? "text" : "url"}
-                        value={formData.contentValue}
-                        onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
-                        placeholder="קישור לתמונה או וידאו"
-                        required={!editingExercise}
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
+                  <small>כדי להחליף תמונה, צור תרגיל חדש עם תמונה</small>
+                </div>
+              )}
               
               <div className={styles.formGroup}>
                 <label>אפשרויות תשובה:</label>
@@ -450,11 +447,20 @@ const AdminPracticeExercisesPage = () => {
                       {exercise.contentValue}
                     </div>
                   ) : exercise.contentType === 'image' ? (
-                    <img 
-                      src={exercise.contentValue} 
-                      alt="Exercise" 
-                      className={styles.exerciseImage}
-                    />
+                    <div className={styles.thumbnailWrapper}>
+                      <img 
+                        src={resolveImageUrl(exercise.contentValue)} 
+                        alt="Exercise" 
+                        className={styles.exerciseImage}
+                        onClick={() => handleImageClick(resolveImageUrl(exercise.contentValue))}
+                        title="לחץ להגדלה"
+                        onError={(e) => {
+                          console.error('Failed to load image:', e.target.src);
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                      <div className={styles.zoomHint}>🔍</div>
+                    </div>
                   ) : (
                     <video 
                       src={exercise.contentValue} 
@@ -496,6 +502,35 @@ const AdminPracticeExercisesPage = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Image Popup Modal */}
+      {imagePopup.isOpen && (
+        <div className={styles.imagePopupOverlay} onClick={closeImagePopup}>
+          <div className={styles.imagePopupContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closePopupButton} onClick={closeImagePopup}>
+              ×
+            </button>
+            <div style={{ marginBottom: '10px', textAlign: 'center', color: '#666', fontSize: '0.85rem' }}>
+              URL: {imagePopup.imageUrl}
+            </div>
+            <img
+              src={imagePopup.imageUrl}
+              alt="Full size exercise"
+              className={styles.fullSizeImage}
+              onError={(e) => {
+                console.error('Failed to load image:', imagePopup.imageUrl);
+                e.target.style.display = 'none';
+                e.target.parentElement.insertAdjacentHTML('beforeend', 
+                  '<div style="padding: 40px; text-align: center; color: red;">שגיאה בטעינת התמונה<br/>' + imagePopup.imageUrl + '</div>');
+              }}
+              onLoad={() => console.log('Image loaded successfully:', imagePopup.imageUrl)}
+            />
+            <div className={styles.imagePopupHint}>
+              לחץ על הרקע או X לסגירה
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -151,6 +151,7 @@ exports.getPracticeVideosByTopic = async (req, res) => {
 };
 
 // Get exam questions by topic ID
+// ⚠️ NOTE: This endpoint may be unused. Exam questions are fetched via /api/exams/start
 exports.getExamQuestionsByTopic = async (req, res) => {
   const { topicId } = req.params;
   let connection;
@@ -170,6 +171,7 @@ exports.getExamQuestionsByTopic = async (req, res) => {
 };
 
 // Get student's exam history
+// ⚠️ NOTE: This endpoint may be unused. Dashboard uses /api/student/dashboard/:id
 exports.getStudentExamHistory = async (req, res) => {
   const { studentId } = req.params;
   let connection;
@@ -189,6 +191,7 @@ exports.getStudentExamHistory = async (req, res) => {
 };
 
 // Get exam results for a specific exam
+// ⚠️ NOTE: This endpoint may be unused. Check if it's needed for detailed exam review
 exports.getExamResults = async (req, res) => {
   const { examId } = req.params;
   let connection;
