@@ -445,7 +445,7 @@ export default function UserPermissions() {
           />
           {isEditMode && (
             <div className={styles.note}>
-              <p>שינוי סיסמה יתבצע ממסך נפרד או בהרשמה מחדש בלבד.</p>
+                <p> על מנת לשנות / לאפס את הסיסמא, עבור אל - <a href="/forgot-password">שכחתי סיסמה</a> </p>
             </div>
           )}
         </Popup>

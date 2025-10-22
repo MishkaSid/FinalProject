@@ -311,20 +311,10 @@ export default function UserForm({
 
         {/* Show note for Examinee users */}
         {mode === "add" && values.Role === "Examinee" && (
-          <div
-            style={{
-              marginTop: "1rem",
-              padding: "0.75rem",
-              backgroundColor: "#e3f2fd",
-              borderRadius: "8px",
-              fontSize: "0.9rem",
-              color: "#1976d2",
-              textAlign: "center",
-            }}
-          >
-            <strong>הערה:</strong> עבור סטודנטים, הסיסמה תותאם אוטומטית למספר
-            תעודת הזהות
-          </div>
+          <div className={styles.studentNote}>
+          <strong>הערה:</strong>
+          <span>עבור סטודנטים, הסיסמה תותאם אוטומטית למספר תעודת הזהות</span>
+        </div>
         )}
       </form>
       <Popup

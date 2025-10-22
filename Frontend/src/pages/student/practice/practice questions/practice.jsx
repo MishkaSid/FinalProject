@@ -318,6 +318,7 @@ export default function Practice() {
         </button>
         <div className={styles.headerInfo}>
           <h1>תרגול כללי - כל הנושאים</h1>
+          
         </div>
         <div className={styles.progressInfo}>
           <span>
