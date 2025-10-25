@@ -13,7 +13,7 @@ function Footer() {
      <footer>
       <div className="contact">
       <p>צרו קשר</p>
-      <a href="mailto:harshama@pet.ac.il">harshama@pet.ac.il</a>
+      <a href="https://www.pet.ac.il/%D7%A6%D7%95%D7%A8_%D7%A7%D7%A9%D7%A8">harshama@pet.ac.il</a>
       </div>  
       
       <div className="copyright">

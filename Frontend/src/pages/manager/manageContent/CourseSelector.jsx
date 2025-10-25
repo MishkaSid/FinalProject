@@ -50,6 +50,9 @@ export default function CourseSelector({
           <button className={styles.addButton} onClick={onAddTopic} style={{marginRight: 8}}>
             הוסף נושא
           </button>
+          <button className={styles.addButton} onClick={onAdd} style={{marginRight: 8}}>
+            הוסף קורס
+          </button>
         </>
       ) : (
         <button className={styles.addButton} onClick={onAdd}>

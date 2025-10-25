@@ -335,18 +335,21 @@ noResults td {
 /* Small buttons for secondary actions */
 .smallButton {
   padding: 0.5rem 1.2rem;
-  font-size: 1rem;
+  font-size: 1.5rem;
   border-radius: var(--radius-sm);
-  border: none;
+  border: 1px solid var(--admin-border);
   background-color: var(--admin-surface);
-  color: var(--admin-text);
+  color: #fff; /* white text */
   font-weight: 600;
   cursor: pointer;
   margin-left: 8px;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border: 1px solid var(--admin-border);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.08);
+  width: auto;          /* adjusts to content */
+  display: inline-block; /* ensures the width matches text length */
+  white-space: nowrap;   /* prevents line breaks inside the button */
 }
+
 .smallButton:hover {
   background-color: var(--admin-surface-alt);
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
@@ -356,21 +359,21 @@ noResults td {
 /* Submit button for forms */
 .submitButton {
   padding: 0.7rem 2.1rem;
-  font-size: 1.15rem;
+  font-size: 1.4rem;
   border-radius: var(--radius-md);
-  border: none;
+  border: 1px solid var(--admin-border);
   background-color: var(--admin-accent);
-  color: white;
+  color: #fff; /* white text */
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s ease;
-  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
-  min-width: 120px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+  display: inline-block;   /* adjusts width to content */
+  width: auto;             /* auto width */
+  white-space: nowrap;     /* prevent text wrapping */
+  margin-left: 8px;        /* optional, matches .smallButton spacing */
 }
+
 .submitButton:hover {
   background-color: var(--admin-accent-strong);
   box-shadow: 0 4px 16px rgba(37,99,235,0.12);

@@ -23,9 +23,10 @@ function Navbar({ userType = "guest" }) {
 
   const menuItems = {
     Admin: [
-      { to: "/manager", icon: <FiHome size={24} className={styles.icon} />, label: "בית" },
+      
       { to: "/manager/permissions", icon: <FiUsers size={24} className={styles.icon} />, label: "ניהול משתמשים" },
-      { to: "/manager/manageContent", icon: <FiBookOpen size={24} className={styles.icon} />, label: "ניהול תכנים" }
+      { to: "/manager/manageContent", icon: <FiBookOpen size={24} className={styles.icon} />, label: "ניהול תכנים" },
+      { to: "/manager", icon: <FiHome size={24} className={styles.icon} />, label: "בית" }
     ],
     Teacher: [
       { to: "/teacher", icon: <FiHome size={24} className={styles.icon} />, label: "בית" },

@@ -52,6 +52,8 @@ export default function ManageContent() {
   });
   const [isManageContentModalOpen, setIsManageContentModalOpen] = useState(false);
   const [selectedTopicForModal, setSelectedTopicForModal] = useState(null);
+  const [isDuplicateTopicPopupOpen, setIsDuplicateTopicPopupOpen] = useState(false);
+  const [duplicateTopicName, setDuplicateTopicName] = useState("");
 
   /**
    * @effect
@@ -186,13 +188,16 @@ export default function ManageContent() {
   /**
    * @function handleAddTopicSubmit
    * @description Handles the form submission for adding a new topic. It sends the new topic data
-   * to the server and updates the local state on success. CourseID is inferred from JWT token.
+   * to the server and updates the local state on success. Admin users can specify CourseID.
    * @param {object} values - The form values for the new topic.
    */
   const handleAddTopicSubmit = (values) => {
     const token = localStorage.getItem("token");
     axios.post("/api/topics/addTopic", 
-      { TopicName: values.TopicName },
+      { 
+        TopicName: values.TopicName,
+        CourseID: selectedCourse  // Send the selected course ID
+      },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -201,9 +206,21 @@ export default function ManageContent() {
     ).then((res) => {
       setTopics((prev) => [...prev, res.data]);
       setIsAddTopicOpen(false);
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     }).catch((err) => {
       console.error("Error adding topic:", err);
-      alert(err.response?.data?.error || "שגיאה בהוספת נושא");
+      const errorMsg = err.response?.data?.error || "";
+      
+      // Check if it's a duplicate topic error
+      if (errorMsg.includes("already exists") || errorMsg.includes("כבר קיים") || errorMsg.includes("duplicate")) {
+        setDuplicateTopicName(values.TopicName);
+        setIsDuplicateTopicPopupOpen(true);
+        setIsAddTopicOpen(false);
+      } else {
+        // For other errors, show generic error message
+        setMessage({ type: "error", text: errorMsg || "שגיאה בהוספת נושא" });
+        setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+      }
     });
   };
   /**
@@ -244,33 +261,69 @@ export default function ManageContent() {
    * to the server and removes the topic from the local state on success.
    */
   const handleDeleteTopicConfirm = () => {
+    const token = localStorage.getItem("token");
     axios
-      .delete(`/api/topics/deleteTopic/${deleteConfirm.topic.TopicID}`)
+      .delete(`/api/topics/deleteTopic/${deleteConfirm.topic.TopicID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then(() => {
         setTopics((prev) =>
           prev.filter((t) => t.TopicID !== deleteConfirm.topic.TopicID)
         );
         setDeleteConfirm({ open: false, topic: null });
+      })
+      .catch((err) => {
+        console.error("Error deleting topic:", err);
+        alert(err.response?.data?.error || "שגיאה במחיקת נושא");
       });
   };
 
   /**
    * @function handleDeleteCourseConfirm
-   * @description Confirms and executes the deletion of a course. It sends a delete request
-   * to the server and removes the course from the local state on success.
+   * @description Confirms and executes the deletion of a course and all its related content.
+   * This includes all topics, practice exercises, videos, and exam questions.
+   * This action is permanent and cannot be undone.
    */
   const handleDeleteCourseConfirm = () => {
+    const token = localStorage.getItem("token");
+    const courseId = deleteCourseConfirm.course.CourseID;
+    
     axios
       .delete(
-        `/api/courses/deleteCourse/${deleteCourseConfirm.course.CourseID}`
+        `/api/courses/deleteCourse/${courseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       )
-      .then(() => {
+      .then((res) => {
+        // Remove the deleted course from state
         setCourses((prev) =>
-          prev.filter((c) => c.CourseID !== deleteCourseConfirm.course.CourseID)
+          prev.filter((c) => c.CourseID !== courseId)
         );
-        if (selectedCourse === deleteCourseConfirm.course.CourseID)
+        
+        // If this was the selected course, clear selection and topics
+        if (selectedCourse === courseId) {
           setSelectedCourse(null);
+          setTopics([]);
+          setPracticeContent({});
+        }
+        
         setDeleteCourseConfirm({ open: false, course: null });
+        
+        const deletedTopicsCount = res.data?.deletedTopics || 0;
+        
+        setTimeout(() => setMessage({ type: "", text: "" }), 4000);
+      })
+      .catch((err) => {
+        console.error("Error deleting course:", err);
+        const errorMsg = err.response?.data?.error || "שגיאה במחיקת הקורס";
+        setDeleteCourseConfirm({ open: false, course: null });
+        setMessage({ type: "error", text: errorMsg });
+        setTimeout(() => setMessage({ type: "", text: "" }), 5000);
       });
   };
 
@@ -291,8 +344,13 @@ export default function ManageContent() {
    * @param {object} values - The updated form values for the practice content.
    */
   const handleEditContentSubmit = (values) => {
+    const token = localStorage.getItem("token");
     axios
-      .put(`/api/practice/practiceExercise/${editContent.ExerciseID}`, values)
+      .put(`/api/practice/practiceExercise/${editContent.ExerciseID}`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => {
         setPracticeContent((prev) => ({
           ...prev,
@@ -319,8 +377,13 @@ export default function ManageContent() {
    * @param {number} exerciseId - The ID of the practice exercise to be deleted.
    */
   const handleDeleteContent = (exerciseId) => {
+    const token = localStorage.getItem("token");
     axios
-      .delete(`/api/practice/practiceExercise/${exerciseId}`)
+      .delete(`/api/practice/practiceExercise/${exerciseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then(() => {
         setPracticeContent((prev) => ({
           ...prev,
@@ -409,17 +472,26 @@ export default function ManageContent() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!newCourseName.trim()) return;
+            const token = localStorage.getItem("token");
             axios
-              .post("/api/courses/addCourse", { CourseName: newCourseName })
+              .post("/api/courses/addCourse", { CourseName: newCourseName }, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              })
               .then((res) => {
                 setCourses((prev) => [...prev, res.data]);
                 setNewCourseName("");
                 setIsAddCourseOpen(false);
+              })
+              .catch((err) => {
+                console.error("Error adding course:", err);
+                alert(err.response?.data?.error || "שגיאה בהוספת קורס");
               });
           }}
         >
           <div className={styles.inputContainer}>
-            <label className={styles.label}>שם קורס</label>
+            <label className={styles.label} style={{ fontSize: '1.8rem' }}>שם קורס</label>
             <input
               className={styles.input}
               type="text"
@@ -427,37 +499,84 @@ export default function ManageContent() {
               onChange={(e) => setNewCourseName(e.target.value)}
             />
           </div>
-          <button className={styles.submitButton} type="submit">
-            הוסף
-          </button>
-          <button
-            className={styles.smallButton}
-            type="button"
-            onClick={() => setIsAddCourseOpen(false)}
-            style={{ marginTop: 8 }}
-          >
-            ביטול
-          </button>
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px', 
+            marginTop: '1.5rem',
+            justifyContent: 'center'
+          }}>
+            <button className={styles.submitButton} type="submit">
+              הוסף
+            </button>
+            <button
+              className={styles.submitButton}
+              type="button"
+              onClick={() => setIsAddCourseOpen(false)}
+            >
+              ביטול
+            </button>
+          </div>
         </form>
       </Popup>
       {/* Delete Course Confirmation Popup */}
       <Popup
         isOpen={deleteCourseConfirm.open}
         onClose={() => setDeleteCourseConfirm({ open: false, course: null })}
-        header="אישור מחיקת קורס"
+        header="⚠️ אזהרה - מחיקת קורס"
       >
-        <div style={{ padding: "1.5rem", textAlign: "center" }}>
-          <div style={{ fontSize: 18, marginBottom: 18 }}>
-            האם אתה בטוח שברצונך למחוק את הקורס "
-            {deleteCourseConfirm.course?.CourseName}"?
+        <div style={{ padding: "2rem", textAlign: "center" }}>
+          <div style={{ 
+            fontSize: 18, 
+            marginBottom: 18,
+            fontWeight: 'bold',
+            color: '#2c3e50'
+          }}>
+            האם אתה בטוח שברצונך למחוק את הקורס "{deleteCourseConfirm.course?.CourseName}"?
           </div>
-          <button
-            className={styles.deleteButtonLarge}
-            style={{ marginLeft: 8 }}
-            onClick={handleDeleteCourseConfirm}
-          >
-            מחק
-          </button>
+          <div style={{ 
+            fontSize: 16, 
+            marginBottom: 24, 
+            color: '#e74c3c',
+            backgroundColor: '#ffebee',
+            padding: '16px',
+            borderRadius: '8px',
+            border: '2px solid #e74c3c',
+            lineHeight: '1.6'
+          }}>
+            <strong style={{ fontSize: 18 }}>⚠️ אזהרה!</strong>
+            <br/><br/>
+            לחיצה על אישור תמחק את הקורס ואת כל התוכן של הנושאים אשר משוייכים אליו!
+            <br/><br/>
+            <strong>פעולה זו היא קבועה ולא ניתנת לביטול.</strong>
+          </div>
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px', 
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <button
+              className={styles.deleteButtonLarge}
+              onClick={handleDeleteCourseConfirm}
+              style={{ 
+                minWidth: '140px',
+                fontSize: '1.1rem'
+              }}
+            >
+              🗑️ אישור מחיקה
+            </button>
+            <button
+              className={styles.addButton}
+              onClick={() => setDeleteCourseConfirm({ open: false, course: null })}
+              style={{ 
+                minWidth: '140px',
+                fontSize: '1.1rem',
+                backgroundColor: '#6c757d'
+              }}
+            >
+              ❌ ביטול
+            </button>
+          </div>
         </div>
       </Popup>
       {/* Topic List */}
@@ -581,6 +700,55 @@ export default function ManageContent() {
         topicId={selectedTopicForModal?.TopicID}
         topicName={selectedTopicForModal?.TopicName}
       />
+
+      {/* Duplicate Topic Name Error Popup */}
+      <Popup
+        isOpen={isDuplicateTopicPopupOpen}
+        onClose={() => {
+          setIsDuplicateTopicPopupOpen(false);
+          setDuplicateTopicName("");
+        }}
+        header="⚠️ שם נושא כפול"
+      >
+        <div style={{ 
+          padding: "2rem", 
+          textAlign: "center",
+          direction: "rtl"
+        }}>
+          <div style={{ 
+            fontSize: 18, 
+            marginBottom: 20,
+            color: '#2c3e50',
+            lineHeight: '1.6'
+          }}>
+            <div style={{
+              fontSize: 48,
+              marginBottom: 16
+            }}>
+              ⚠️
+            </div>
+            <strong>כבר קיים נושא בשם "{duplicateTopicName}"</strong>
+            <br/><br/>
+            אנא בחר שם אחר
+          </div>
+       
+          <button
+            className={styles.addButton}
+            onClick={() => {
+              setIsDuplicateTopicPopupOpen(false);
+              setDuplicateTopicName("");
+              setIsAddTopicOpen(true);
+            }}
+            style={{ 
+              marginTop: 24,
+              minWidth: '160px',
+              fontSize: '1.1rem'
+            }}
+          >
+            ✏️ נסה שוב
+          </button>
+        </div>
+      </Popup>
     </div>
   );
 }

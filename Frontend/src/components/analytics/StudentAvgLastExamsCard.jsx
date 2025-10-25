@@ -11,8 +11,10 @@ import {
   ReferenceLine,
 } from "recharts";
 import { getStudentAvgLastExams } from "../../services/analyticsApi";
+import { useAuth } from "../../context/AuthContext";
 
 export default function StudentAvgLastExamsCard() {
+  const { logout, isTokenValid } = useAuth();
   const [userId, setUserId] = useState("");
   const [limit, setLimit] = useState(3);
   const [data, setData] = useState(null);
@@ -23,6 +25,15 @@ export default function StudentAvgLastExamsCard() {
     try {
       setErr("");
       setLoading(true);
+      
+      // Check if token is valid before making the request
+      if (!isTokenValid()) {
+        setErr("הטוקן שלך פג תוקף. אנא התחבר מחדש.");
+        logout();
+        setData(null);
+        return;
+      }
+      
       const res = await getStudentAvgLastExams(userId, limit);
       // הכנה לגרף: ממפים לנתונים עם שדות אחידים
       const chartData = (res.exams || [])
@@ -36,7 +47,14 @@ export default function StudentAvgLastExamsCard() {
       setData({ ...res, chartData });
     } catch (e) {
       console.error(e);
-      setErr(e.message || "Failed");
+      
+      // Handle authentication errors
+      if (e.message && (e.message.includes("403") || e.message.includes("Invalid or expired token"))) {
+        setErr("הטוקן שלך פג תוקף או אינו תקין. אנא התחבר מחדש.");
+        logout();
+      } else {
+        setErr(e.message || "שגיאה בטעינת הנתונים");
+      }
       setData(null);
     } finally {
       setLoading(false);
@@ -82,7 +100,33 @@ export default function StudentAvgLastExamsCard() {
       </div>
 
       {loading && <div style={{ marginTop: 12 }}>טוען...</div>}
-      {err && <div style={{ marginTop: 12, color: "crimson" }}>{err}</div>}
+      {err && (
+        <div style={{ 
+          marginTop: 12, 
+          padding: "12px 16px",
+          backgroundColor: "#fff3cd",
+          border: "1px solid #ffc107",
+          borderRadius: "8px",
+          color: "#856404"
+        }}>
+          <div style={{ fontWeight: "bold", marginBottom: "8px" }}>⚠️ שגיאה</div>
+          <div>{err}</div>
+          {err.includes("התחבר מחדש") && (
+            <div style={{ marginTop: "8px" }}>
+              <a 
+                href="/login" 
+                style={{ 
+                  color: "#F47521", 
+                  textDecoration: "underline",
+                  fontWeight: "bold"
+                }}
+              >
+                לחץ כאן להתחברות מחדש
+              </a>
+            </div>
+          )}
+        </div>
+      )}
 
       {data && (
         <div style={{ marginTop: 12 }}>

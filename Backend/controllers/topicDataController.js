@@ -50,15 +50,23 @@ exports.getTopicById = async (req, res) => {
 
 // Create a new topic
 exports.createTopic = async (req, res) => {
-  const { TopicName } = req.body;
+  const { TopicName, CourseID } = req.body;
   let connection;
 
   try {
-    // Get CourseID from JWT token
+    // Determine which CourseID to use
+    const userRole = req.user?.role || req.user?.Role;
     const userCourseId = req.user?.courseId;
     
-    if (!userCourseId) {
-      return res.status(400).json({ error: "User has no assigned course" });
+    let targetCourseId;
+    
+    // Admin users can specify CourseID, others use their assigned course
+    if (userRole === 'Admin' && CourseID) {
+      targetCourseId = CourseID;
+    } else if (userCourseId) {
+      targetCourseId = userCourseId;
+    } else {
+      return res.status(400).json({ error: "User has no assigned course and no CourseID provided" });
     }
 
     connection = await db.getConnection();
@@ -66,7 +74,7 @@ exports.createTopic = async (req, res) => {
     // Verify course exists
     const [courseRows] = await connection.query(
       "SELECT * FROM course WHERE CourseID = ?",
-      [userCourseId]
+      [targetCourseId]
     );
     if (courseRows.length === 0) {
       if (!res.headersSent) {
@@ -75,16 +83,33 @@ exports.createTopic = async (req, res) => {
       return;
     }
     
+    // Check if topic name already exists in this course
+    const [existingTopics] = await connection.query(
+      "SELECT * FROM topic WHERE TopicName = ? AND CourseID = ?",
+      [TopicName, targetCourseId]
+    );
+    if (existingTopics.length > 0) {
+      if (!res.headersSent) {
+        return res.status(400).json({ error: "כבר קיים נושא בשם זה" });
+      }
+      return;
+    }
+    
     // Insert topic with auto-generated TopicID
     const [result] = await connection.query(
       "INSERT INTO topic (TopicName, CourseID) VALUES (?, ?)",
-      [TopicName, userCourseId]
+      [TopicName, targetCourseId]
     );
-    res.json({ TopicID: result.insertId, TopicName, CourseID: userCourseId });
+    res.json({ TopicID: result.insertId, TopicName, CourseID: targetCourseId });
   } catch (err) {
     console.error("Error in createTopic:", err);
     if (!res.headersSent) {
-      res.status(500).json({ error: "Server error" });
+      // Check for duplicate key error
+      if (err.code === 'ER_DUP_ENTRY') {
+        res.status(400).json({ error: "כבר קיים נושא בשם זה" });
+      } else {
+        res.status(500).json({ error: "Server error" });
+      }
     }
   } finally {
     if (connection && typeof connection.release === 'function') {

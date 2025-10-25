@@ -175,10 +175,10 @@ export default function TopicFailureRateCard() {
     </div>
   );
 }
-
 const th = {
   borderBottom: "1px solid #ddd",
   textAlign: "left",
   padding: "8px",
 };
 const td = { borderBottom: "1px solid #f1f1f1", padding: "8px" };
+

@@ -17,14 +17,23 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (token) {
         const payload = jwtDecode(token);
-        setUser({
-          id: payload.id,
-          email: payload.email,
-          name: payload.name,
-          role: payload.role,
-          courseId: payload.courseId,
-          token,
-        });
+        
+        // Check if token is expired
+        const currentTime = Date.now() / 1000;
+        if (payload.exp && payload.exp < currentTime) {
+          // Token is expired, remove it
+          localStorage.removeItem("token");
+          setUser(null);
+        } else {
+          setUser({
+            id: payload.id,
+            email: payload.email,
+            name: payload.name,
+            role: payload.role,
+            courseId: payload.courseId,
+            token,
+          });
+        }
       }
     } catch (e) {
       // אם ה־token לא תקין, ננקה אותו
@@ -55,8 +64,28 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Check if current token is valid
+  const isTokenValid = () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+      
+      const payload = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      
+      // Check if token is expired
+      if (payload.exp && payload.exp < currentTime) {
+        return false;
+      }
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, isTokenValid }}>
       {children}
     </AuthContext.Provider>
   );

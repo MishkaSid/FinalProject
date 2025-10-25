@@ -5,7 +5,7 @@
 
 // Frontend/src/pages/student/dashboard/ProfileSection.jsx
 import React from "react";
-import { FiUser, FiAward, FiTrendingUp } from "react-icons/fi";
+import { FiUser, FiAward, FiTrendingUp, FiActivity, FiClock, FiList } from "react-icons/fi";
 import styles from "./student.module.css";
 
 /**
@@ -38,7 +38,7 @@ const ProfileSection = ({
         <span
           style={{
             color: "white",
-            fontSize: "11px",
+            fontSize: "2rem",
             fontWeight: "500",
           }}
         >
@@ -116,7 +116,7 @@ const ProfileSection = ({
       <div className={styles.heroProfileContent}>
         {/* Last Exam */}
         <div className={styles.profileStat}>
-          <FiAward className={styles.statIcon} />
+          <FiClock className={styles.statIcon} />
           <div className={styles.statInfo}>
             <span className={styles.statLabel}>מבחן אחרון:</span>
             <span className={styles.statValue}>
@@ -160,7 +160,7 @@ const ProfileSection = ({
 
         {/* Total Exams */}
         <div className={styles.profileStat}>
-          <FiAward className={styles.statIcon} />
+          <FiList className={styles.statIcon}/>
           <div className={styles.statInfo}>
             <span className={styles.statLabel}>סה"כ מבחנים:</span>
             <span className={styles.statValue}>
