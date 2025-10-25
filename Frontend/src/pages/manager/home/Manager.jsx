@@ -6,7 +6,7 @@ import "../../pages.css";
 import styles from "./manager.module.css";
 import GradesDistributionChart from "../../../components/charts/GradeDistributionChart";
 import QuestionStatsChart from "../../../components/charts/QuestionStatsChart";
-import StudentUsageChart from "../../../components/charts/StudentUsageChart";
+import SiteVisitStats from "../../../components/analytics/SiteVisitStats";
 import { useAuth } from "../../../context/AuthContext";
 import React, { useEffect, useState } from "react";
 import CourseGradesOverTimeChart from "../../../components/charts/CourseGradesOverTimeChart";
@@ -14,6 +14,7 @@ import { getSiteVisitsCount } from "../../../services/analyticsApi";
 import StudentAvgLastExamsCard from "../../../components/analytics/StudentAvgLastExamsCard";
 import StudentsReportCard from "../../../components/analytics/StudentsReportCard";
 import TopicFailureRateCard from "../../../components/analytics/TopicFailureRateCard";
+import { getLast30DaysRange } from "../../../utils/dateUtils";
 
 /**
  * The Manager component renders the main page for managers.
@@ -103,13 +104,9 @@ function Manager() {
                 <button
                   className={styles.smallButton}
                   onClick={() => {
-                    const now = new Date();
-                    const toStr = now.toISOString().slice(0, 10);
-                    const fromD = new Date(now);
-                    fromD.setDate(fromD.getDate() - 30);
-                    const fromStr = fromD.toISOString().slice(0, 10);
-                    setFrom(fromStr);
-                    setTo(toStr);
+                    const { from: fromDate, to: toDate } = getLast30DaysRange();
+                    setFrom(fromDate);
+                    setTo(toDate);
                   }}
                 >
                   30 יום אחרונים
@@ -160,13 +157,9 @@ function Manager() {
                 <button
                   className={styles.smallButton}
                   onClick={() => {
-                    const now = new Date();
-                    const toStr = now.toISOString().slice(0, 10);
-                    const fromD = new Date(now);
-                    fromD.setDate(fromD.getDate() - 30);
-                    const fromStr = fromD.toISOString().slice(0, 10);
-                    setVisFrom(fromStr);
-                    setVisTo(toStr);
+                    const { from: fromDate, to: toDate } = getLast30DaysRange();
+                    setVisFrom(fromDate);
+                    setVisTo(toDate);
                   }}
                 >
                   30 יום אחרונים
@@ -183,7 +176,7 @@ function Manager() {
               </div>
             </div>
             <div className={styles.chartContainer}>
-              <StudentUsageChart from={visFrom} to={visTo} />
+              <SiteVisitStats from={visFrom} to={visTo} />
             </div>
           </div>
 

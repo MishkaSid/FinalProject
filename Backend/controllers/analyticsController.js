@@ -437,7 +437,7 @@ exports.getStudentAvgLastExams = async (req, res) => {
 
 // דוח תלמידים: לכל תלמיד ממוצע כל המבחנים ושלושת הציונים האחרונים
 exports.getStudentsReport = async (req, res) => {
-  const { courseId, userId } = req.query;
+  const { courseId, userId, role } = req.query;
 
   let connection;
   try {
@@ -455,6 +455,10 @@ exports.getStudentsReport = async (req, res) => {
     if (userId) {
       where += " AND u.UserID = ?";
       params.push(userId);
+    }
+    if (role) {
+      where += " AND u.Role = ?";
+      params.push(role);
     }
 
     const [rows] = await connection.query(
@@ -537,44 +541,31 @@ exports.getTopicFailureRates = async (req, res) => {
   try {
     connection = await db.getConnection();
 
-    // חשוב: WHERE רק על topic של הקורס - שומר נושאים גם אם אין להם תוצאות
-    // שאר הסינונים בתוך LEFT JOIN כדי לא להפיל שורות ריקות
+    // Use exam_result and exam tables to analyze correctness by position (topic)
+    // Position column represents topics, isCorrect indicates correctness
     const [rows] = await connection.query(
       `
       SELECT
-        t.TopicID   AS topicId,
-        t.TopicName AS topicName,
-        COUNT(er.ExamID) AS total,
-        SUM(
-          CASE
-            WHEN er.SelectedAnswer IS NULL THEN 0   -- אין רישום תשובה - לא נספור ככישלון אם אין נסיון
-            WHEN er.SelectedAnswer <> q.CorrectAnswer THEN 1
-            ELSE 0
-          END
-        ) AS failed
-      FROM topic t
-      LEFT JOIN exam_question q
-        ON q.TopicID = t.TopicID
-      LEFT JOIN exam_result er
-        ON er.QuestionID = q.QuestionID
-      LEFT JOIN exam e
-        ON e.ExamID = er.ExamID
-       AND DATE(e.ExamDate) BETWEEN ? AND ?
-      LEFT JOIN users u
-        ON u.UserID = e.UserID
-       AND u.CourseID = ?
-      WHERE t.CourseID = ?
-      GROUP BY t.TopicID, t.TopicName
-      ORDER BY t.TopicName
+        er.Position AS topicId,
+        CONCAT('נושא ', er.Position) AS topicName,
+        COUNT(*) AS total,
+        SUM(CASE WHEN er.IsCorrect = 0 THEN 1 ELSE 0 END) AS failed,
+        AVG(CASE WHEN er.IsCorrect = 1 THEN 1 ELSE 0 END) * 100 AS correctRate
+      FROM exam_result er
+      JOIN exam e ON e.ExamID = er.ExamID
+      JOIN users u ON u.UserID = e.UserID
+      WHERE u.CourseID = ?
+        AND DATE(e.ExamDate) BETWEEN ? AND ?
+      GROUP BY er.Position
+      ORDER BY failed ASC, total ASC
       `,
-      [fromDate, toDate, courseId, courseId]
+      [courseId, fromDate, toDate]
     );
 
     const items = rows.map((r) => {
       const total = Number(r.total || 0);
       const failed = Number(r.failed || 0);
-      const failureRate =
-        total > 0 ? Number(((failed / total) * 100).toFixed(1)) : 0;
+      const failureRate = total > 0 ? Number(((failed / total) * 100).toFixed(1)) : 0;
       return {
         topicId: r.topicId,
         topicName: r.topicName,
@@ -587,6 +578,95 @@ exports.getTopicFailureRates = async (req, res) => {
     res.json({ courseId: String(courseId), from: fromDate, to: toDate, items });
   } catch (err) {
     console.error("Error getTopicFailureRates:", err);
+    if (!res.headersSent) res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+/**
+ * Get site visit statistics - enhanced version
+ * If userId is provided: returns specific user's name, last visit, and total visits
+ * If no userId: returns aggregated stats (total examinees, examinees who visited in range, percentage)
+ * @param {string} userId - Optional user ID to filter
+ * @param {string} from - Start date (YYYY-MM-DD)
+ * @param {string} to - End date (YYYY-MM-DD)
+ */
+exports.getSiteVisitStats = async (req, res) => {
+  const { userId, from, to } = req.query;
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+
+    // Calculate date range
+    const toDate = to || new Date().toISOString().split('T')[0];
+    const fromDate = from || (() => {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      return d.toISOString().split('T')[0];
+    })();
+
+    if (userId) {
+      // Specific user query: return user's name, last visit, and total visits
+      const [userRows] = await connection.query(
+        `SELECT u.Name, sv.VisitedAt, sv.visit_count
+         FROM users u
+         LEFT JOIN site_visit sv ON sv.UserID = u.UserID
+         WHERE u.UserID = ? AND u.Role = 'Examinee'`,
+        [userId]
+      );
+
+      if (userRows.length === 0) {
+        return res.json({
+          userId,
+          found: false,
+          message: "User not found or not an Examinee"
+        });
+      }
+
+      const user = userRows[0];
+      return res.json({
+        userId,
+        found: true,
+        name: user.Name,
+        lastVisit: user.VisitedAt,
+        totalVisits: user.visit_count || 0
+      });
+    } else {
+      // Aggregated view: count all examinees, count those who visited in range, calculate percentage
+      
+      // Total examinees
+      const [totalRows] = await connection.query(
+        `SELECT COUNT(*) as total FROM users WHERE Role = 'Examinee'`
+      );
+      const totalExaminees = totalRows[0].total;
+
+      // Examinees who visited in date range
+      const [visitedRows] = await connection.query(
+        `SELECT COUNT(DISTINCT sv.UserID) as visited
+         FROM site_visit sv
+         JOIN users u ON u.UserID = sv.UserID
+         WHERE u.Role = 'Examinee'
+         AND DATE(sv.VisitedAt) BETWEEN ? AND ?`,
+        [fromDate, toDate]
+      );
+      const examinessWhoVisited = visitedRows[0].visited;
+
+      const percentage = totalExaminees > 0
+        ? ((examinessWhoVisited / totalExaminees) * 100).toFixed(1)
+        : 0;
+
+      return res.json({
+        from: fromDate,
+        to: toDate,
+        totalExaminees,
+        examinessWhoVisited,
+        percentage: parseFloat(percentage)
+      });
+    }
+  } catch (err) {
+    console.error("Error getSiteVisitStats:", err);
     if (!res.headersSent) res.status(500).json({ error: "Server error" });
   } finally {
     if (connection) connection.release();

@@ -13,6 +13,7 @@ import {
 } from "react-icons/fi";
 import styles from "./exam.module.css";
 import { useAuth } from "../../../context/AuthContext";
+import Popup from "../../../components/popup/Popup";
 
 /**
  * Exam component - renders the exam page with question navigation, exam content, and results display
@@ -37,11 +38,45 @@ export default function Exam() {
     startTime: null,
   });
 
+  // Popup state for custom alerts/confirms
+  const [popup, setPopup] = useState({
+    isOpen: false,
+    type: "", // "alert" or "confirm"
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
   // Server URL
   const SERVER_URL = "http://localhost:5000";
 
-  // Exam duration in minutes
-  const EXAM_DURATION_MINUTES = 60;
+  // Exam duration in minutes (30 seconds for testing)
+  const EXAM_DURATION_MINUTES = 150;
+
+  // Helper functions for custom popups
+  const showAlert = (title, message) => {
+    setPopup({
+      isOpen: true,
+      type: "alert",
+      title,
+      message,
+      onConfirm: () => setPopup({ ...popup, isOpen: false }),
+    });
+  };
+
+  const showConfirm = (title, message, onConfirm) => {
+    setPopup({
+      isOpen: true,
+      type: "confirm",
+      title,
+      message,
+      onConfirm,
+    });
+  };
+
+  const closePopup = () => {
+    setPopup({ ...popup, isOpen: false });
+  };
 
   // auth redirect and data fetch
   useEffect(() => {
@@ -55,24 +90,26 @@ export default function Exam() {
 
   // timer
   useEffect(() => {
-    if (examStats.startTime && !examCompleted) {
-      const timer = setInterval(() => {
-        const now = Date.now();
-        const elapsed = Math.floor((now - examStats.startTime) / 1000);
-        const remaining = EXAM_DURATION_MINUTES * 60 - elapsed;
+    if (!examStats.startTime || examCompleted) return;
 
-        if (remaining <= 0) {
-          handleTimeUp();
-        } else {
-          setExamStats((prev) => ({
-            ...prev,
-            timeRemaining: remaining,
-          }));
-        }
-      }, 1000);
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const elapsed = Math.floor((now - examStats.startTime) / 1000);
+      const remaining = EXAM_DURATION_MINUTES * 60 - elapsed;
 
-      return () => clearInterval(timer);
-    }
+      if (remaining <= 0) {
+        clearInterval(timer);
+        handleTimeUp();
+      } else {
+        setExamStats((prev) => ({
+          ...prev,
+          timeRemaining: remaining,
+        }));
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [examStats.startTime, examCompleted]);
 
   // build safe image url for display
@@ -193,29 +230,30 @@ export default function Exam() {
 
   // submit dialog
   const handleSubmitExam = async () => {
-    if (
-      window.confirm(
-        "האם אתה בטוח שברצונך להגיש את המבחן? לא תוכל לשנות תשובות לאחר ההגשה."
-      )
-    ) {
-      try {
-        setSubmittingExam(true);
-        await calculateResults();
-        setExamCompleted(true);
-        setShowResults(true);
-      } catch (error) {
-        console.error("Error calculating results:", error);
-        setExamCompleted(true);
-        setShowResults(true);
-      } finally {
-        setSubmittingExam(false);
+    showConfirm(
+      "הגשת מבחן",
+      "האם אתה בטוח שברצונך להגיש את המבחן? לא תוכל לשנות תשובות לאחר ההגשה.",
+      async () => {
+        closePopup();
+        try {
+          setSubmittingExam(true);
+          await calculateResults();
+          setExamCompleted(true);
+          setShowResults(true);
+        } catch (error) {
+          console.error("Error calculating results:", error);
+          setExamCompleted(true);
+          setShowResults(true);
+        } finally {
+          setSubmittingExam(false);
+        }
       }
-    }
+    );
   };
 
   // time up
   const handleTimeUp = async () => {
-    alert("הזמן נגמר! המבחן יוגש אוטומטית.");
+    showAlert("זמן המבחן הסתיים", "הזמן נגמר! המבחן יוגש אוטומטית.");
     try {
       await calculateResults();
       setExamCompleted(true);
@@ -346,18 +384,21 @@ export default function Exam() {
   };
 
   const handleRetakeExam = () => {
-    if (window.confirm("האם אתה בטוח שברצונך לקחת את המבחן שוב?")) {
-      window.location.reload();
-    }
+    showConfirm(
+      "ביצוע מבחן מחדש",
+      "האם אתה בטוח שברצונך לקחת את המבחן שוב?",
+      () => {
+        window.location.reload();
+      }
+    );
   };
 
-  // Format time
+  // Format time in hours:minutes:seconds format
   const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   if (loading) {
@@ -658,6 +699,85 @@ export default function Exam() {
           </div>
         )}
       </div>
+
+      {/* Custom Popup for alerts and confirms */}
+      <Popup isOpen={popup.isOpen} onClose={closePopup} header={popup.title}>
+        <div style={{ padding: "1rem 0", textAlign: "center" }}>
+          <p style={{ fontSize: "1.6rem", marginBottom: "2rem", lineHeight: "1.6", color: "#000" }}>
+            {popup.message}
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+            {popup.type === "confirm" && (
+              <>
+                <button
+                  onClick={() => {
+                    popup.onConfirm();
+                  }}
+                  style={{
+                    padding: "0.8rem 2rem",
+                    fontSize: "1.8rem",
+                    fontWeight: "600",
+                    color: "white",
+                    backgroundColor: "#F47521",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = "#d96518")}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = "#F47521")}
+                >
+                  אישור
+                </button>
+                <button
+                  onClick={closePopup}
+                  style={{
+                    padding: "0.8rem 2rem",
+                    fontSize: "1.8rem",
+                    fontWeight: "600",
+                    color: "white",
+                    backgroundColor: "#F47521",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = "#f9f9f9";
+                    e.target.style.borderColor = "#bbb";
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = "white";
+                    e.target.style.borderColor = "#ddd";
+                  }}
+                >
+                  ביטול
+                </button>
+              </>
+            )}
+            {popup.type === "alert" && (
+              <button
+                onClick={closePopup}
+                style={{
+                  padding: "0.8rem 2rem",
+                  fontSize: "1.3rem",
+                  fontWeight: "600",
+                  color: "white",
+                  backgroundColor: "#F47521",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseOver={(e) => (e.target.style.backgroundColor = "#d96518")}
+                onMouseOut={(e) => (e.target.style.backgroundColor = "#F47521")}
+              >
+                סגור
+              </button>
+            )}
+          </div>
+        </div>
+      </Popup>
     </div>
   );
 }

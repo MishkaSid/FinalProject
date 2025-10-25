@@ -33,7 +33,7 @@ function Navbar({ userType = "guest" }) {
       { to: "/teacher/manageContent", icon: <FiBookOpen size={24} className={styles.icon} />, label: "שיעורים" }
     ],
     Examinee: [
-      { to: "/student/exam", icon: <LuNotebookPen size={24} className={styles.icon} />, label: "הדמיית מבחן" },
+      { to: "/student/pre-exam", icon: <LuNotebookPen size={24} className={styles.icon} />, label: "הדמיית מבחן" },
       { to: "/student/practice", icon: <FiBook size={24} className={styles.icon} />, label: "תרגול כללי" },
       { to: "/student", icon: <FiHome size={24} className={styles.icon} />, label: "בית" }
     ],

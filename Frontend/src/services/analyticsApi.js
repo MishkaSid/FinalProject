@@ -239,13 +239,15 @@ export async function getStudentAvgLastExams(userId, limit = 3) {
  * @param {Object} params - Query parameters object
  * @param {string|number} [params.courseId] - The course ID
  * @param {string|number} [params.userId] - The student's user ID
+ * @param {string} [params.role] - The user role to filter by (e.g., "Examinee")
  * @returns {Promise<Object>} Response with students report data
  */
-export async function getStudentsReport({ courseId, userId } = {}) {
+export async function getStudentsReport({ courseId, userId, role } = {}) {
   const token = localStorage.getItem("token");
   const params = new URLSearchParams();
   if (courseId) params.append("courseId", courseId);
   if (userId) params.append("userId", userId);
+  if (role) params.append("role", role);
   const url = `${API_BASE}/analytics/report/students${
     params.toString() ? `?${params.toString()}` : ""
   }`;
@@ -293,4 +295,39 @@ export async function getTopicFailureRates(courseId, from, to) {
     );
   }
   return res.json(); // { courseId, from, to, items: [ { topicId, topicName, total, failed, failureRate } ] }
+}
+
+/**
+ * Gets enhanced site visit statistics
+ * If userId provided: returns specific user's name, last visit, and total visits
+ * If no userId: returns aggregated stats (total examinees, examinees who visited, percentage)
+ * @param {Object} params - Query parameters
+ * @param {string} [params.userId] - Optional user ID to filter
+ * @param {string} [params.from] - Start date (YYYY-MM-DD)
+ * @param {string} [params.to] - End date (YYYY-MM-DD)
+ * @returns {Promise<Object>} Response with visit statistics
+ */
+export async function getSiteVisitStats({ userId, from, to } = {}) {
+  const token = localStorage.getItem("token");
+  const params = new URLSearchParams();
+  if (userId) params.append("userId", userId);
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+  
+  const url = `${API_BASE}/analytics/visits/stats${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(
+      `site visit stats failed: ${res.status} ${body || ""}`.trim()
+    );
+  }
+  
+  return res.json();
 }

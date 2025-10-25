@@ -16,7 +16,7 @@ export interface Exam {
   ExamDate: Date;
   ExamID?: number;
   Grade?: Decimal;
-  UserID: number;
+  UserID?: string;
 }
 
 export interface ExamQuestion {
@@ -31,6 +31,8 @@ export interface ExamQuestion {
 export interface ExamResult {
   ExamID: number;
   Grade?: Decimal | null;
+  IsCorrect?: number;
+  Position?: number;
   QuestionID: number;
   SelectedAnswer?: string | null;
 }
@@ -54,10 +56,9 @@ export interface PracticeVideo {
 }
 
 export interface SiteVisit {
-  Path?: string | null;
-  UserID: number;
+  UserID?: string;
+  visit_count?: number;
   VisitedAt?: Date;
-  VisitID?: number;
 }
 
 export interface Topic {
@@ -68,13 +69,13 @@ export interface Topic {
 }
 
 export interface Users {
-  CourseID?: number | null;
+  CourseID: number;
   Email: string;
   expired_date?: Date | null;
   Name: string;
   Password: string;
   Role: "Admin" | "Examinee" | "Teacher";
-  UserID: number;
+  UserID?: string;
 }
 
 export interface DB {

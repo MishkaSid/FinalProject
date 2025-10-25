@@ -1,0 +1,315 @@
+.preExamContainer {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  direction: rtl;
+}
+
+
+
+.content {
+  max-width: 900px;
+  width: 100%;
+  background: var(--admin-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 3rem;
+  position: relative;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.backButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 1rem 1.7rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+  width: fit-content;
+}
+
+.backButton:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  margin-top: 1rem;
+}
+
+.headerIcon {
+  color: #F47521;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.6rem;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.instructionsCard {
+  background: var(--admin-surface-alt);
+  border-radius: var(--radius-md);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  border: 2px solid var(--admin-border);
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sectionIcon {
+  font-size: 1.8rem;
+  color: #F47521;
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  margin: 0;
+}
+
+.instructionsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  
+}
+
+.instructionsList li {
+  padding: 0.8rem 0;
+  padding-right: 2rem;
+  font-size: 1.8rem;
+  color: var(--admin-text);
+  line-height: 1.6;
+  position: relative;
+}
+
+.instructionsList li::before {
+  content: "✓";
+  position: absolute;
+  right: 0;
+  color: #10b981;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.formulaLink {
+  background: linear-gradient(135deg, rgba(244, 117, 33, 0.1) 0%, rgba(244, 117, 33, 0.05) 100%);
+  border: 2px solid #F47521;
+  border-radius: 8px;
+  padding: 1rem 1rem 1rem 2rem !important;
+  margin: 0.8rem 0;
+}
+
+.formulaLink::before {
+  content: "";
+  display: none;
+}
+
+.formulaLink a {
+  color: #F47521;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.formulaLink a:hover {
+  /* color: #d96518; */
+  transform: translateX(-3px);
+  text-decoration: underline;
+}
+
+.importantItem {
+  background: rgba(239, 68, 68, 0.05);
+  padding: 1rem 1rem 1rem 2rem !important;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+}
+
+.importantItem::before {
+  content: "⚠️";
+  font-size: 1.2rem;
+}
+
+.divider {
+  height: 2px;
+  background: var(--admin-border);
+  margin: 2rem 0;
+}
+
+.confirmationSection {
+  background: linear-gradient(135deg, rgba(244, 117, 33, 0.1) 0%, rgba(244, 117, 33, 0.05) 100%);
+  border: 2px solid #F47521;
+  border-radius: var(--radius-md);
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: #F47521;
+}
+
+.checkboxText {
+  flex: 1;
+  user-select: none;
+  font-size: 1.8rem;
+}
+
+.buttonContainer {
+  text-align: center;
+}
+
+.startButton {
+  padding: 1.2rem 4rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--admin-text);
+  background: linear-gradient(135deg, #F47521 0%, #d96518 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(244, 117, 33, 0.3);
+  min-width: 300px;
+}
+
+.startButton:hover:not(.disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(244, 117, 33, 0.5);
+}
+
+.startButton:active:not(.disabled) {
+  transform: translateY(-1px);
+}
+
+.startButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc;
+  box-shadow: none;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .preExamContainer {
+    padding: 1rem;
+  }
+
+  .content {
+    padding: 2rem 1.5rem;
+  }
+
+  .backButton {
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  .instructionsCard {
+    padding: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .instructionsList li {
+    font-size: 1.1rem;
+    padding-right: 1.5rem;
+  }
+
+  .checkboxLabel {
+    font-size: 1.1rem;
+  }
+
+  .startButton {
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    min-width: 250px;
+  }
+}
+

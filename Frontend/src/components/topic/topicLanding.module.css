@@ -121,10 +121,10 @@
 .descText {
   margin: 0;
   color: var(--ink);
-  font-size: clamp(1.4rem, 2.6vw, 1.7rem); /* <<< יותר גדול */
   line-height: 2.1; /* מרווח נעים לקריאה */
   font-weight: 700; /* עבה יותר */
   text-align: center;
+  font-size: 3rem;
 }
 
 /* a11y utility */
@@ -150,11 +150,10 @@
   align-items: center;
   gap: 0.5rem;
   margin: 0 0 0.9rem;
-  font-weight: 800;
-  font-size: 1.35rem;
-  color: var(--ink);
+  font-size: 2rem;
   justify-content: center;
   text-align: center;
+  color: var(--ink);
 }
 .titleIcon {
   display: inline-flex;
@@ -199,12 +198,7 @@
   align-items: center;
   text-align: center;
 }
-.videoTitle {
-  margin: 0 0 0.35rem;
-  font-weight: 800;
-  color: var(--ink);
-  font-size: clamp(1.1rem, 2.1vw, 1.35rem);
-}
+
 
 
 /* levels */
@@ -294,7 +288,6 @@
   padding: 0.8rem 1.5rem;
   border-radius: 1rem;
   color: #fff;
-  font-weight: 900;
   font-size: 1.8rem;
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -421,14 +414,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.8rem;
-  padding: 1.3rem 2.5rem;
+  padding: 1.7rem 3rem;
   border: 0;
   border-radius: 1.2rem;
   cursor: pointer;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient( 135deg,#764ba2, #667eea);
   color: #fff;
-  font-weight: 900;
-  font-size: clamp(1.2rem, 2.3vw, 1.4rem);
+  font-size: clamp(1.5rem, 2.6vw, 1.7rem);
   box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
   transition: all 0.3s ease;
   position: relative;

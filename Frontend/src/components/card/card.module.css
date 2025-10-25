@@ -71,17 +71,18 @@
 }
 
 .horizontal .cardTitle {
-  font-size: 1.8rem;
+  font-size: 2rem;
   margin: 0;
   font-weight: 700;
   text-align: center;
 }
 
 .horizontal .cardDescription {
-  font-size: 1.3rem;
+  font-size: 1.7rem;
   font-weight: 600;
   color: #F47521;
   margin-top: 0.3rem;
+  text-align: center;
 }
 
 /* Responsive tweaks */

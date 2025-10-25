@@ -76,6 +76,60 @@ router.post("/login", async (req, res) => {
       courseId: user.CourseID,
     };
 
+    // Record site visit: maintain one record per user with visit count (days visited)
+    // Only record visits for Examinee users
+    if (user.Role === 'Examinee') {
+      try {
+        // Check if user has any visit record
+        const [visitRows] = await connection.query(
+          `SELECT VisitID, visit_count, DATE(VisitedAt) as lastVisitDate FROM site_visit 
+           WHERE UserID = ?`,
+          [user.UserID]
+        );
+
+        if (visitRows.length === 0) {
+          // First visit ever: insert new record with visit_count = 1
+          await connection.query(
+            `INSERT INTO site_visit (UserID, VisitedAt, visit_count) VALUES (?, NOW(), 1)`,
+            [user.UserID]
+          );
+        } else {
+          // Get the last visit date as a string in YYYY-MM-DD format
+          const lastVisitDate = visitRows[0].lastVisitDate; // MySQL DATE() returns YYYY-MM-DD
+          const currentVisitCount = visitRows[0].visit_count || 0;
+          
+          // Get today's date in YYYY-MM-DD format using MySQL's CURDATE()
+          const [todayRows] = await connection.query('SELECT CURDATE() as today');
+          const today = todayRows[0].today; // MySQL date in YYYY-MM-DD format
+          
+          // Convert both dates to strings for comparison
+          const lastDateStr = lastVisitDate instanceof Date 
+            ? lastVisitDate.toISOString().split('T')[0] 
+            : String(lastVisitDate);
+          const todayStr = today instanceof Date 
+            ? today.toISOString().split('T')[0] 
+            : String(today);
+          
+          if (lastDateStr === todayStr) {
+            // Already visited today: just update VisitedAt to latest time (no count increment)
+            await connection.query(
+              `UPDATE site_visit SET VisitedAt = NOW() WHERE VisitID = ?`,
+              [visitRows[0].VisitID]
+            );
+          } else {
+            // New day: increment visit_count and update VisitedAt
+            await connection.query(
+              `UPDATE site_visit SET VisitedAt = NOW(), visit_count = ? WHERE VisitID = ?`,
+              [currentVisitCount + 1, visitRows[0].VisitID]
+            );
+          }
+        }
+      } catch (visitError) {
+        console.error("Error recording site visit:", visitError);
+        // Don't fail login if visit recording fails
+      }
+    }
+
     // שורה קריטית: החזרת token בגוף כדי שהפרונט יעבוד כפי שמצפה
     return res.json({ ok: true, token, user: userInfo });
   } catch (error) {

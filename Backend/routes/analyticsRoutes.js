@@ -66,4 +66,10 @@ router.get(
   analyticsController.getTopicFailureRates
 );
 
+router.get(
+  "/visits/stats",
+  authenticateToken,
+  analyticsController.getSiteVisitStats
+);
+
 module.exports = router;

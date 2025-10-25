@@ -148,10 +148,10 @@ exports.submitExamResults = async (req, res) => {
     connection = await db.getConnection();
     await connection.beginTransaction();
 
-    // יצירת רשומת exam - שמור תאריך
+    // יצירת רשומת exam - שמור תאריך וציון
     const [examResult] = await connection.query(
-      `INSERT INTO exam (UserID, ExamDate) VALUES (?, CURDATE())`,
-      [userId]
+      `INSERT INTO exam (UserID, ExamDate, Grade) VALUES (?, CURDATE(), ?)`,
+      [userId, score]
     );
     const examId = examResult.insertId;
 
@@ -187,7 +187,7 @@ exports.submitExamResults = async (req, res) => {
     res.json({
       message: "Exam results saved successfully",
       examId,
-      score: score != null ? score : null,
+      grade: score != null ? parseFloat(score) : null,
       date: new Date().toISOString().split("T")[0],
     });
   } catch (err) {

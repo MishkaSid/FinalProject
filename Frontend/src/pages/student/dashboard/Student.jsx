@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import styles from "./student.module.css";
 import Card from "../../../components/card/Card";
 import { CgPlayButtonO } from "react-icons/cg";
-import { FiBook } from "react-icons/fi";
+import { FiBook, FiPenTool } from "react-icons/fi";
 import { LuNotebookPen } from "react-icons/lu";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -380,7 +380,7 @@ export default function StudentDashboard() {
   }, [selectedSubject, navigate]);
 
   const handleStartExam = useCallback(() => {
-    navigate("/student/exam");
+    navigate("/student/pre-exam");
     setShowSubjectModal(false);
     setSelectedSubject(null);
   }, [navigate]);
@@ -418,7 +418,7 @@ export default function StudentDashboard() {
           <Card
             title="תרגול נושא ספציפי"
             description="תרגול שאלות מנושא מסוים לפי בחירתך"
-            icon={<FiBook size={30} />}
+            icon={<FiPenTool size={30} />}
             onClick={handlePracticeClick}
             size="large"
             layout="horizontal"
@@ -435,7 +435,7 @@ export default function StudentDashboard() {
             title="הדמיית מבחן"
             description="כאן תוכלו לדמות מבחן אמיתי עם שאלות מכל הנושאים"
             icon={<LuNotebookPen size={30} />}
-            onClick={() => navigate("/student/exam")}
+            onClick={() => navigate("/student/pre-exam")}
             size="large"
             layout="horizontal"
           />

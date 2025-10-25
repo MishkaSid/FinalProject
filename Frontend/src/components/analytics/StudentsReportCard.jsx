@@ -15,6 +15,7 @@ export default function StudentsReportCard() {
       const { data } = await getStudentsReport({
         courseId: courseId || undefined,
         userId: userId || undefined,
+        role: "Examinee", // Only fetch Examinee (student) users
       });
       setRows(data || []);
     } catch (e) {
@@ -124,7 +125,7 @@ export default function StudentsReportCard() {
                 <th style={th}>שם התלמיד</th>
                 <th style={th}>ת.ז</th>
                 <th style={th}>ממוצע כללי</th>
-                <th style={th}>3 מבחנים אחרונים</th>
+                <th style={th}>ציוני 3 מבחנים אחרונים</th>
               </tr>
             </thead>
             <tbody>

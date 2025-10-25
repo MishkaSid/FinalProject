@@ -315,8 +315,8 @@ export default function TopicLandingTemplate() {
       {/* Intro video */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
-          <FiVideo /> סרטון הסבר קצר מהדוקטור
-        </h2>
+           סרטון הסבר קצר מהדוקטור
+           <FiVideo />       </h2>
         <article className={styles.introCard}>
           <div className={styles.introFrame}>
             {intro?.VideoUrl ? (
@@ -349,8 +349,8 @@ export default function TopicLandingTemplate() {
       {/* Levels */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
-          <FiTarget /> סרטונים לפי רמה
-        </h2>
+           סרטונים לפי רמה
+           <FiTarget /></h2>
         <div className={styles.levelsGrid}>
           {["קל", "בינוני", "רמת מבחן"].map((label, i) => {
             const v = levels[i];
@@ -405,11 +405,6 @@ export default function TopicLandingTemplate() {
                     )}
                   </div>
 
-                  <div className={styles.levelInfo}>
-                    <h3 className={styles.videoTitle}>
-                      {v?.VideoTopic || `סרטון ${label}`}
-                    </h3>
-                  </div>
                 </div>
 
                 {/* Practice button */}
@@ -430,7 +425,7 @@ export default function TopicLandingTemplate() {
       {/* Final CTA */}
       <div className={styles.ctaRow}>
         <button className={styles.ctaBtn} onClick={handlePractice}>
-          <FiBook /> תרגול רנדומלי מכל הרמות
+           תרגול רנדומלי מכל הרמות
         </button>
       </div>
     </div>

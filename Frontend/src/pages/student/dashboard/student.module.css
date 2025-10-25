@@ -255,7 +255,6 @@
   width: 100%;
   max-width: 1200px;
   justify-content: center;
-  
 }
 
 .profile,
@@ -361,6 +360,7 @@
   }
 
   .cardContainer {
+    
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
@@ -926,7 +926,7 @@
 
 .noSubjectsTitle {
   color: #2c3e50;
-  font-size: 1.25rem;
+  font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.75rem 0;
   font-family: 'Raleway', sans-serif;

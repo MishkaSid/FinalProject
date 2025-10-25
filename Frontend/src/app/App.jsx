@@ -17,6 +17,7 @@ import UnauthorizedPage from "../pages/unauthorize/Unauthorize";
 import NotFound from "../pages/not found/NotFound";
 import PracticeQuestions from "../pages/student/practice/practice questions/PracticeQuestions";
 import Practice from "../pages/student/practice/practice questions/practice";
+import PreExam from "../pages/student/exam/PreExam";
 import Exam from "../pages/student/exam/Exam";
 import AdminVideosPage from "../pages/admin/AdminVideosPage";
 import AdminExamQuestionsPage from "../pages/admin/AdminExamQuestionsPage";
@@ -83,6 +84,7 @@ function App() {
                 element={<PracticeQuestions />}
               />
               <Route path="/student/practice" element={<Practice />} />
+              <Route path="/student/pre-exam" element={<PreExam />} />
               <Route path="/student/exam" element={<Exam />} />
             </Route>
           </Route>

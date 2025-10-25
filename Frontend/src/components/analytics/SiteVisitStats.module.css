@@ -1,0 +1,232 @@
+.container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.labelText {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.input {
+  padding: 0.7rem 1rem;
+  font-size: 1.1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #F47521;
+  box-shadow: 0 0 0 3px rgba(244, 117, 33, 0.1);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.searchButton,
+.clearButton {
+  padding: 0.7rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.searchButton {
+  background: #F47521;
+  color: white;
+}
+
+.searchButton:hover {
+  background: #d96518;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 117, 33, 0.3);
+}
+
+.clearButton {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.clearButton:hover {
+  background: #d0d0d0;
+}
+
+.loading,
+.error {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1.2rem;
+  border-radius: 8px;
+}
+
+.loading {
+  background: #f0f8ff;
+  color: #0066cc;
+}
+
+.error {
+  background: #ffe6e6;
+  color: #cc0000;
+  font-weight: 600;
+}
+
+/* User Card */
+.userCard {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.detailLabel {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.detailValue {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.detailValueHighlight {
+  font-size: 1.5rem;
+  color: #F47521;
+  font-weight: bold;
+}
+
+.notFound {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.3rem;
+  color: #666;
+}
+
+/* Aggregated View */
+.aggregatedView {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  color: white;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.percentageCard {
+  background: rgba(244, 117, 33, 0.2);
+  border: 2px solid rgba(244, 117, 33, 0.5);
+}
+
+.statValue {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.statLabel {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .label {
+    width: 100%;
+  }
+
+  .buttonGroup {
+    width: 100%;
+  }
+
+  .searchButton,
+  .clearButton {
+    flex: 1;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statValue {
+    font-size: 2.5rem;
+  }
+}
+
