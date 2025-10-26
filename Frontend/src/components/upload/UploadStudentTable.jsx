@@ -30,8 +30,13 @@ export default function UploadStudentTable({ onUsersAdded }) {
   }, []);
 
   function fetchCourses() {
+    const token = localStorage.getItem("token");
     axios
-      .get("/api/courses/getCourses")
+      .get("/api/courses/getCourses", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => {
         const fetchedCourses = res.data || [];
         setCourses(fetchedCourses);

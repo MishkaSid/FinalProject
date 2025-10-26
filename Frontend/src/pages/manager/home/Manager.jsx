@@ -32,6 +32,8 @@ function Manager() {
   const [visFrom, setVisFrom] = useState("");
   const [visTo, setVisTo] = useState("");
   const [visSeries, setVisSeries] = useState([]);
+  const [gradeFrom, setGradeFrom] = useState("");
+  const [gradeTo, setGradeTo] = useState("");
 
   useEffect(() => {
     async function loadVisits() {
@@ -192,10 +194,51 @@ function Manager() {
           
           <div className={styles.statCard}>
             <h3 className={styles.cardTitle}>התפלגות ציונים</h3>
+            <div className={styles.cardControls}>
+              <div className={styles.controlRow}>
+                <label className={styles.controlLabel}>מתאריך</label>
+                <input
+                  type="date"
+                  className={styles.controlInput}
+                  value={gradeFrom}
+                  onChange={(e) => setGradeFrom(e.target.value)}
+                />
+              </div>
+              <div className={styles.controlRow}>
+                <label className={styles.controlLabel}>עד תאריך</label>
+                <input
+                  type="date"
+                  className={styles.controlInput}
+                  value={gradeTo}
+                  onChange={(e) => setGradeTo(e.target.value)}
+                />
+              </div>
+              <div className={styles.buttonRow}>
+                <button
+                  className={styles.smallButton}
+                  onClick={() => {
+                    const { from: fromDate, to: toDate } = getLast30DaysRange();
+                    setGradeFrom(fromDate);
+                    setGradeTo(toDate);
+                  }}
+                >
+                  30 יום אחרונים
+                </button>
+                <button
+                  className={`${styles.smallButton} ${styles.secondary}`}
+                  onClick={() => {
+                    setGradeFrom("");
+                    setGradeTo("");
+                  }}
+                >
+                  נקה
+                </button>
+              </div>
+            </div>
             <div className={styles.chartContainer}>
-            <GradesDistributionChart />
+              <GradesDistributionChart from={gradeFrom} to={gradeTo} />
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

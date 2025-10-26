@@ -15,6 +15,8 @@ router.get('/getCourse/:id', coursesDataController.getCourseById);
 router.post('/addCourse', coursesDataController.createCourse);
 // Route for updating an existing course
 router.put('/updateCourse/:id', coursesDataController.updateCourse);
+// Route for updating course status
+router.put('/updateStatus/:id', coursesDataController.updateCourseStatus);
 // Route for deleting a course
 router.delete('/deleteCourse/:id', coursesDataController.deleteCourse);
 

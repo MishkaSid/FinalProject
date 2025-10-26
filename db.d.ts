@@ -10,6 +10,7 @@ export type Decimal = ColumnType<string, number | string>;
 export interface Course {
   CourseID?: number;
   CourseName: string;
+  Status?: string;
 }
 
 export interface Exam {
@@ -57,7 +58,6 @@ export interface PracticeVideo {
 
 export interface SiteVisit {
   UserID?: string;
-  visit_count?: number;
   VisitedAt?: Date;
 }
 

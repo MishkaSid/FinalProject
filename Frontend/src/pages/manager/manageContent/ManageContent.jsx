@@ -61,7 +61,12 @@ export default function ManageContent() {
    * Filters courses based on user's courseId if user is not an Admin.
    */
   useEffect(() => {
-    axios.get("/api/courses/getCourses").then((res) => {
+    const token = localStorage.getItem("token");
+    axios.get("/api/courses/getCourses", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
       const allCourses = res.data || [];
       
       // If user is Admin, show all courses
@@ -81,6 +86,10 @@ export default function ManageContent() {
       } else {
         setCourses([]);
       }
+    }).catch((err) => {
+      console.error("Error fetching courses:", err);
+      setMessage({ type: "error", text: "שגיאה בטעינת הקורסים" });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
     });
   }, [user]);
 
@@ -91,11 +100,20 @@ export default function ManageContent() {
    */
   useEffect(() => {
     if (!selectedCourse) return;
-    axios.get("/api/topics/getTopics").then((res) => {
+    const token = localStorage.getItem("token");
+    axios.get("/api/topics/getTopics", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
       const filtered = (res.data || []).filter(
         (t) => t.CourseID === selectedCourse
       );
       setTopics(filtered);
+    }).catch((err) => {
+      console.error("Error fetching topics:", err);
+      setMessage({ type: "error", text: "שגיאה בטעינת הנושאים" });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
     });
   }, [selectedCourse]);
 
@@ -107,7 +125,12 @@ export default function ManageContent() {
    */
   useEffect(() => {
     if (!topics.length) return;
-    axios.get("/api/practice/practiceExercises").then((res) => {
+    const token = localStorage.getItem("token");
+    axios.get("/api/practice/practiceExercises", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
       const allContent = res.data || [];
       const map = {};
       topics.forEach((topic) => {
@@ -116,6 +139,10 @@ export default function ManageContent() {
         );
       });
       setPracticeContent(map);
+    }).catch((err) => {
+      console.error("Error fetching practice content:", err);
+      setMessage({ type: "error", text: "שגיאה בטעינת תוכן התרגול" });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
     });
   }, [topics]);
 
@@ -138,6 +165,57 @@ export default function ManageContent() {
   const handleDeleteCourse = (courseId) => {
     const course = courses.find((c) => c.CourseID === courseId);
     setDeleteCourseConfirm({ open: true, course });
+  };
+
+  /**
+   * @function updateCourseStatus
+   * @description Updates the status of a course
+   * @param {number} courseId - The ID of the course to update
+   * @param {string} newStatus - The new status to set for the course
+   */
+  const updateCourseStatus = async (courseId, newStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `/api/courses/updateStatus/${courseId}`,
+        { Status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Update the local courses state
+        setCourses(prevCourses =>
+          prevCourses.map(course =>
+            course.CourseID === courseId
+              ? { ...course, Status: newStatus }
+              : course
+          )
+        );
+
+        // Show success message
+        setMessage({
+          type: "success",
+          text: `סטטוס הקורס עודכן בהצלחה ל: ${newStatus}`,
+        });
+
+        // Clear message after 3 seconds
+        setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+      }
+    } catch (error) {
+      console.error("Error updating course status:", error);
+      setMessage({
+        type: "error",
+        text: "שגיאה בעדכון סטטוס הקורס. אנא נסה שוב.",
+      });
+
+      // Clear error message after 5 seconds
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    }
   };
 
   /**
@@ -416,7 +494,12 @@ export default function ManageContent() {
     }));
 
     // Refresh practice content data from server to ensure consistency
-    axios.get("/api/practice/practiceExercises").then((res) => {
+    const token = localStorage.getItem("token");
+    axios.get("/api/practice/practiceExercises", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
       const allContent = res.data || [];
       const map = {};
       topics.forEach((topic) => {
@@ -425,6 +508,8 @@ export default function ManageContent() {
         );
       });
       setPracticeContent(map);
+    }).catch((err) => {
+      console.error("Error refreshing practice content:", err);
     });
   };
 
@@ -459,6 +544,7 @@ export default function ManageContent() {
         onAdd={handleAddCourse}
         onDelete={handleDeleteCourse}
         onAddTopic={handleAddTopic}
+        onUpdateStatus={updateCourseStatus}
       />
 
       {/* Add Course Popup */}

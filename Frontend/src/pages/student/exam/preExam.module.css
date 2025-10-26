@@ -236,7 +236,6 @@
   padding: 1.2rem 4rem;
   font-size: 1.8rem;
   font-weight: bold;
-  color: var(--admin-text);
   background: linear-gradient(135deg, #F47521 0%, #d96518 100%);
   border: none;
   border-radius: var(--radius-md);

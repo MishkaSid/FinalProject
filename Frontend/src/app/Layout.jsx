@@ -25,12 +25,13 @@ const Layout = () => {
       ? "Teacher"
       : "Examinee");
 
-  // Check if current page is an admin page
+  // Check if current page is an admin or teacher page
   const isAdminPage = location.pathname.includes('/manager') || location.pathname.includes('/admin');
+  const isTeacherPage = location.pathname.includes('/teacher');
 
   return (
     <>
-      {isAdminPage && <div className={styles.adminBackground} />}
+      {(isAdminPage || isTeacherPage) && <div className={styles.adminBackground} />}
       <Header/>
       <Navbar userType={userType} />
       <main>

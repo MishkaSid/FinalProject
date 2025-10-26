@@ -487,11 +487,8 @@ export default function Exam() {
           <FiArrowLeft />
           חזור לדשבורד
         </button>
-        <div className={styles.headerInfo}>
-          <h1> כל הנושאים - הדמיית מבחן</h1>
-        </div>
-        <div className={styles.examInfo}>
-          <div className={styles.timeDisplay}>
+    
+        <div className={styles.timeDisplay}>
             <FiClock className={styles.timeIcon} />
             <span
               className={
@@ -501,6 +498,8 @@ export default function Exam() {
               {formatTime(examStats.timeRemaining)}
             </span>
           </div>
+        <div className={styles.examInfo}>
+          
           <div className={styles.progressInfo}>
             <span>
               {currentExerciseIndex + 1} מתוך {exercises.length}
@@ -544,13 +543,6 @@ export default function Exam() {
       <div className={styles.examContainer}>
         <div className={styles.examHeader}>
           <h2>שאלה {currentExerciseIndex + 1}</h2>
-          <div className={styles.questionStatus}>
-            {currentSelectedAnswer ? (
-              <span className={styles.answered}>ענית</span>
-            ) : (
-              <span className={styles.unanswered}>לא ענית</span>
-            )}
-          </div>
         </div>
 
         <div className={styles.examContent}>
@@ -654,45 +646,112 @@ export default function Exam() {
         {/* Results */}
         {examCompleted && showResults && (
           <div className={styles.resultsContainer}>
+            {/* Header Section */}
             <div className={styles.resultsHeader}>
-              <h2>תוצאות המבחן</h2>
-              <div className={styles.finalScore}>
-                ציון סופי: {examStats.finalScore}%
+              <div className={styles.resultsIcon}>
+                <span className={styles.icon}>📊</span>
+              </div>
+              <h2 className={styles.resultsTitle}>תוצאות המבחן</h2>
+            </div>
+
+            {/* Score Display */}
+            <div className={styles.scoreSection}>
+              <div className={styles.scoreCard}>
+                <div className={styles.scoreLabel}>ציון סופי</div>
+                <div className={styles.scoreValue}>
+                  {examStats.finalScore}%
+                </div>
+                <div className={styles.scoreGrade}>
+                  {examStats.finalScore >= 90 ? 'מצוין' : 
+                   examStats.finalScore >= 80 ? 'טוב מאוד' : 
+                   examStats.finalScore >= 70 ? 'טוב' : 
+                   examStats.finalScore >= 60 ? 'מספיק' : 'נדרש שיפור'}
+                </div>
               </div>
             </div>
 
-            <div className={styles.resultsSummary}>
-              <div className={styles.resultStat}>
-                <span>שאלות נכונות:</span>
-                <span className={styles.correctCount}>
-                  {examStats.correctAnswers}
-                </span>
+            {/* Statistics Grid */}
+            <div className={styles.statsGrid}>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>✅</div>
+                <div className={styles.statContent}>
+                  <div className={styles.statValue}>{examStats.correctAnswers}</div>
+                  <div className={styles.statLabel}>שאלות נכונות</div>
+                </div>
               </div>
-              <div className={styles.resultStat}>
-                <span>סה"כ שאלות:</span>
-                <span>{examStats.totalQuestions}</span>
+              
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>📝</div>
+                <div className={styles.statContent}>
+                  <div className={styles.statValue}>{examStats.totalQuestions}</div>
+                  <div className={styles.statLabel}>סה"כ שאלות</div>
+                </div>
               </div>
-              <div className={styles.resultStat}>
-                <span>זמן שהושקע:</span>
-                <span>
-                  {formatTime(
-                    EXAM_DURATION_MINUTES * 60 - examStats.timeRemaining
-                  )}
-                </span>
+              
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>⏱️</div>
+                <div className={styles.statContent}>
+                  <div className={styles.statValue}>
+                    {formatTime(EXAM_DURATION_MINUTES * 60 - examStats.timeRemaining)}
+                  </div>
+                  <div className={styles.statLabel}>זמן שהושקע</div>
+                </div>
+              </div>
+              
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>📈</div>
+                <div className={styles.statContent}>
+                  <div className={styles.statValue}>
+                    {((examStats.correctAnswers / examStats.totalQuestions) * 100).toFixed(1)}%
+                  </div>
+                  <div className={styles.statLabel}>אחוז הצלחה</div>
+                </div>
               </div>
             </div>
 
-            <div className={styles.resultActions}>
+            {/* Performance Message */}
+            <div className={styles.performanceMessage}>
+              {examStats.finalScore >= 90 ? (
+                <div className={styles.excellentMessage}>
+                  
+                  <span>ביצועים מצוינים! המשך כך!</span>
+                  <span className={styles.excellentMessageIcon}>🎉</span>
+                </div>
+              ) : examStats.finalScore >= 80 ? (  
+                <div className={styles.goodMessage}>
+                  
+                  <span>ביצועים טובים! יש מקום לשיפור נוסף.</span>
+                  <span className={styles.messageIcon}>👍</span>
+                </div>
+              ) : examStats.finalScore >= 70 ? (
+                <div className={styles.averageMessage}>
+                  
+                  <span>ביצועים סבירים. מומלץ לחזור על החומר.</span>
+                  <span className={styles.messageIcon}>📚</span>
+                </div>
+              ) : (
+                <div className={styles.improvementMessage}>
+                 
+                  <span>יש מקום לשיפור משמעותי. מומלץ ללמוד יותר.</span>
+                  <span className={styles.messageIcon}>💪</span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className={styles.actionButtons}>
               <button
                 onClick={handleBackToDashboard}
-                className={styles.backToDashboardButton}
+                className={styles.primaryButton}
               >
+                
                 חזור לדף הבית
               </button>
               <button
                 onClick={handleRetakeExam}
-                className={styles.retakeButton}
+                className={styles.secondaryButton}
               >
+               
                 מבחן חוזר
               </button>
             </div>

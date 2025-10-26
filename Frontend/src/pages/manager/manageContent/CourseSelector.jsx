@@ -19,6 +19,7 @@ import styles from "../adminPages.module.css";
  * @param {Function} props.onAdd - The function to call when the "add course" button is clicked.
  * @param {Function} props.onDelete - The function to call when the "delete course" button is clicked.
  * @param {Function} props.onAddTopic - The function to call when the "add topic" button is clicked.
+ * @param {Function} props.onUpdateStatus - The function to call when updating course status.
  * @returns {JSX.Element} The rendered course selector component.
  */
 export default function CourseSelector({
@@ -28,6 +29,7 @@ export default function CourseSelector({
   onAdd,
   onDelete,
   onAddTopic,
+  onUpdateStatus,
 }) {
   return (
     <div className={styles.addingLine}>
@@ -52,6 +54,22 @@ export default function CourseSelector({
           </button>
           <button className={styles.addButton} onClick={onAdd} style={{marginRight: 8}}>
             הוסף קורס
+          </button>
+          <button 
+            className={styles.addButton} 
+            onClick={() => {
+              const currentCourse = courses.find(c => c.CourseID === selectedCourse);
+              const currentStatus = currentCourse?.Status || 'inactive';
+              const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+              onUpdateStatus(selectedCourse, newStatus);
+            }} 
+            style={{marginRight: 8, backgroundColor: '#f59e0b'}}
+          >
+            {(() => {
+              const currentCourse = courses.find(c => c.CourseID === selectedCourse);
+              const currentStatus = currentCourse?.Status || 'inactive';
+              return currentStatus === 'active' ? 'השבת קורס' : 'הפעל קורס';
+            })()}
           </button>
         </>
       ) : (

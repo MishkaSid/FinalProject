@@ -6,11 +6,11 @@ const examResultController = require("../controllers/examResultController");
 const { authenticateToken } = require("../middleware/auth");
 
 // ציבורי לפי הצורך
-router.get("/courses", studentController.getAllCourses);
-router.get("/courses/:id", studentController.getCourseById);
-router.get("/topics", studentController.getAllTopics);
-router.get("/topics/course/:courseId", studentController.getTopicsByCourse);
-router.get("/topics/:id", studentController.getTopicById);
+router.get("/courses", authenticateToken, studentController.getAllCourses);
+router.get("/courses/:id", authenticateToken, studentController.getCourseById);
+router.get("/topics", authenticateToken, studentController.getAllTopics);
+router.get("/topics/course/:courseId", authenticateToken, studentController.getTopicsByCourse);
+router.get("/topics/:id", authenticateToken, studentController.getTopicById);
 
 // Practice עם אימות
 router.get(

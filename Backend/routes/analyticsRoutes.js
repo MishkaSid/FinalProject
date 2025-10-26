@@ -72,4 +72,10 @@ router.get(
   analyticsController.getSiteVisitStats
 );
 
+router.get(
+  "/grade-distribution",
+  authenticateToken,
+  analyticsController.getGradeDistribution
+);
+
 module.exports = router;

@@ -78,11 +78,13 @@ app.use("/api/student", authenticateToken, studentRoutes);            // דשב�
 // ראוטים ציבוריים
 app.use("/api/general", generalDataRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/courses", coursesRoutes);
+app.use("/api/auth", authRoutes);
+
+// ראוטים הדורשים התחברות משתמש
+app.use("/api/courses", authenticateToken, coursesRoutes);
 app.use("/api/topics", topicRoutes);
 app.use("/api/practice", practiceContentRoutes);
 app.use("/api/practice-dashboard", practiceDashboardRoutes);
-app.use("/api/auth", authRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/practice-tracking", practiceTrackingRoutes);
 

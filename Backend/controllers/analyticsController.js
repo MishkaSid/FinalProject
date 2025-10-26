@@ -397,7 +397,8 @@ exports.getStudentAvgLastExams = async (req, res) => {
   try {
     connection = await db.getConnection();
 
-    // מחשבים ציון מבחן כממוצע Grade ב-exam_result, בוחרים את N האחרונים לפי ExamDate
+    // מחשבים ציון מבחן כממוצע Grade ב-exam_result, בוחרים את N האחרונים לפי ExamID
+    // משתמשים ב-ExamID DESC כדי להבטיח שהמבחנים האחרונים נבחרים גם אם נלקחו באותו תאריך
     const [rows] = await connection.query(
       `
       SELECT e.ExamID,
@@ -410,7 +411,7 @@ exports.getStudentAvgLastExams = async (req, res) => {
         GROUP BY er.ExamID
       ) AS per_exam ON per_exam.ExamID = e.ExamID
       WHERE e.UserID = ?
-      ORDER BY e.ExamDate DESC
+      ORDER BY e.ExamID DESC
       LIMIT ?
       `,
       [userId, limit]
@@ -445,6 +446,7 @@ exports.getStudentsReport = async (req, res) => {
 
     // נחשב ציון מבחן ממוצע מתוך exam_result ואז נאגר ברמת תלמיד
     // last3_list מוחזרת כמחרוזת "90,88,76" לפי סדר מהחדש לישן
+    // משתמשים ב-ExamID DESC כדי להבטיח שהמבחנים האחרונים נבחרים גם אם נלקחו באותו תאריך
     const params = [];
     let where = "1=1";
 
@@ -468,7 +470,7 @@ exports.getStudentsReport = async (req, res) => {
         u.Name,
         AVG(pe.score) AS avg_all,
         SUBSTRING_INDEX(
-          GROUP_CONCAT(pe.score ORDER BY pe.d DESC SEPARATOR ','),
+          GROUP_CONCAT(pe.score ORDER BY pe.ExamID DESC SEPARATOR ','),
           ',', 3
         ) AS last3_list
       FROM users u
@@ -670,5 +672,98 @@ exports.getSiteVisitStats = async (req, res) => {
     if (!res.headersSent) res.status(500).json({ error: "Server error" });
   } finally {
     if (connection) connection.release();
+  }
+};
+
+/**
+ * @function getGradeDistribution
+ * @description Gets grade distribution data grouped into ranges for bar chart visualization
+ * @param {object} req - Express request object with from/to query params
+ * @param {object} res - Express response object
+ */
+exports.getGradeDistribution = async (req, res) => {
+  const { from, to } = req.query;
+
+  let connection;
+  try {
+    connection = await db.getConnection();
+
+    // Default to last 30 days if no date range provided
+    const today = new Date();
+    const defaultFrom = new Date();
+    defaultFrom.setDate(defaultFrom.getDate() - 30);
+
+    const fromDate = from || defaultFrom.toISOString().split("T")[0];
+    const toDate = to || today.toISOString().split("T")[0];
+
+    // Query to get exam grades grouped by ranges using Grade column from Exam table
+    const [rows] = await connection.query(
+      `
+      SELECT 
+        CASE 
+          WHEN e.Grade >= 0 AND e.Grade < 10 THEN '0-10'
+          WHEN e.Grade >= 10 AND e.Grade < 20 THEN '10-20'
+          WHEN e.Grade >= 20 AND e.Grade < 30 THEN '20-30'
+          WHEN e.Grade >= 30 AND e.Grade < 40 THEN '30-40'
+          WHEN e.Grade >= 40 AND e.Grade < 50 THEN '40-50'
+          WHEN e.Grade >= 50 AND e.Grade < 60 THEN '50-60'
+          WHEN e.Grade >= 60 AND e.Grade < 70 THEN '60-70'
+          WHEN e.Grade >= 70 AND e.Grade < 80 THEN '70-80'
+          WHEN e.Grade >= 80 AND e.Grade < 90 THEN '80-90'
+          WHEN e.Grade >= 90 AND e.Grade <= 100 THEN '90-100'
+        END AS grade_range,
+        COUNT(*) AS exam_count
+      FROM exam e
+      WHERE DATE(e.ExamDate) BETWEEN ? AND ?
+        AND e.Grade IS NOT NULL
+      GROUP BY grade_range
+      HAVING grade_range IS NOT NULL
+      ORDER BY grade_range
+      `,
+      [fromDate, toDate]
+    );
+
+    // Create a complete range map with all possible ranges
+    const rangeMap = {
+      '0-10': 0,
+      '10-20': 0,
+      '20-30': 0,
+      '30-40': 0,
+      '40-50': 0,
+      '50-60': 0,
+      '60-70': 0,
+      '70-80': 0,
+      '80-90': 0,
+      '90-100': 0
+    };
+
+    // Populate the map with actual data
+    rows.forEach(row => {
+      if (rangeMap.hasOwnProperty(row.grade_range)) {
+        rangeMap[row.grade_range] = row.exam_count;
+      }
+    });
+
+    // Convert to array format for the chart
+    const distribution = Object.entries(rangeMap).map(([range, count]) => ({
+      range,
+      students: count
+    }));
+
+    res.json({ 
+      distribution,
+      from: fromDate,
+      to: toDate,
+      totalExams: distribution.reduce((sum, item) => sum + item.students, 0)
+    });
+  } catch (err) {
+    console.error("Error in getGradeDistribution:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Server error" });
+    }
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };

@@ -6,12 +6,25 @@
 
 const db = require("../dbConnection");
 
-// Fetch all courses
+// Fetch all courses (filtered by user role)
 exports.getAllCourses = async (req, res) => {
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM course");
+    
+    // Get user role from the authenticated user (set by auth middleware)
+    const userRole = req.user?.Role;
+    
+    let query = "SELECT * FROM course";
+    let params = [];
+    
+    // If user is an examinee, only show active courses
+    if (userRole === 'Examinee') {
+      query += " WHERE Status = 'active' OR Status IS NULL";
+    }
+    // Teachers and Admins can see all courses regardless of status
+    
+    const [rows] = await connection.query(query, params);
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllCourses:", err);
@@ -21,13 +34,31 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
-// Fetch a specific course by ID
+// Fetch a specific course by ID (filtered by user role)
 exports.getCourseById = async (req, res) => {
   const { id } = req.params;
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM course WHERE CourseID = ?", [id]);
+    
+    // Get user role from the authenticated user (set by auth middleware)
+    const userRole = req.user?.Role;
+    
+    let query = "SELECT * FROM course WHERE CourseID = ?";
+    let params = [id];
+    
+    // If user is an examinee, only allow access to active courses
+    if (userRole === 'Examinee') {
+      query += " AND (Status = 'active' OR Status IS NULL)";
+    }
+    // Teachers and Admins can access all courses regardless of status
+    
+    const [rows] = await connection.query(query, params);
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Course not found or access denied" });
+    }
+    
     res.json(rows[0]);
   } catch (err) {
     console.error("Error in getCourseById:", err);
@@ -72,6 +103,55 @@ exports.updateCourse = async (req, res) => {
   } catch (err) {
     console.error("Error in updateCourse:", err);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// Update course status
+exports.updateCourseStatus = async (req, res) => {
+  const { id } = req.params;
+  const { Status } = req.body;
+  let connection;
+  try {
+    connection = await db.getConnection();
+    
+    // Validate status value
+    if (!Status || (Status !== 'active' && Status !== 'inactive')) {
+      return res.status(400).json({ 
+        error: "Status must be either 'active' or 'inactive'" 
+      });
+    }
+    
+    // Check if course exists
+    const [existingCourse] = await connection.query(
+      "SELECT CourseID FROM course WHERE CourseID = ?",
+      [id]
+    );
+    
+    if (existingCourse.length === 0) {
+      return res.status(404).json({ 
+        error: "Course not found" 
+      });
+    }
+    
+    // Update the course status
+    await connection.query(
+      "UPDATE course SET Status = ? WHERE CourseID = ?",
+      [Status, id]
+    );
+    
+    res.json({ 
+      CourseID: id, 
+      Status,
+      message: `Course status updated to ${Status}` 
+    });
+  } catch (err) {
+    console.error("Error in updateCourseStatus:", err);
+    res.status(500).json({ 
+      error: "Server error",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   } finally {
     if (connection) connection.release();
   }

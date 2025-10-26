@@ -5,12 +5,25 @@
 // studentController.js
 const db = require("../dbConnection");
 
-// Get all courses
+// Get all courses (filtered by status for examinees)
 exports.getAllCourses = async (req, res) => {
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM course ORDER BY CourseName");
+    
+    // Get user role from the authenticated user (set by auth middleware)
+    const userRole = req.user?.Role;
+    
+    let query = "SELECT * FROM course ORDER BY CourseName";
+    let params = [];
+    
+    // If user is an examinee, only show active courses
+    if (userRole === 'Examinee') {
+      query = "SELECT * FROM course WHERE Status = 'active' OR Status IS NULL ORDER BY CourseName";
+    }
+    // Teachers and Admins can see all courses regardless of status
+    
+    const [rows] = await connection.query(query, params);
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllCourses:", err);
@@ -20,15 +33,28 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
-// Get course by ID
+// Get course by ID (filtered by status for examinees)
 exports.getCourseById = async (req, res) => {
   const { id } = req.params;
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM course WHERE CourseID = ?", [id]);
+    
+    // Get user role from the authenticated user (set by auth middleware)
+    const userRole = req.user?.Role;
+    
+    let query = "SELECT * FROM course WHERE CourseID = ?";
+    let params = [id];
+    
+    // If user is an examinee, only allow access to active courses
+    if (userRole === 'Examinee') {
+      query += " AND (Status = 'active' OR Status IS NULL)";
+    }
+    // Teachers and Admins can access all courses regardless of status
+    
+    const [rows] = await connection.query(query, params);
     if (rows.length === 0) {
-      return res.status(404).json({ error: "Course not found" });
+      return res.status(404).json({ error: "Course not found or access denied" });
     }
     res.json(rows[0]);
   } catch (err) {
@@ -39,17 +65,30 @@ exports.getCourseById = async (req, res) => {
   }
 };
 
-// Get all topics
+// Get all topics (filtered by course status for examinees)
 exports.getAllTopics = async (req, res) => {
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query(`
+    
+    // Get user role from the authenticated user (set by auth middleware)
+    const userRole = req.user?.Role;
+    
+    let query = `
       SELECT t.*, c.CourseName 
       FROM topic t 
       LEFT JOIN course c ON t.CourseID = c.CourseID 
-      ORDER BY c.CourseName, t.TopicName
-    `);
+    `;
+    let params = [];
+    
+    // If user is an examinee, only show topics from active courses
+    if (userRole === 'Examinee') {
+      query += ` WHERE (c.Status = 'active' OR c.Status IS NULL)`;
+    }
+    
+    query += ` ORDER BY c.CourseName, t.TopicName`;
+    
+    const [rows] = await connection.query(query, params);
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllTopics:", err);
@@ -59,16 +98,32 @@ exports.getAllTopics = async (req, res) => {
   }
 };
 
-// Get topics by course ID
+// Get topics by course ID (filtered by course status for examinees)
 exports.getTopicsByCourse = async (req, res) => {
   const { courseId } = req.params;
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query(
-      "SELECT * FROM topic WHERE CourseID = ? ORDER BY TopicName",
-      [courseId]
-    );
+    
+    // Get user role from the authenticated user (set by auth middleware)
+    const userRole = req.user?.Role;
+    
+    let query = `
+      SELECT t.*, c.CourseName 
+      FROM topic t 
+      LEFT JOIN course c ON t.CourseID = c.CourseID 
+      WHERE t.CourseID = ?
+    `;
+    let params = [courseId];
+    
+    // If user is an examinee, only allow access to topics from active courses
+    if (userRole === 'Examinee') {
+      query += ` AND (c.Status = 'active' OR c.Status IS NULL)`;
+    }
+    
+    query += ` ORDER BY t.TopicName`;
+    
+    const [rows] = await connection.query(query, params);
     res.json(rows);
   } catch (err) {
     console.error("Error in getTopicsByCourse:", err);
