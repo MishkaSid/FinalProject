@@ -14,6 +14,7 @@ import { getSiteVisitsCount } from "../../../services/analyticsApi";
 import StudentAvgLastExamsCard from "../../../components/analytics/StudentAvgLastExamsCard";
 import StudentsReportCard from "../../../components/analytics/StudentsReportCard";
 import TopicFailureRateCard from "../../../components/analytics/TopicFailureRateCard";
+import DateRangeSelector from "../../../components/analytics/DateRangeSelector";
 import { getLast30DaysRange } from "../../../utils/dateUtils";
 
 /**
@@ -82,46 +83,45 @@ function Manager() {
                   placeholder="הזן מזהה קורס"
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
+                  style={{ maxWidth: '150px' }}
                 />
-              </div>
-              <div className={styles.controlRow}>
                 <label className={styles.controlLabel}>מתאריך</label>
                 <input
                   type="date"
                   className={styles.controlInput}
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
+                  style={{ maxWidth: '200px' }}
                 />
-              </div>
-              <div className={styles.controlRow}>
                 <label className={styles.controlLabel}>עד תאריך</label>
                 <input
                   type="date"
                   className={styles.controlInput}
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
+                  style={{ maxWidth: '200px' }}
                 />
-              </div>
-              <div className={styles.buttonRow}>
-                <button
-                  className={styles.smallButton}
-                  onClick={() => {
-                    const { from: fromDate, to: toDate } = getLast30DaysRange();
-                    setFrom(fromDate);
-                    setTo(toDate);
-                  }}
-                >
-                  30 יום אחרונים
-                </button>
-                <button
-                  className={`${styles.smallButton} ${styles.secondary}`}
-                  onClick={() => {
-                    setFrom("");
-                    setTo("");
-                  }}
-                >
-                  נקה
-                </button>
+                <div className={styles.buttonRow} style={{ marginTop: 0, marginRight: 'auto' }}>
+                  <button
+                    className={styles.smallButton}
+                    onClick={() => {
+                      const { from: fromDate, to: toDate } = getLast30DaysRange();
+                      setFrom(fromDate);
+                      setTo(toDate);
+                    }}
+                  >
+                    30 יום אחרונים
+                  </button>
+                  <button
+                    className={`${styles.smallButton} ${styles.secondary}`}
+                    onClick={() => {
+                      setFrom("");
+                      setTo("");
+                    }}
+                  >
+                    נקה
+                  </button>
+                </div>
               </div>
             </div>
             <div className={styles.chartContainer}>
@@ -136,47 +136,12 @@ function Manager() {
           {/* Site Visits Card */}
           <div className={styles.statCard}>
             <h3 className={styles.cardTitle}>סטטיסטיקות כניסות לאתר</h3>
-            <div className={styles.cardControls}>
-              <div className={styles.controlRow}>
-                <label className={styles.controlLabel}>מתאריך</label>
-                <input
-                  type="date"
-                  className={styles.controlInput}
-                  value={visFrom}
-                  onChange={(e) => setVisFrom(e.target.value)}
-                />
-              </div>
-              <div className={styles.controlRow}>
-                <label className={styles.controlLabel}>עד תאריך</label>
-                <input
-                  type="date"
-                  className={styles.controlInput}
-                  value={visTo}
-                  onChange={(e) => setVisTo(e.target.value)}
-                />
-              </div>
-              <div className={styles.buttonRow}>
-                <button
-                  className={styles.smallButton}
-                  onClick={() => {
-                    const { from: fromDate, to: toDate } = getLast30DaysRange();
-                    setVisFrom(fromDate);
-                    setVisTo(toDate);
-                  }}
-                >
-                  30 יום אחרונים
-                </button>
-                <button
-                  className={`${styles.smallButton} ${styles.secondary}`}
-                  onClick={() => {
-                    setVisFrom("");
-                    setVisTo("");
-                  }}
-                >
-                  נקה
-                </button>
-              </div>
-            </div>
+            <DateRangeSelector 
+              from={visFrom} 
+              to={visTo}
+              onFromChange={setVisFrom}
+              onToChange={setVisTo}
+            />
             <div className={styles.chartContainer}>
               <SiteVisitStats from={visFrom} to={visTo} />
             </div>
@@ -194,47 +159,12 @@ function Manager() {
           
           <div className={styles.statCard}>
             <h3 className={styles.cardTitle}>התפלגות ציונים</h3>
-            <div className={styles.cardControls}>
-              <div className={styles.controlRow}>
-                <label className={styles.controlLabel}>מתאריך</label>
-                <input
-                  type="date"
-                  className={styles.controlInput}
-                  value={gradeFrom}
-                  onChange={(e) => setGradeFrom(e.target.value)}
-                />
-              </div>
-              <div className={styles.controlRow}>
-                <label className={styles.controlLabel}>עד תאריך</label>
-                <input
-                  type="date"
-                  className={styles.controlInput}
-                  value={gradeTo}
-                  onChange={(e) => setGradeTo(e.target.value)}
-                />
-              </div>
-              <div className={styles.buttonRow}>
-                <button
-                  className={styles.smallButton}
-                  onClick={() => {
-                    const { from: fromDate, to: toDate } = getLast30DaysRange();
-                    setGradeFrom(fromDate);
-                    setGradeTo(toDate);
-                  }}
-                >
-                  30 יום אחרונים
-                </button>
-                <button
-                  className={`${styles.smallButton} ${styles.secondary}`}
-                  onClick={() => {
-                    setGradeFrom("");
-                    setGradeTo("");
-                  }}
-                >
-                  נקה
-                </button>
-              </div>
-            </div>
+            <DateRangeSelector 
+              from={gradeFrom} 
+              to={gradeTo}
+              onFromChange={setGradeFrom}
+              onToChange={setGradeTo}
+            />
             <div className={styles.chartContainer}>
               <GradesDistributionChart from={gradeFrom} to={gradeTo} />
             </div>

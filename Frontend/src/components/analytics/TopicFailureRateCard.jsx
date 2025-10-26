@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { getTopicFailureRates } from "../../services/analyticsApi";
 import { getLast30DaysRange } from "../../utils/dateUtils";
+import styles from "../../pages/manager/home/manager.module.css";
 
 export default function TopicFailureRateCard() {
   const [courseId, setCourseId] = useState("");
@@ -25,6 +26,17 @@ export default function TopicFailureRateCard() {
     if (from && to) return `${base}: ${from} עד ${to}`;
     return base;
   }, [from, to]);
+
+  const handleLast30Days = () => {
+    const { from: fromDate, to: toDate } = getLast30DaysRange();
+    setFrom(fromDate);
+    setTo(toDate);
+  };
+
+  const handleClearDates = () => {
+    setFrom("");
+    setTo("");
+  };
 
   async function load() {
     try {
@@ -66,99 +78,59 @@ export default function TopicFailureRateCard() {
     <div style={{ background: "#fff", borderRadius: 12, padding: 16 }}>
       <h2 style={{ marginBottom: 12 }}>{title}</h2>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          alignItems: "flex-end",
-          flexWrap: "wrap",
-          marginBottom: 12,
-        }}
-      >
-        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span style={{ fontWeight: "bold", color: courseId ? "#333" : "#e74c3c" }}>
-            Course ID *
-          </span>
+      <div className={styles.cardControls}>
+        <div className={styles.controlRow}>
+          <label className={styles.controlLabel}>מזהה קורס</label>
           <input
             type="text"
+            className={styles.controlInput}
             placeholder="הזן מזהה קורס"
             value={courseId}
             onChange={(e) => setCourseId(e.target.value)}
-            style={{
-              border: courseId ? "1px solid #ddd" : "2px solid #e74c3c",
-              borderRadius: "4px",
-              padding: "8px",
-            }}
+            style={{ maxWidth: '150px' }}
           />
-        </label>
-
-        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span>מתאריך</span>
+          <label className={styles.controlLabel}>מתאריך</label>
           <input
             type="date"
+            className={styles.controlInput}
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            style={{ border: "1px solid #ddd", borderRadius: "4px", padding: "8px" }}
+            style={{ maxWidth: '200px' }}
           />
-        </label>
-
-        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span>עד תאריך</span>
+          <label className={styles.controlLabel}>עד תאריך</label>
           <input
             type="date"
+            className={styles.controlInput}
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            style={{ border: "1px solid #ddd", borderRadius: "4px", padding: "8px" }}
+            style={{ maxWidth: '200px' }}
           />
-        </label>
-
-        <button
-          onClick={load}
-          disabled={!courseId || loading}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: courseId ? "#3498db" : "#bdc3c7",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: courseId ? "pointer" : "not-allowed",
-          }}
-        >
-          {loading ? "טוען..." : "טען"}
-        </button>
-        <button
-          onClick={() => {
-            const { from: fromDate, to: toDate } = getLast30DaysRange();
-            setFrom(fromDate);
-            setTo(toDate);
-          }}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#27ae60",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          30 ימים אחרונים
-        </button>
-        <button
-          onClick={() => {
-            setFrom("");
-            setTo("");
-          }}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#e74c3c",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          נקה טווח
-        </button>
+          <div className={styles.buttonRow} style={{ marginTop: 0, marginRight: 'auto' }}>
+            <button
+              className={styles.smallButton}
+              onClick={load}
+              disabled={!courseId || loading}
+              style={{ 
+                backgroundColor: courseId ? "var(--admin-accent)" : "#bdc3c7",
+                cursor: courseId ? "pointer" : "not-allowed"
+              }}
+            >
+              {loading ? "טוען..." : "טען"}
+            </button>
+            <button
+              className={styles.smallButton}
+              onClick={handleLast30Days}
+            >
+              30 יום אחרונים
+            </button>
+            <button
+              className={`${styles.smallButton} ${styles.secondary}`}
+              onClick={handleClearDates}
+            >
+              נקה
+            </button>
+          </div>
+        </div>
       </div>
 
       {!courseId && (

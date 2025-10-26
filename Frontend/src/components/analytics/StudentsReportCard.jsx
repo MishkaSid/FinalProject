@@ -119,7 +119,7 @@ export default function StudentsReportCard() {
 
       {!loading && !err && (
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", direction: 'rtl' }}>
             <thead>
               <tr>
                 <th style={th}>שם התלמיד</th>
@@ -157,8 +157,17 @@ export default function StudentsReportCard() {
 }
 
 const th = {
-  borderBottom: "1px solid #ddd",
-  textAlign: "left",
-  padding: "8px",
+  borderBottom: "2px solid #ddd",
+  textAlign: "center",
+  padding: "12px 16px",
+  fontSize: "1.6rem",
+  fontWeight: "600",
+  backgroundColor: "#f8f9fa",
+  color: "#1C3448"
 };
-const td = { borderBottom: "1px solid #f1f1f1", padding: "8px" };
+const td = { 
+  borderBottom: "1px solid #f1f1f1", 
+  padding: "12px 16px",
+  fontSize: "1.4rem",
+  textAlign: "center"
+};
