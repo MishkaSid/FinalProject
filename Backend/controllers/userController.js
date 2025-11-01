@@ -3,7 +3,7 @@ const ExcelJS = require("exceljs");
 const db = require("../dbConnection");
 const bcrypt = require("bcrypt");
 const { sendInvitation } = require("../utils/mailer");
-const { generatePdfReport } = require("../utils/generatePdfReport");
+const { generatePdfReportv2 } = require("../utils/pdfUtils");
 
 // helpers
 const digitsOnly = (val) => String(val || "").replace(/\D/g, "");
@@ -195,17 +195,14 @@ exports.bulkUploadUsers = async (req, res) => {
     const isValidEmail = (val) =>
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(val || "").trim());
 
-    for (let i = 2; i <= sheet.rowCount; i++) {
+    for (let i = 1; i <= sheet.rowCount; i++) {
       const row = sheet.getRow(i);
 
       const rawIdCell = row.getCell(1);
       const rawIdVal = rawIdCell.text ?? rawIdCell.value ?? "";
-      const email = String(
-        row.getCell(2).text || row.getCell(2).value || ""
-      ).trim();
-      const name = String(
-        row.getCell(3).text || row.getCell(3).value || ""
-      ).trim();
+      const email = String( row.getCell(2).text || row.getCell(2).value || "" ).trim();
+      const name = String( row.getCell(3).text || row.getCell(3).value || ""   ).trim();
+
 
       const idDigits = digitsOnly(rawIdVal);
       const reasons = [];
@@ -298,7 +295,7 @@ exports.bulkUploadUsers = async (req, res) => {
 
         // email invitation
         sendInvitation(email, name).catch((err) =>
-          console.error(`Email error row ${i}:`, err)
+         console.error(`Email error row ${i}:`, err)
         );
 
         results.added++;
@@ -306,15 +303,16 @@ exports.bulkUploadUsers = async (req, res) => {
         // record padded info for PDF table 2
         if (wasPadded) {
           results.paddedWarnings.push({
-            rowNumber: i,
-            paddedId: idToUse,
-            originalId: idDigits,
-            name,
-            email,
-            note: "הושלם 0 בתחילת התעודה באופן אוטומטי. אנא אמת מול התלמיד.",
-          });
+         rowNumber: i,
+         paddedId: idToUse,
+         originalId: idDigits,
+         name,
+         email,
+         note: "הושלם 0 בתחילת תעודת הזות באופן אוטומטי. אנא אמת מול התלמיד.",
+       }
+        );
         }
-      } catch (insErr) {
+        } catch (insErr) {
         results.errors.push({
           rowNumber: i,
           id: idToUse,
@@ -329,15 +327,17 @@ exports.bulkUploadUsers = async (req, res) => {
     const totalCount = sheet.rowCount - 1;
 
     // Return PDF if there are errors or padded warnings. Otherwise JSON success.
-    if (results.errors.length > 0 || results.paddedWarnings.length > 0) {
-      try {
-        const pdf = await generatePdfReport({
-          sourceFileName: req.file.originalname,
-          errors: results.errors,
-          paddedWarnings: results.paddedWarnings,
-          addedCount: results.added,
-          totalCount,
-        });
+        if (results.errors.length > 0 || results.paddedWarnings.length > 0) {
+       try {
+        const pdf = await generatePdfReportv2({
+         sourceFileName: req.file.originalname,
+         errors: results.errors,
+         paddedWarnings: results.paddedWarnings,
+         addedCount: results.added,
+         totalCount,
+        }
+        )
+        ;
 
         res.setHeader("Content-Type", "application/pdf");
         const asciiName = "upload_report.pdf";
@@ -347,7 +347,7 @@ exports.bulkUploadUsers = async (req, res) => {
         );
         return res.status(200).send(pdf);
       } catch (pdfErr) {
-        console.error("PDF generation failed. Falling back to JSON:", String(pdfErr?.message || pdfErr));
+        console.error("PDF generation failed. Falling back to JSON:", String(pdfErr?.stack || pdfErr));
         return res.status(200).json({
           added: results.added,
           errors: results.errors,

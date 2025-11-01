@@ -16,6 +16,7 @@
     "url": "mysql://root@localhost:3306/final_project"
   },
   "dependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "jspdf": "^3.0.3"
   }
 }
