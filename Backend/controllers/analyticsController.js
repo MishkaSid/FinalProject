@@ -594,6 +594,8 @@ exports.getTopicFailureRates = async (req, res) => {
  * @param {string} from - Start date (YYYY-MM-DD)
  * @param {string} to - End date (YYYY-MM-DD)
  */
+// analyticsController.js
+
 exports.getSiteVisitStats = async (req, res) => {
   const { userId, from, to } = req.query;
   let connection;
@@ -601,72 +603,91 @@ exports.getSiteVisitStats = async (req, res) => {
   try {
     connection = await db.getConnection();
 
-    // Calculate date range
-    const toDate = to || new Date().toISOString().split('T')[0];
-    const fromDate = from || (() => {
-      const d = new Date();
-      d.setDate(d.getDate() - 30);
-      return d.toISOString().split('T')[0];
-    })();
+    // Normalize date range
+    const toDate = (to && String(to)) || new Date().toISOString().slice(0, 10);
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    const fromDate = (from && String(from)) || d.toISOString().slice(0, 10);
 
     if (userId) {
-      // Specific user query: return user's name, last visit, and total visits
-      const [userRows] = await connection.query(
-        `SELECT u.Name, sv.VisitedAt, sv.visit_count
-         FROM users u
-         LEFT JOIN site_visit sv ON sv.UserID = u.UserID
-         WHERE u.UserID = ? AND u.Role = 'Examinee'`,
-        [userId]
+      // Filter by the selected range for this specific user
+      const [rows] = await connection.query(
+        `
+        SELECT
+          u.Name,
+          MIN(CASE WHEN DATE(sv.VisitedAt) BETWEEN ? AND ? THEN sv.VisitedAt END) AS firstVisitInRange,
+          MAX(CASE WHEN DATE(sv.VisitedAt) BETWEEN ? AND ? THEN sv.VisitedAt END) AS lastVisitInRange,
+          SUM(CASE WHEN DATE(sv.VisitedAt) BETWEEN ? AND ? THEN 1 ELSE 0 END)     AS totalDaysInRange
+        FROM users u
+        LEFT JOIN site_visit sv ON sv.UserID = u.UserID
+        WHERE u.UserID = ? AND u.Role = 'Examinee'
+        GROUP BY u.UserID, u.Name
+        `,
+        [fromDate, toDate, fromDate, toDate, fromDate, toDate, userId]
       );
 
-      if (userRows.length === 0) {
-        return res.json({
-          userId,
-          found: false,
-          message: "User not found or not an Examinee"
-        });
+      if (!rows || rows.length === 0) {
+        return res.json({ userId, found: false, message: "User not found or not an Examinee" });
       }
 
-      const user = userRows[0];
+      // Optional: return the exact dates within the range to show a list or dots on a chart
+      const [seriesRows] = await connection.query(
+        `
+        SELECT DATE(VisitedAt) AS d
+        FROM site_visit
+        WHERE UserID = ? AND DATE(VisitedAt) BETWEEN ? AND ?
+        ORDER BY DATE(VisitedAt)
+        `,
+        [userId, fromDate, toDate]
+      );
+
+      const r = rows[0];
+      const days = (seriesRows || []).map(row =>
+        row.d instanceof Date ? row.d.toISOString().slice(0, 10) : String(row.d)
+      );
+
       return res.json({
-        userId,
+        userId: String(userId),
         found: true,
-        name: user.Name,
-        lastVisit: user.VisitedAt,
-        totalVisits: user.visit_count || 0
-      });
-    } else {
-      // Aggregated view: count all examinees, count those who visited in range, calculate percentage
-      
-      // Total examinees
-      const [totalRows] = await connection.query(
-        `SELECT COUNT(*) as total FROM users WHERE Role = 'Examinee'`
-      );
-      const totalExaminees = totalRows[0].total;
-
-      // Examinees who visited in date range
-      const [visitedRows] = await connection.query(
-        `SELECT COUNT(DISTINCT sv.UserID) as visited
-         FROM site_visit sv
-         JOIN users u ON u.UserID = sv.UserID
-         WHERE u.Role = 'Examinee'
-         AND DATE(sv.VisitedAt) BETWEEN ? AND ?`,
-        [fromDate, toDate]
-      );
-      const examinessWhoVisited = visitedRows[0].visited;
-
-      const percentage = totalExaminees > 0
-        ? ((examinessWhoVisited / totalExaminees) * 100).toFixed(1)
-        : 0;
-
-      return res.json({
+        name: r.Name,
         from: fromDate,
         to: toDate,
-        totalExaminees,
-        examinessWhoVisited,
-        percentage: parseFloat(percentage)
+        firstVisit: r.firstVisitInRange,
+        lastVisit: r.lastVisitInRange,
+        totalVisits: Number(r.totalDaysInRange || 0), // exactly how many rows belong to this ID in the range
+        days // optional helper array of the dates
       });
     }
+
+    // Aggregated stats for all examinees (kept as is)
+    const [totalRows] = await connection.query(
+      `SELECT COUNT(*) AS total FROM users WHERE Role = 'Examinee'`
+    );
+    const totalExaminees = Number(totalRows[0].total || 0);
+
+    const [visitedRows] = await connection.query(
+      `
+      SELECT COUNT(DISTINCT sv.UserID) AS visited
+      FROM site_visit sv
+      JOIN users u ON u.UserID = sv.UserID
+      WHERE u.Role = 'Examinee'
+        AND DATE(sv.VisitedAt) BETWEEN ? AND ?
+      `,
+      [fromDate, toDate]
+    );
+
+    const examinessWhoVisited = Number(visitedRows[0].visited || 0);
+    const percentage = totalExaminees > 0
+      ? Number(((examinessWhoVisited / totalExaminees) * 100).toFixed(1))
+      : 0;
+
+    return res.json({
+      from: fromDate,
+      to: toDate,
+      totalExaminees,
+      examinessWhoVisited,
+      percentage
+    });
   } catch (err) {
     console.error("Error getSiteVisitStats:", err);
     if (!res.headersSent) res.status(500).json({ error: "Server error" });
@@ -674,6 +695,7 @@ exports.getSiteVisitStats = async (req, res) => {
     if (connection) connection.release();
   }
 };
+
 
 /**
  * @function getGradeDistribution
