@@ -1,8 +1,3 @@
-// בקובץ זה נמצא רכיב החלון הקופץ לבחירת נושאים לתרגול
-// הקובץ מציג רשימה של נושאים זמינים עם אפשרות בחירה לתרגול או מבחן
-// הוא מטפל בטעינת נתונים, הצגת שגיאות ומספק כפתורי התחלת תרגול ומבחן
-// הוא משמש כחלון בחירה עבור סטודנטים לבחירת נושא ספציפי לתרגול
-
 // Frontend/src/pages/student/dashboard/SubjectsModal.jsx
 import React from "react";
 import { FiBook, FiCheck, FiAlertCircle } from "react-icons/fi";
@@ -25,15 +20,23 @@ const SubjectsModal = ({
   onStartPractice,
   onStartExam,
   onRetryFetch,
+  // NEW: pass the user course id from parent. If null, user is unassigned.
+  currentCourseId,
 }) => {
+  const isUnassigned = currentCourseId == null; // null or undefined
+  const subjectsToShow = isUnassigned ? [] : (subjects || []);
+  const actionsDisabled = isUnassigned || !selectedSubject;
+
   return (
     <Popup isOpen={isOpen} onClose={onClose} header="בחירת נושא ללמידה">
       <div className={styles.modalContent}>
         <p className={styles.modalDescription}>
-          בחר נושא לתרגול או למבחן מהרשימה המוצגת למטה
+          {isUnassigned
+            ? "אינך משויך לקורס כרגע. לא מוצגים נושאים עד לשיוך לקורס."
+            : "בחר נושא לתרגול או למבחן מהרשימה המוצגת למטה"}
         </p>
 
-        {error && (
+        {error && !isUnassigned && (
           <div className={styles.errorAlert}>
             <FiAlertCircle className={styles.errorIcon} />
             <div className={styles.errorContent}>
@@ -42,17 +45,16 @@ const SubjectsModal = ({
           </div>
         )}
 
-        {subjectsLoading ? (
+        {subjectsLoading && !isUnassigned ? (
           <div className={styles.modalLoadingState}>
             <div className={styles.loadingSpinner}></div>
             <p className={styles.loadingText}>טוען נושאים זמינים...</p>
             <p className={styles.loadingSubtext}>אנא המתן, מתחבר לשרת</p>
           </div>
-        ) : subjects.length > 0 ? (
+        ) : subjectsToShow.length > 0 ? (
           <div className={styles.subjectsContainer}>
-            
             <div className={styles.subjectsGrid}>
-              {subjects.map((subject) => (
+              {subjectsToShow.map((subject) => (
                 <div
                   key={subject.id}
                   className={`${styles.subjectCard} ${
@@ -77,22 +79,18 @@ const SubjectsModal = ({
             <FiAlertCircle className={styles.noSubjectsIcon} />
             <p className={styles.noSubjectsTitle}>לא נמצאו נושאים זמינים</p>
             <p className={styles.noSubjectsSubtext}>
-              {error
+              {isUnassigned
+                ? "אנא בקש מהמנהל לשייך אותך לקורס פעיל."
+                : error
                 ? "שגיאה בטעינת הנתונים מהשרת"
                 : "אנא נסה שוב מאוחר יותר או פנה למנהל המערכת"}
             </p>
-            {error && (
+            {!isUnassigned && error && (
               <div className={styles.noSubjectsActions}>
-                <button
-                  onClick={onRetryFetch}
-                  className={styles.retryButtonStyled}
-                >
+                <button onClick={onRetryFetch} className={styles.retryButtonStyled}>
                   נסה שוב
                 </button>
-                <button
-                  onClick={onClose}
-                  className={styles.closeButtonStyled}
-                >
+                <button onClick={onClose} className={styles.closeButtonStyled}>
                   סגור
                 </button>
               </div>
@@ -105,20 +103,20 @@ const SubjectsModal = ({
         <div className={styles.modalActionsGrid}>
           <button
             className={`${styles.actionButton} ${styles.practiceActionButton} ${
-              !selectedSubject ? styles.actionButtonDisabled : ""
+              actionsDisabled ? styles.actionButtonDisabled : ""
             }`}
             onClick={onStartPractice}
-            disabled={!selectedSubject}
+            disabled={actionsDisabled}
           >
             <FiBook className={styles.actionButtonIcon} />
             <span className={styles.actionButtonText}>התחל תרגול</span>
           </button>
           <button
             className={`${styles.actionButton} ${styles.examActionButton} ${
-              !selectedSubject ? styles.actionButtonDisabled : ""
+              actionsDisabled ? styles.actionButtonDisabled : ""
             }`}
             onClick={onStartExam}
-            disabled={!selectedSubject}
+            disabled={actionsDisabled}
           >
             <LuNotebookPen className={styles.actionButtonIcon} />
             <span className={styles.actionButtonText}>התחל מבחן</span>

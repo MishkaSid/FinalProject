@@ -23,6 +23,7 @@ import SubjectsModal from "./SubjectsModal";
  */
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const currentCourseId = user?.CourseID ?? user?.courseId ?? null;
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -94,7 +95,7 @@ export default function StudentDashboard() {
             id: data.user?.id || userId,
             name: data.user?.name || currentUser?.name || "משתמש לא מזוהה",
             email: data.user?.email || currentUser?.email || "",
-            course: data.user?.course || currentUser?.course || "מתמטיקה",
+            course: data.user?.course || "לא משוייך לקורס, אנא פנה למנהל על מנת להתחיל לתרגל",
           },
           lastExam: data.lastExam || null,
           overallAverage:
@@ -262,110 +263,77 @@ export default function StudentDashboard() {
     dashboardData.user &&
     dashboardData.user.name !== "משתמש לא מזוהה";
 
-  // Fetch subjects from backend using general data endpoint
-  const fetchSubjects = useCallback(async (retryCount = 0) => {
-    try {
-      setSubjectsLoading(true);
-      // Only clear error on fresh fetch, not on retries
-      if (retryCount === 0) {
-        setError(null);
-      }
-      console.log("StudentDashboard: Fetching subjects from server...");
-
-      const response = await fetch(
-        "http://localhost:5000/api/topics/getTopics",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+    const fetchSubjects = useCallback(async (retryCount = 0) => {
+      try {
+        setSubjectsLoading(true);
+        if (retryCount === 0) setError(null);
+    
+        // If the examinee is not assigned, do not fetch and show nothing
+        if (currentCourseId == null) {
+          setSubjects([]);
+          return;
         }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(
-          "StudentDashboard: Subjects API error:",
-          response.status,
-          errorText
+    
+        const response = await fetch("http://localhost:5000/api/topics/getTopics", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+    
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(
+            `Failed to fetch subjects: ${response.status} - ${errorText}`
+          );
+        }
+    
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid data format received from server");
+        }
+    
+        // Filter topics by the assigned CourseID
+        const filteredData = data.filter(
+          (t) => Number(t.CourseID) === Number(currentCourseId)
         );
-        throw new Error(
-          `Failed to fetch subjects: ${response.status} - ${response.statusText}`
-        );
+    
+        const transformedSubjects = filteredData.map((t) => ({
+          id: t.TopicID,
+          name: t.TopicName,
+          description: `נושא: ${t.TopicName}`,
+          courseName: t.CourseName || "",
+          courseId: t.CourseID,
+        }));
+    
+        setSubjects(transformedSubjects);
+      } catch (err) {
+        // Retry for transient network errors
+        if (
+          retryCount < 2 &&
+          (err.message.includes("Failed to fetch") || err.message.includes("Network"))
+        ) {
+          setTimeout(() => fetchSubjects(retryCount + 1), 1000 * (retryCount + 1));
+          return;
+        }
+        setSubjects([]);
+        setError(`שגיאה בטעינת נושאים: ${err.message}`);
+      } finally {
+        setSubjectsLoading(false);
       }
+    }, [currentCourseId]);
+    
 
-      const data = await response.json();
-      console.log("StudentDashboard: Subjects API response received:", data);
 
-      if (!Array.isArray(data)) {
-        throw new Error("Invalid data format received from server");
-      }
-
-      // Get user's courseId for filtering
-      const userCourseId = user?.courseId;
-      console.log("StudentDashboard: Filtering topics for courseId:", userCourseId);
-
-      // Filter topics by user's courseId if available
-      let filteredData = data;
-      if (userCourseId) {
-        filteredData = data.filter((topic) => topic.CourseID === userCourseId);
-        console.log(
-          `StudentDashboard: Filtered ${filteredData.length} topics out of ${data.length} for courseId ${userCourseId}`
-        );
+    const handlePracticeClick = useCallback(() => {
+      setShowSubjectModal(true);
+      setError(null);
+      if (currentCourseId != null) {
+        fetchSubjects();
       } else {
-        console.warn("StudentDashboard: No courseId found for user, showing all topics");
+        // ensure modal opens empty for unassigned users
+        setSubjects([]);
       }
-
-      // Transform the data to match our component structure
-      const transformedSubjects = filteredData.map((topic) => ({
-        id: topic.TopicID,
-        name: topic.TopicName,
-        description: `נושא: ${topic.TopicName}`,
-        courseName: topic.CourseName || "מתמטיקה",
-        courseId: topic.CourseID,
-      }));
-
-      setSubjects(transformedSubjects);
-      console.log(
-        "StudentDashboard: Subjects transformed and set:",
-        transformedSubjects
-      );
-    } catch (err) {
-      console.error(
-        "StudentDashboard: Error fetching subjects from server:",
-        err
-      );
-
-      // Retry logic for network errors
-      if (
-        retryCount < 2 &&
-        (err.message.includes("Failed to fetch") ||
-          err.message.includes("Network"))
-      ) {
-        console.log(
-          `StudentDashboard: Retrying subjects fetch, attempt ${retryCount + 1}`
-        );
-        setTimeout(
-          () => fetchSubjects(retryCount + 1),
-          1000 * (retryCount + 1)
-        );
-        return;
-      }
-
-      // Set empty array instead of mock data
-      setSubjects([]);
-      // Show error in the modal
-      setError(`שגיאה בטעינת נושאים: ${err.message}`);
-    } finally {
-      setSubjectsLoading(false);
-    }
-  }, [user?.courseId]); // Depend on user's courseId for filtering
-
-  const handlePracticeClick = useCallback(() => {
-    setShowSubjectModal(true);
-    setError(null); // Clear any previous errors
-    fetchSubjects(); // Fetch subjects when modal opens
-  }, [fetchSubjects]); // Add fetchSubjects dependency
+    }, [fetchSubjects, currentCourseId]);
+    
 
   const handleSubjectSelect = useCallback((subject) => {
     setSelectedSubject(subject);
@@ -399,7 +367,7 @@ export default function StudentDashboard() {
         {/* Content on the right */}
         <div className={styles.heroContent}>
           <h1 className={styles.title}>שלום, {studentData.user.name}</h1>
-          <p className={styles.subTitle}>מתמטיקה</p>
+          <p className={styles.subTitle}>{studentData.user.course}</p>
         </div>
         {/* Profile Section on the left */}
         <ProfileSection
@@ -444,17 +412,19 @@ export default function StudentDashboard() {
 
       {/* Subject Selection Modal */}
       <SubjectsModal
-        isOpen={showSubjectModal}
-        onClose={handleCloseModal}
-        subjects={subjects}
-        subjectsLoading={subjectsLoading}
-        selectedSubject={selectedSubject}
-        error={error}
-        onSubjectSelect={handleSubjectSelect}
-        onStartPractice={handleStartPractice}
-        onStartExam={handleStartExam}
-        onRetryFetch={fetchSubjects}
-      />
+  isOpen={showSubjectModal}
+  onClose={handleCloseModal}
+  subjects={subjects}
+  subjectsLoading={subjectsLoading}
+  selectedSubject={selectedSubject}
+  error={error}
+  onSubjectSelect={handleSubjectSelect}
+  onStartPractice={handleStartPractice}
+  onStartExam={handleStartExam}
+  onRetryFetch={fetchSubjects}
+  currentCourseId={currentCourseId}
+/>
+
     </div>
   );
 }

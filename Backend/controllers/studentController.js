@@ -73,6 +73,12 @@ exports.getAllTopics = async (req, res) => {
     
     // Get user role from the authenticated user (set by auth middleware)
     const userRole = req.user?.Role;
+    const userCourseId = req.user?.courseId || req.user?.CourseID;
+    
+    // If user is an examinee with no course, return empty array
+    if (userRole === 'Examinee' && !userCourseId) {
+      return res.json([]);
+    }
     
     let query = `
       SELECT t.*, c.CourseName 
@@ -137,9 +143,16 @@ exports.getTopicsByCourse = async (req, res) => {
 exports.getTopicById = async (req, res) => {
   const { id } = req.params;
   const userRole = req.user?.Role || req.user?.role;
+  const userCourseId = req.user?.courseId || req.user?.CourseID;
   let connection;
   try {
     connection = await db.getConnection();
+    
+    // For Examinees, verify user has a course assigned
+    if (userRole === 'Examinee' && !userCourseId) {
+      return res.status(403).json({ error: "No course assigned" });
+    }
+    
     const [rows] = await connection.query(`
       SELECT t.*, c.CourseName, c.Status 
       FROM topic t 
@@ -173,12 +186,17 @@ exports.getPracticeExercisesByTopic = async (req, res) => {
   const { topicId } = req.params;
   const { difficulty } = req.query;
   const userRole = req.user?.Role || req.user?.role;
+  const userCourseId = req.user?.courseId || req.user?.CourseID;
   let connection;
   try {
     connection = await db.getConnection();
     
-    // For Examinees, verify that the topic's course is active
+    // For Examinees, verify user has a course assigned
     if (userRole === 'Examinee') {
+      if (!userCourseId) {
+        return res.json([]); // Return empty array if no course assigned
+      }
+      
       const [topicRows] = await connection.query(
         `SELECT t.CourseID, c.Status 
          FROM topic t 
@@ -230,12 +248,17 @@ exports.getPracticeExercisesByTopic = async (req, res) => {
 exports.getPracticeVideosByTopic = async (req, res) => {
   const { topicId } = req.params;
   const userRole = req.user?.Role || req.user?.role;
+  const userCourseId = req.user?.courseId || req.user?.CourseID;
   let connection;
   try {
     connection = await db.getConnection();
     
-    // For Examinees, verify that the topic's course is active
+    // For Examinees, verify user has a course assigned
     if (userRole === 'Examinee') {
+      if (!userCourseId) {
+        return res.json([]); // Return empty array if no course assigned
+      }
+      
       const [topicRows] = await connection.query(
         `SELECT t.CourseID, c.Status 
          FROM topic t 
@@ -273,12 +296,17 @@ exports.getPracticeVideosByTopic = async (req, res) => {
 exports.getExamQuestionsByTopic = async (req, res) => {
   const { topicId } = req.params;
   const userRole = req.user?.Role || req.user?.role;
+  const userCourseId = req.user?.courseId || req.user?.CourseID;
   let connection;
   try {
     connection = await db.getConnection();
     
-    // For Examinees, verify that the topic's course is active
+    // For Examinees, verify user has a course assigned
     if (userRole === 'Examinee') {
+      if (!userCourseId) {
+        return res.json([]); // Return empty array if no course assigned
+      }
+      
       const [topicRows] = await connection.query(
         `SELECT t.CourseID, c.Status 
          FROM topic t 
@@ -361,9 +389,15 @@ exports.getExamResults = async (req, res) => {
 exports.getPracticeSessionData = async (req, res) => {
   const { topicId } = req.params;
   const userRole = req.user?.Role || req.user?.role;
+  const userCourseId = req.user?.courseId || req.user?.CourseID;
   let connection;
   try {
     connection = await db.getConnection();
+    
+    // For Examinees, verify user has a course assigned
+    if (userRole === 'Examinee' && !userCourseId) {
+      return res.status(403).json({ error: "No course assigned" });
+    }
     
     // Get topic info
     const [topicRows] = await connection.query(`

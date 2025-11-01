@@ -232,7 +232,7 @@ exports.getStudentDashboardData = async (req, res) => {
       UserID: studentId,
       Name: "סטודנט",
       Email: "student@example.com",
-      CourseName: "Math"
+      CourseName: null
     };
     
     // Get latest exam result from the exam table
@@ -282,7 +282,7 @@ exports.getStudentDashboardData = async (req, res) => {
         id: user.UserID,
         name: user.Name,
         email: user.Email,
-        course: user.CourseName || "Math"
+        course: user.CourseName || "לא משוייך לקורס, אנא פנה למנהל על מנת להתחיל לתרגל"
       },
       lastExam: latestExamRows.length > 0 ? {
         examId: latestExamRows[0].ExamID,

@@ -60,7 +60,12 @@ exports.getAllExercises = async (req, res) => {
     const userRole = req.user?.Role || req.user?.role;
     
     // If user is an Examinee, check if their course is active
-    if (userRole === 'Examinee' && userCourseId) {
+    if (userRole === 'Examinee') {
+      // If no course assigned, return empty array
+      if (!userCourseId) {
+        return res.json([]);
+      }
+      
       const [courseRows] = await connection.query(
         "SELECT Status FROM course WHERE CourseID = ?",
         [userCourseId]
