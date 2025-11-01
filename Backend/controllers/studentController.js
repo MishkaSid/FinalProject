@@ -136,11 +136,12 @@ exports.getTopicsByCourse = async (req, res) => {
 // Get topic by ID
 exports.getTopicById = async (req, res) => {
   const { id } = req.params;
+  const userRole = req.user?.Role || req.user?.role;
   let connection;
   try {
     connection = await db.getConnection();
     const [rows] = await connection.query(`
-      SELECT t.*, c.CourseName 
+      SELECT t.*, c.CourseName, c.Status 
       FROM topic t 
       LEFT JOIN course c ON t.CourseID = c.CourseID 
       WHERE t.TopicID = ?
@@ -148,6 +149,16 @@ exports.getTopicById = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ error: "Topic not found" });
     }
+    
+    // For Examinees, verify that the topic's course is active
+    if (userRole === 'Examinee') {
+      const courseStatus = rows[0].Status;
+      // Block access if course is explicitly set to inactive
+      if (courseStatus && courseStatus !== 'active') {
+        return res.status(403).json({ error: "Course is not active" });
+      }
+    }
+    
     res.json(rows[0]);
   } catch (err) {
     console.error("Error in getTopicById:", err);
@@ -161,23 +172,52 @@ exports.getTopicById = async (req, res) => {
 exports.getPracticeExercisesByTopic = async (req, res) => {
   const { topicId } = req.params;
   const { difficulty } = req.query;
+  const userRole = req.user?.Role || req.user?.role;
   let connection;
   try {
     connection = await db.getConnection();
+    
+    // For Examinees, verify that the topic's course is active
+    if (userRole === 'Examinee') {
+      const [topicRows] = await connection.query(
+        `SELECT t.CourseID, c.Status 
+         FROM topic t 
+         LEFT JOIN course c ON t.CourseID = c.CourseID 
+         WHERE t.TopicID = ?`,
+        [topicId]
+      );
+      
+      if (topicRows.length === 0) {
+        return res.status(404).json({ error: "Topic not found" });
+      }
+      
+      const courseStatus = topicRows[0].Status;
+      // Block access if course is explicitly set to inactive
+      if (courseStatus && courseStatus !== 'active') {
+        return res.json([]); // Return empty array for inactive courses
+      }
+    }
     
     let query = "SELECT * FROM practice_exercise WHERE TopicID = ?";
     let params = [topicId];
     
     // Add difficulty filter if provided and valid
     if (difficulty && ['easy', 'medium', 'exam'].includes(difficulty)) {
-      query += " AND Difficulty = ?";
+      query += " AND LOWER(Difficulty) = LOWER(?)";
       params.push(difficulty);
     }
     
     query += " ORDER BY ExerciseID";
     
     const [rows] = await connection.query(query, params);
-    res.json(rows);
+    
+    // Normalize difficulty to lowercase for consistency
+    const normalizedRows = rows.map(row => ({
+      ...row,
+      Difficulty: row.Difficulty ? String(row.Difficulty).toLowerCase() : null
+    }));
+    
+    res.json(normalizedRows);
   } catch (err) {
     console.error("Error in getPracticeExercisesByTopic:", err);
     res.status(500).json({ error: "Server error" });
@@ -189,9 +229,32 @@ exports.getPracticeExercisesByTopic = async (req, res) => {
 // Get practice videos by topic ID
 exports.getPracticeVideosByTopic = async (req, res) => {
   const { topicId } = req.params;
+  const userRole = req.user?.Role || req.user?.role;
   let connection;
   try {
     connection = await db.getConnection();
+    
+    // For Examinees, verify that the topic's course is active
+    if (userRole === 'Examinee') {
+      const [topicRows] = await connection.query(
+        `SELECT t.CourseID, c.Status 
+         FROM topic t 
+         LEFT JOIN course c ON t.CourseID = c.CourseID 
+         WHERE t.TopicID = ?`,
+        [topicId]
+      );
+      
+      if (topicRows.length === 0) {
+        return res.status(404).json({ error: "Topic not found" });
+      }
+      
+      const courseStatus = topicRows[0].Status;
+      // Block access if course is explicitly set to inactive
+      if (courseStatus && courseStatus !== 'active') {
+        return res.json([]); // Return empty array for inactive courses
+      }
+    }
+    
     const [rows] = await connection.query(
       "SELECT * FROM practice_video WHERE TopicID = ? ORDER BY VideoID",
       [topicId]
@@ -209,9 +272,32 @@ exports.getPracticeVideosByTopic = async (req, res) => {
 // ⚠️ NOTE: This endpoint may be unused. Exam questions are fetched via /api/exams/start
 exports.getExamQuestionsByTopic = async (req, res) => {
   const { topicId } = req.params;
+  const userRole = req.user?.Role || req.user?.role;
   let connection;
   try {
     connection = await db.getConnection();
+    
+    // For Examinees, verify that the topic's course is active
+    if (userRole === 'Examinee') {
+      const [topicRows] = await connection.query(
+        `SELECT t.CourseID, c.Status 
+         FROM topic t 
+         LEFT JOIN course c ON t.CourseID = c.CourseID 
+         WHERE t.TopicID = ?`,
+        [topicId]
+      );
+      
+      if (topicRows.length === 0) {
+        return res.status(404).json({ error: "Topic not found" });
+      }
+      
+      const courseStatus = topicRows[0].Status;
+      // Block access if course is explicitly set to inactive
+      if (courseStatus && courseStatus !== 'active') {
+        return res.json([]); // Return empty array for inactive courses
+      }
+    }
+    
     const [rows] = await connection.query(
       "SELECT * FROM exam_question WHERE TopicID = ? ORDER BY QuestionID",
       [topicId]
@@ -274,13 +360,14 @@ exports.getExamResults = async (req, res) => {
 // Get practice session data
 exports.getPracticeSessionData = async (req, res) => {
   const { topicId } = req.params;
+  const userRole = req.user?.Role || req.user?.role;
   let connection;
   try {
     connection = await db.getConnection();
     
     // Get topic info
     const [topicRows] = await connection.query(`
-      SELECT t.*, c.CourseName
+      SELECT t.*, c.CourseName, c.Status
       FROM topic t
       LEFT JOIN course c ON t.CourseID = c.CourseID
       WHERE t.TopicID = ?
@@ -288,6 +375,15 @@ exports.getPracticeSessionData = async (req, res) => {
     
     if (topicRows.length === 0) {
       return res.status(404).json({ error: "Topic not found" });
+    }
+    
+    // For Examinees, verify that the topic's course is active
+    if (userRole === 'Examinee') {
+      const courseStatus = topicRows[0].Status;
+      // Block access if course is explicitly set to inactive
+      if (courseStatus && courseStatus !== 'active') {
+        return res.status(403).json({ error: "Course is not active" });
+      }
     }
     
     const topic = topicRows[0];

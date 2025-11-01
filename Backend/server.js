@@ -83,7 +83,7 @@ app.use("/api/auth", authRoutes);
 // ראוטים הדורשים התחברות משתמש
 app.use("/api/courses", authenticateToken, coursesRoutes);
 app.use("/api/topics", topicRoutes);
-app.use("/api/practice", practiceContentRoutes);
+app.use("/api/practice", authenticateToken, practiceContentRoutes);
 app.use("/api/practice-dashboard", practiceDashboardRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/practice-tracking", practiceTrackingRoutes);

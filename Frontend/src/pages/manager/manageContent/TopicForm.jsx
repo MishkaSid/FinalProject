@@ -46,17 +46,19 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
           required
         />
       </div>
-      <button className={styles.submitButton} type="submit">
-        {mode === "edit" ? "שמור" : "הוסף"}
-      </button>
-      <button
-        className={styles.smallButton}
-        type="button"
-        onClick={onClose}
-        style={{ marginTop: 8 }}
-      >
-        ביטול
-      </button>
+      <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', width: '100%' }}>
+        <button className={styles.submitButton} type="submit" style={{ flex: 1 }}>
+          {mode === "edit" ? "שמור" : "הוסף"}
+        </button>
+        <button
+          className={styles.smallButton}
+          type="button"
+          onClick={onClose}
+          style={{ flex: 1, padding: '0.7rem 1.2rem' }}
+        >
+          ביטול
+        </button>
+      </div>
     </form>
   );
 }

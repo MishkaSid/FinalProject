@@ -179,29 +179,13 @@ exports.deleteCourse = async (req, res) => {
       // Create placeholders for IN clause
       const placeholders = topicIds.map(() => '?').join(',');
       
-      // Step 1: Get all exercise IDs for these topics
-      const [exercises] = await connection.query(
-        `SELECT ExerciseID FROM practice_exercise WHERE TopicID IN (${placeholders})`,
-        topicIds
-      );
-      
-      // Step 2: Get all video IDs for these topics
+      // Step 1: Get all video IDs for these topics
       const [videos] = await connection.query(
         `SELECT VideoID FROM practice_video WHERE TopicID IN (${placeholders})`,
         topicIds
       );
       
-      // Step 3: Delete practice attempts for these exercises
-      if (exercises.length > 0) {
-        const exerciseIds = exercises.map(e => e.ExerciseID);
-        const exercisePlaceholders = exerciseIds.map(() => '?').join(',');
-        await connection.query(
-          `DELETE FROM practice_attempt WHERE ExerciseID IN (${exercisePlaceholders})`,
-          exerciseIds
-        );
-      }
-      
-      // Step 4: Delete video watch records for these videos
+      // Step 2: Delete video watch records for these videos
       if (videos.length > 0) {
         const videoIds = videos.map(v => v.VideoID);
         const videoPlaceholders = videoIds.map(() => '?').join(',');
@@ -211,7 +195,7 @@ exports.deleteCourse = async (req, res) => {
         );
       }
       
-      // Step 5: Delete exam results for questions from these topics
+      // Step 3: Delete exam results for questions from these topics
       // (Note: exam_result has CASCADE delete, but we'll be explicit)
       await connection.query(
         `DELETE er FROM exam_result er 
@@ -220,25 +204,25 @@ exports.deleteCourse = async (req, res) => {
         topicIds
       );
       
-      // Step 6: Delete all practice exercises for these topics
+      // Step 4: Delete all practice exercises for these topics
       await connection.query(
         `DELETE FROM practice_exercise WHERE TopicID IN (${placeholders})`,
         topicIds
       );
       
-      // Step 7: Delete all practice videos for these topics
+      // Step 5: Delete all practice videos for these topics
       await connection.query(
         `DELETE FROM practice_video WHERE TopicID IN (${placeholders})`,
         topicIds
       );
       
-      // Step 8: Delete all exam questions for these topics
+      // Step 6: Delete all exam questions for these topics
       await connection.query(
         `DELETE FROM exam_question WHERE TopicID IN (${placeholders})`,
         topicIds
       );
       
-      // Step 9: Finally, delete all topics for this course
+      // Step 7: Finally, delete all topics for this course
       await connection.query(
         "DELETE FROM topic WHERE CourseID = ?",
         [id]

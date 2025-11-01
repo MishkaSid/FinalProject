@@ -41,10 +41,16 @@ export default function Practice() {
   const fetchAllPracticeData = async () => {
     try {
       setLoading(true);
-
+      const token = localStorage.getItem('token');
+      
       // Fetch all practice exercises from all topics
       const response = await fetch(
-        `${SERVER_URL}/api/practice/practiceExercises`
+        `${SERVER_URL}/api/practice/practiceExercises`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
 
       if (!response.ok) {

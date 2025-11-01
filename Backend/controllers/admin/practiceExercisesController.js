@@ -27,7 +27,7 @@ exports.listByTopic = async (req, res) => {
     let params = [topicId];
     
     if (difficulty && ['easy', 'medium', 'exam'].includes(difficulty)) {
-      query += " AND Difficulty = ?";
+      query += " AND LOWER(Difficulty) = LOWER(?)";
       params.push(difficulty);
     }
     
@@ -43,7 +43,7 @@ exports.listByTopic = async (req, res) => {
       correctAnswer: row.CorrectAnswer,
       contentType: row.ContentType,
       contentValue: row.ContentValue,
-      difficulty: row.Difficulty
+      difficulty: row.Difficulty ? String(row.Difficulty).toLowerCase() : null
     }));
     
     res.json(exercises);

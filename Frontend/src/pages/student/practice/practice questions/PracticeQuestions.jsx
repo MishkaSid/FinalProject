@@ -30,7 +30,7 @@ export default function PracticeQuestions() {
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [difficulty, setDifficulty] = useState('easy');
+  const [difficulty, setDifficulty] = useState(null);
 
   // Server URL for images
   const SERVER_URL = "http://localhost:5000";
@@ -41,12 +41,14 @@ export default function PracticeQuestions() {
     const levelParam = urlParams.get('level');
     if (levelParam && ['easy', 'medium', 'exam'].includes(levelParam)) {
       setDifficulty(levelParam);
+    } else {
+      setDifficulty(null); // No filter - show all difficulties
     }
   }, []);
 
   useEffect(() => {
     fetchPracticeData();
-  }, [topicId]); // Only refetch when topicId changes, not when difficulty changes
+  }, [topicId, difficulty]); // Refetch when topicId OR difficulty changes
 
   /**
    * Fetches practice data from the server and sets the state.
@@ -87,9 +89,10 @@ export default function PracticeQuestions() {
       const topicData = await topicResponse.json();
       setTopicData(topicData.topic);
 
-      // Fetch exercises with difficulty filter
+      // Fetch exercises with optional difficulty filter
+      const difficultyParam = difficulty ? `?difficulty=${difficulty}` : '';
       const exercisesResponse = await fetch(
-        `${SERVER_URL}/api/student/practice/exercises/${topicId}?difficulty=${difficulty}`,
+        `${SERVER_URL}/api/student/practice/exercises/${topicId}${difficultyParam}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`

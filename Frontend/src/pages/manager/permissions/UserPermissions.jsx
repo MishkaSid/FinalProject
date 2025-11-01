@@ -67,8 +67,13 @@ export default function UserPermissions() {
    * @description Fetches all available courses from the server
    */
   function fetchCourses() {
+    const token = localStorage.getItem("token");
     axios
-      .get("/api/courses/getCourses")
+      .get("/api/courses/getCourses", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => {
         console.log("Courses fetched:", res.data);
         setCourses(res.data || []);
@@ -138,6 +143,12 @@ export default function UserPermissions() {
    * @description Opens the user form in 'add' mode, clearing any previous form data.
    */
   function handleAddUser() {
+    // Calculate 30 days from now
+    const today = new Date();
+    const thirtyDaysLater = new Date(today);
+    thirtyDaysLater.setDate(today.getDate() + 30);
+    const formattedDate = thirtyDaysLater.toISOString().split('T')[0];
+    
     setFormData({
       UserID: "",
       Name: "",
@@ -145,7 +156,7 @@ export default function UserPermissions() {
       Password: "", // Will be auto-reset to ID for Examinee users
       Role: "Examinee",
       CourseID: null,
-      expired_date: new Date().toISOString().split('T')[0], // Set current date as default
+      expired_date: formattedDate, // Set to 30 days from current date as default
     });
     setIsEditMode(false);
     setIsFormOpen(true);
@@ -211,9 +222,15 @@ export default function UserPermissions() {
    */
   async function handleCreateCourse(courseName) {
     try {
-      const response = await axios.post("/api/courses/addCourse", {
-        CourseName: courseName,
-      });
+      const token = localStorage.getItem("token");
+      const response = await axios.post("/api/courses/addCourse", 
+        { CourseName: courseName },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       
       const newCourse = response.data;
       

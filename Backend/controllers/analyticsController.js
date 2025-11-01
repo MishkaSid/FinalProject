@@ -255,50 +255,6 @@ exports.getCourseGradesOverTime = async (req, res) => {
   }
 };
 
-/**
- * @function getPracticePerDay
- * @description Gets practice attempts per day for student analytics
- * @param {object} req - Express request object with userId param and days query param
- * @param {object} res - Express response object
- */
-exports.getPracticePerDay = async (req, res) => {
-  const { userId } = req.params;
-  const { days = 14 } = req.query;
-
-  let connection;
-  try {
-    connection = await db.getConnection();
-
-    const [rows] = await connection.query(
-      `
-      SELECT DATE(AttemptedAt) AS date, COUNT(*) AS attempts,
-             AVG(IsCorrect) * 100 AS accuracy
-      FROM practice_attempt
-      WHERE UserID = ? AND AttemptedAt >= (CURRENT_DATE - INTERVAL ? DAY)
-      GROUP BY DATE(AttemptedAt)
-      ORDER BY DATE(AttemptedAt)
-    `,
-      [userId, parseInt(days)]
-    );
-
-    const series = rows.map((row) => ({
-      date: row.date.toISOString().split("T")[0],
-      attempts: row.attempts,
-      accuracy: parseFloat(row.accuracy.toFixed(1)),
-    }));
-
-    res.json({ series });
-  } catch (err) {
-    console.error("Error in getPracticePerDay:", err);
-    if (!res.headersSent) {
-      res.status(500).json({ error: "Server error" });
-    }
-  } finally {
-    if (connection) {
-      connection.release();
-    }
-  }
-};
 
 /**
  * @function getVideoMinutes

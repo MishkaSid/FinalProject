@@ -54,7 +54,47 @@ exports.getAllExercises = async (req, res) => {
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM practice_exercise");
+    
+    // Get user's courseId and role from authenticated user
+    const userCourseId = req.user?.courseId || req.user?.CourseID;
+    const userRole = req.user?.Role || req.user?.role;
+    
+    // If user is an Examinee, check if their course is active
+    if (userRole === 'Examinee' && userCourseId) {
+      const [courseRows] = await connection.query(
+        "SELECT Status FROM course WHERE CourseID = ?",
+        [userCourseId]
+      );
+      
+      if (courseRows.length === 0 || (courseRows[0].Status && courseRows[0].Status !== 'active')) {
+        return res.json([]); // Return empty array for inactive courses
+      }
+    }
+    
+    let query = `
+      SELECT pe.* 
+      FROM practice_exercise pe
+      INNER JOIN topic t ON pe.TopicID = t.TopicID
+      INNER JOIN course c ON t.CourseID = c.CourseID
+    `;
+    const params = [];
+    
+    // If user has a courseId, filter by it
+    if (userCourseId) {
+      query += " WHERE t.CourseID = ?";
+      params.push(userCourseId);
+    }
+    
+    // For Examinees, also filter to only active courses
+    if (userRole === 'Examinee') {
+      if (userCourseId) {
+        query += " AND (c.Status = 'active' OR c.Status IS NULL)";
+      } else {
+        query += " WHERE (c.Status = 'active' OR c.Status IS NULL)";
+      }
+    }
+    
+    const [rows] = await connection.query(query, params);
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllExercises:", err);

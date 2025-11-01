@@ -108,21 +108,6 @@ export const getCourseGradesOverTime = async (courseId, from, to) => {
   return res.json();
 };
 
-/**
- * Get practice attempts per day for student analytics
- * @param {string|number} userId - The student's user ID
- * @param {number} days - Number of days to look back (default: 14)
- * @returns {Promise<Object>} Response with series data
- */
-export const getPracticePerDay = async (userId, days = 14) => {
-  const response = await fetch(
-    `${API_BASE}/analytics/student/${userId}/practice-per-day?days=${days}`
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to fetch practice per day: ${response.status}`);
-  }
-  return response.json();
-};
 
 /**
  * Get video watch minutes per day for student analytics
@@ -140,32 +125,6 @@ export const getVideoMinutes = async (userId, days = 14) => {
   return response.json();
 };
 
-/**
- * Record a practice attempt
- * @param {Object} data - Practice attempt data
- * @param {string|number} data.userId - The student's user ID
- * @param {string|number} data.exerciseId - The exercise ID
- * @param {string} data.selectedAnswer - The student's selected answer
- * @returns {Promise<Object>} Response with attempt result
- */
-export const postPracticeAttempt = async ({
-  userId,
-  exerciseId,
-  selectedAnswer,
-}) => {
-  const response = await fetch(`${API_BASE}/practice-tracking/attempt`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ userId, exerciseId, selectedAnswer }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to record practice attempt: ${response.status}`);
-  }
-  return response.json();
-};
 
 /**
  * Record video watch time

@@ -577,7 +577,7 @@ export default function ManageContent() {
           }}
         >
           <div className={styles.inputContainer}>
-            <label className={styles.label} style={{ fontSize: '1.8rem' }}>שם קורס</label>
+            <label className={styles.label}>שם קורס</label>
             <input
               className={styles.input}
               type="text"
@@ -585,19 +585,15 @@ export default function ManageContent() {
               onChange={(e) => setNewCourseName(e.target.value)}
             />
           </div>
-          <div style={{ 
-            display: 'flex', 
-            gap: '12px', 
-            marginTop: '1.5rem',
-            justifyContent: 'center'
-          }}>
-            <button className={styles.submitButton} type="submit">
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', width: '100%' }}>
+            <button className={styles.submitButton} type="submit" style={{ flex: 1 }}>
               הוסף
             </button>
             <button
-              className={styles.submitButton}
+              className={styles.smallButton}
               type="button"
               onClick={() => setIsAddCourseOpen(false)}
+              style={{ flex: 1, padding: '0.7rem 1.2rem' }}
             >
               ביטול
             </button>

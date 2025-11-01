@@ -16,6 +16,19 @@ exports.startExam = async (req, res) => {
       return res.status(400).json({ error: "No course assigned to user" });
     }
 
+    // Check if course is active for Examinees
+    const userRole = req.user?.Role || req.user?.role;
+    if (userRole === 'Examinee') {
+      const [courseRows] = await dbRun(
+        "SELECT Status FROM course WHERE CourseID = ?",
+        [Number(courseId)]
+      );
+      
+      if (courseRows.length === 0 || (courseRows[0].Status && courseRows[0].Status !== 'active')) {
+        return res.status(403).json({ error: "Course is not active" });
+      }
+    }
+
     // רשימת נושאים לפי course_topic_order אם קיימת, אחרת לפי TopicID
     let topicIds = [];
     try {

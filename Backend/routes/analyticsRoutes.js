@@ -34,11 +34,6 @@ router.get(
   analyticsController.getExamCounters
 );
 router.get(
-  "/student/:userId/practice-per-day",
-  authenticateToken,
-  analyticsController.getPracticePerDay
-);
-router.get(
   "/student/:userId/video-minutes",
   authenticateToken,
   analyticsController.getVideoMinutes
