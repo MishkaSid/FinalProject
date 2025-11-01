@@ -143,11 +143,16 @@ export default function UserPermissions() {
    * @description Opens the user form in 'add' mode, clearing any previous form data.
    */
   function handleAddUser() {
-    // Calculate 30 days from now
+    // Calculate 30 days from now using local timezone-safe formatting
     const today = new Date();
     const thirtyDaysLater = new Date(today);
     thirtyDaysLater.setDate(today.getDate() + 30);
-    const formattedDate = thirtyDaysLater.toISOString().split('T')[0];
+    
+    // Format as YYYY-MM-DD using local timezone (avoid UTC conversion issues)
+    const year = thirtyDaysLater.getFullYear();
+    const month = String(thirtyDaysLater.getMonth() + 1).padStart(2, '0');
+    const day = String(thirtyDaysLater.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
     
     setFormData({
       UserID: "",
