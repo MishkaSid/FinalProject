@@ -52,7 +52,6 @@ export interface PracticeVideo {
   Difficulty: "easy" | "exam" | "intro" | "medium";
   TopicID: number;
   VideoID?: number;
-  VideoTopic: string;
   VideoUrl: string;
 }
 
@@ -63,13 +62,14 @@ export interface SiteVisit {
 
 export interface Topic {
   CourseID: number;
+  status?: string;
   TopicDescription?: string | null;
   TopicID?: number;
   TopicName: string;
 }
 
 export interface Users {
-  CourseID: number;
+  CourseID?: number | null;
   Email: string;
   expired_date?: Date | null;
   Name: string;

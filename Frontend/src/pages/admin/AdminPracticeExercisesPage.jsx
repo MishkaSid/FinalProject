@@ -66,14 +66,20 @@ const AdminPracticeExercisesPage = () => {
     try {
       const token = localStorage.getItem('token');
       
-      // Handle file upload for new exercises
+      // Handle file upload
       let contentValue = formData.contentValue;
       if (!editingExercise) {
+        // For new exercises, file is required
         if (fileUpload) {
           contentValue = await uploadFileToServer();
         } else {
           setError('יש לבחור תמונה');
           return;
+        }
+      } else {
+        // For editing, file is optional - upload if provided
+        if (fileUpload) {
+          contentValue = await uploadFileToServer();
         }
       }
 
@@ -92,7 +98,7 @@ const AdminPracticeExercisesPage = () => {
       
       const method = editingExercise ? 'PUT' : 'POST';
       const body = editingExercise 
-        ? formData 
+        ? { ...formData, contentValue }
         : { ...formData, topicId: parseInt(topicId), contentValue };
 
       const response = await fetch(url, {
@@ -332,17 +338,34 @@ const AdminPracticeExercisesPage = () => {
                   )}
                 </div>
               ) : (
-                <div className={styles.formGroup}>
-                  <label>קישור תמונה קיים:</label>
-                  <input
-                    type="url"
-                    value={formData.contentValue}
-                    onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
-                    placeholder="קישור קיים בלבד בעריכה"
-                    disabled
-                  />
-                  <small>כדי להחליף תמונה, צור תרגיל חדש עם תמונה</small>
-                </div>
+                <>
+                  <div className={styles.formGroup}>
+                    <label>העלה תמונה חדשה:</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                    />
+                    {filePreview && (
+                      <img 
+                        src={filePreview} 
+                        alt="Preview" 
+                        style={{ maxWidth: '240px', display: 'block', marginTop: '8px' }}
+                      />
+                    )}
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>קישור תמונה קיים:</label>
+                    <input
+                      type="url"
+                      value={formData.contentValue}
+                      onChange={(e) => setFormData({...formData, contentValue: e.target.value})}
+                      placeholder="קישור קיים בלבד בעריכה"
+                      disabled
+                    />
+                    <small>כדי להחליף תמונה, העלה תמונה חדשה למעלה או צור תרגיל חדש</small>
+                  </div>
+                </>
               )}
               
               <div className={styles.formGroup}>

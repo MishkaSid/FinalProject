@@ -273,11 +273,14 @@ export default function StudentDashboard() {
           setSubjects([]);
           return;
         }
-    
+        const token = localStorage.getItem("token");
         const response = await fetch("http://localhost:5000/api/topics/getTopics", {
           method: "GET",
-          headers: { "Content-Type": "application/json" },
+          
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         });
+
+      
     
         if (!response.ok) {
           const errorText = await response.text();
@@ -291,7 +294,7 @@ export default function StudentDashboard() {
           throw new Error("Invalid data format received from server");
         }
     
-        // Filter topics by the assigned CourseID
+        // Filter topics by the assigned CourseID (backend already filters by status for non-Admins)
         const filteredData = data.filter(
           (t) => Number(t.CourseID) === Number(currentCourseId)
         );
@@ -346,12 +349,6 @@ export default function StudentDashboard() {
       setSelectedSubject(null);
     }
   }, [selectedSubject, navigate]);
-
-  const handleStartExam = useCallback(() => {
-    navigate("/student/pre-exam");
-    setShowSubjectModal(false);
-    setSelectedSubject(null);
-  }, [navigate]);
 
   const handleCloseModal = useCallback(() => {
     setShowSubjectModal(false);
@@ -420,7 +417,6 @@ export default function StudentDashboard() {
   error={error}
   onSubjectSelect={handleSubjectSelect}
   onStartPractice={handleStartPractice}
-  onStartExam={handleStartExam}
   onRetryFetch={fetchSubjects}
   currentCourseId={currentCourseId}
 />

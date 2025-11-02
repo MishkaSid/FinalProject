@@ -146,6 +146,20 @@ export default function PracticeQuestions() {
 
     const currentExercise = exercises[currentExerciseIndex];
 
+    // Parse answer options safely
+    let answerOptions = [];
+    try {
+      if (currentExercise.AnswerOptions) {
+        answerOptions =
+          typeof currentExercise.AnswerOptions === "string"
+            ? JSON.parse(currentExercise.AnswerOptions)
+            : currentExercise.AnswerOptions;
+      }
+    } catch (error) {
+      console.warn("Failed to parse AnswerOptions:", error);
+      answerOptions = [];
+    }
+
     // Debug logging to see what we're comparing
     console.log("=== ANSWER SUBMISSION DEBUG ===");
     console.log("Selected Answer:", selectedAnswer);
@@ -158,18 +172,13 @@ export default function PracticeQuestions() {
       typeof currentExercise.CorrectAnswer
     );
 
-    // Check if CorrectAnswer is a letter (A, B, C, D) and convert to actual answer text
+    // Check if CorrectAnswer is a letter (A, B, C, D, E, F, etc.) and convert to actual answer text
     let correctAnswerText = currentExercise.CorrectAnswer;
-    if (
-      ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-        String(currentExercise.CorrectAnswer).trim()
-      )
-    ) {
+    const correctAnswerStr = String(currentExercise.CorrectAnswer).trim();
+    // Check if it's a single letter (A-Z)
+    if (correctAnswerStr.length === 1 && /^[A-Za-z]$/.test(correctAnswerStr)) {
       const letterIndex =
-        String(currentExercise.CorrectAnswer)
-          .trim()
-          .toUpperCase()
-          .charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+        correctAnswerStr.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3, E=4, etc.
       if (letterIndex >= 0 && letterIndex < answerOptions.length) {
         correctAnswerText = answerOptions[letterIndex];
         console.log(
@@ -183,13 +192,13 @@ export default function PracticeQuestions() {
 
     // Ensure both values are strings for comparison
     const selectedAnswerStr = String(selectedAnswer).trim();
-    const correctAnswerStr = String(correctAnswerText).trim();
+    const correctAnswerStrFinal = String(correctAnswerText).trim();
 
-    const isCorrect = selectedAnswerStr === correctAnswerStr;
+    const isCorrect = selectedAnswerStr === correctAnswerStrFinal;
 
     console.log("String comparison:");
     console.log("  Selected (trimmed):", `"${selectedAnswerStr}"`);
-    console.log("  Correct (trimmed):", `"${correctAnswerStr}"`);
+    console.log("  Correct (trimmed):", `"${correctAnswerStrFinal}"`);
     console.log("  Is Correct:", isCorrect);
     console.log("================================");
 
@@ -309,14 +318,11 @@ export default function PracticeQuestions() {
 
   // Get the correct answer text (handle both letter and text formats)
   let correctAnswerText = currentExercise.CorrectAnswer;
-  if (
-    ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-      String(currentExercise.CorrectAnswer).trim()
-    )
-  ) {
+  const correctAnswerStr = String(currentExercise.CorrectAnswer).trim();
+  // Check if it's a single letter (A-Z)
+  if (correctAnswerStr.length === 1 && /^[A-Za-z]$/.test(correctAnswerStr)) {
     const letterIndex =
-      String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) -
-      65; // A=0, B=1, C=2, D=3
+      correctAnswerStr.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3, E=4, etc.
     if (letterIndex >= 0 && letterIndex < answerOptions.length) {
       correctAnswerText = answerOptions[letterIndex];
       console.log(
@@ -402,23 +408,6 @@ export default function PracticeQuestions() {
             <h3>בחר תשובה:</h3>
             <div className={styles.answerOptionsGrid}>
               {answerOptions.map((option, index) => {
-                // Get the correct answer text (handle both letter and text formats)
-                let correctAnswerText = currentExercise.CorrectAnswer;
-                if (
-                  ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-                    String(currentExercise.CorrectAnswer).trim()
-                  )
-                ) {
-                  const letterIndex =
-                    String(currentExercise.CorrectAnswer)
-                      .trim()
-                      .toUpperCase()
-                      .charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
-                  if (letterIndex >= 0 && letterIndex < answerOptions.length) {
-                    correctAnswerText = answerOptions[letterIndex];
-                  }
-                }
-
                 // Use consistent comparison method for all checks
                 const isCorrectAnswer =
                   String(option).trim() === String(correctAnswerText).trim();

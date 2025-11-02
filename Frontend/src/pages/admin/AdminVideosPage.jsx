@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit, FiTrash2, FiArrowRight } from 'react-icons/fi';
+import Popup from "../../components/popup/Popup";
 import styles from './AdminPages.module.css';
 
 const AdminVideosPage = () => {
@@ -12,14 +13,26 @@ const AdminVideosPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingVideo, setEditingVideo] = useState(null);
   const [formData, setFormData] = useState({
-    videoTopic: '',
     videoUrl: '',
     difficulty: 'intro'
   });
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetchVideos();
   }, [topicId]);
+
+  // Helper function to get Hebrew difficulty label
+  const getDifficultyLabel = (difficulty) => {
+    const difficultyMap = {
+      'intro': 'מבוא',
+      'easy': 'קל',
+      'medium': 'בינוני',
+      'exam': 'מבחן'
+    };
+    return difficultyMap[difficulty] || difficulty;
+  };
 
   const fetchVideos = async () => {
     try {
@@ -46,6 +59,20 @@ const AdminVideosPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check for duplicate difficulty
+    const existingVideoWithSameDifficulty = videos.find(v => 
+      v.difficulty === formData.difficulty && 
+      (!editingVideo || v.videoId !== editingVideo.videoId)
+    );
+    
+    if (existingVideoWithSameDifficulty) {
+      const difficultyLabel = getDifficultyLabel(formData.difficulty);
+      setErrorMessage(`לא יכול להיות יותר מסרטון ${difficultyLabel} אחד, באפשרותך לשנות את הקיים או לשים את הסרטון הזה במקום אחר בדף`);
+      setShowErrorPopup(true);
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const url = editingVideo 
@@ -72,7 +99,7 @@ const AdminVideosPage = () => {
 
       setShowForm(false);
       setEditingVideo(null);
-      setFormData({ videoTopic: '', videoUrl: '', difficulty: 'intro' });
+      setFormData({ videoUrl: '', difficulty: 'intro' });
       fetchVideos();
     } catch (err) {
       setError(err.message);
@@ -82,7 +109,6 @@ const AdminVideosPage = () => {
   const handleEdit = (video) => {
     setEditingVideo(video);
     setFormData({
-      videoTopic: video.videoTopic,
       videoUrl: video.videoUrl,
       difficulty: video.difficulty
     });
@@ -136,7 +162,7 @@ const AdminVideosPage = () => {
           className={styles.addButton}
           onClick={() => {
             setEditingVideo(null);
-            setFormData({ videoTopic: '', videoUrl: '', difficulty: 'intro' });
+            setFormData({ videoUrl: '', difficulty: 'intro' });
             setShowForm(true);
           }}
         >
@@ -155,15 +181,6 @@ const AdminVideosPage = () => {
           <div className={styles.formContent}>
             <h2>{editingVideo ? 'עריכת סרטון' : 'הוספת סרטון חדש'}</h2>
             <form onSubmit={handleSubmit}>
-              <div className={styles.formGroup}>
-                <label>נושא הסרטון:</label>
-                <input
-                  type="text"
-                  value={formData.videoTopic}
-                  onChange={(e) => setFormData({...formData, videoTopic: e.target.value})}
-                  required
-                />
-              </div>
               <div className={styles.formGroup}>
                 <label>קישור לסרטון:</label>
                 <input
@@ -206,7 +223,6 @@ const AdminVideosPage = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>נושא</th>
               <th>קישור</th>
               <th>רמת קושי</th>
               <th>פעולות</th>
@@ -215,7 +231,6 @@ const AdminVideosPage = () => {
           <tbody>
             {videos.map((video) => (
               <tr key={video.videoId}>
-                <td>{video.videoTopic}</td>
                 <td>
                   <a href={video.videoUrl} target="_blank" rel="noopener noreferrer">
                     {video.videoUrl}
@@ -247,6 +262,14 @@ const AdminVideosPage = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Error Popup */}
+      <Popup
+        isOpen={showErrorPopup}
+        onClose={() => setShowErrorPopup(false)}
+        header="שגיאה"
+        text={errorMessage}
+      />
     </div>
   );
 };

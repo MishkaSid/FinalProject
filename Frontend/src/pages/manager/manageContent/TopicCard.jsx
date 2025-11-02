@@ -20,8 +20,26 @@ import Card from "../../../components/card/Card";
  * @returns {JSX.Element} The rendered topic card component.
  */
 export default function TopicCard({ topic, onSelect, onEdit, onDelete, onManageContent }) {
+  const isActive = topic.status === 'active' || topic.status === null;
+  
   return (
-    <div className={styles.topicCardContainer}>
+    <div className={styles.topicCardContainer} style={{ position: 'relative' }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: '8px',
+          left: '8px',
+          backgroundColor: isActive ? '#10b981' : '#ef4444',
+          color: 'white',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '11px',
+          fontWeight: 'bold',
+          zIndex: 1
+        }}
+      >
+        {isActive ? '✓ פעיל' : '✗ לא פעיל'}
+      </div>
       <Card title={topic.TopicName} onClick={() => onManageContent(topic)} size="medium" />
       <div className={styles.topicActions}>
         <button className={styles.editButtonLarge} onClick={onEdit}>

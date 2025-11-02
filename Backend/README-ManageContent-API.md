@@ -35,7 +35,6 @@ curl -X GET "http://localhost:5000/api/topics/1/videos?difficulty=easy" \
   {
     "videoId": 1,
     "topicId": 1,
-    "videoTopic": "Introduction to Algebra",
     "videoUrl": "https://example.com/video1",
     "difficulty": "easy"
   }
@@ -51,7 +50,6 @@ POST /videos
 ```json
 {
   "topicId": 1,
-  "videoTopic": "Introduction to Algebra",
   "videoUrl": "https://example.com/video1",
   "difficulty": "easy"
 }
@@ -64,7 +62,6 @@ curl -X POST "http://localhost:5000/api/videos" \
   -H "Authorization: Bearer your-jwt-token" \
   -d '{
     "topicId": 1,
-    "videoTopic": "Introduction to Algebra",
     "videoUrl": "https://example.com/video1",
     "difficulty": "easy"
   }'
@@ -81,7 +78,7 @@ curl -X PUT "http://localhost:5000/api/videos/1" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-jwt-token" \
   -d '{
-    "videoTopic": "Updated Video Title",
+    "videoUrl": "https://example.com/updated-video1",
     "difficulty": "medium"
   }'
 ```
@@ -318,7 +315,6 @@ curl -X DELETE "http://localhost:5000/api/practice-exercises/1" \
 ### practice_video
 - VideoID (int, AI, PK)
 - TopicID (int, FK)
-- VideoTopic (varchar(255))
 - VideoUrl (varchar(500))
 - Difficulty (enum: 'intro', 'easy', 'medium', 'exam')
 

@@ -411,8 +411,10 @@ exports.getStudentsReport = async (req, res) => {
       params.push(courseId);
     }
     if (userId) {
-      where += " AND u.UserID = ?";
-      params.push(userId);
+      // Support filtering by both UserID and Name
+      where += " AND (u.UserID LIKE ? OR u.Name LIKE ?)";
+      const searchTerm = `%${userId}%`;
+      params.push(searchTerm, searchTerm);
     }
     if (role) {
       where += " AND u.Role = ?";

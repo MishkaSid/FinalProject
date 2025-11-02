@@ -39,7 +39,6 @@ exports.listByTopic = async (req, res) => {
     const videos = rows.map(row => ({
       videoId: row.VideoID,
       topicId: row.TopicID,
-      videoTopic: row.VideoTopic,
       videoUrl: row.VideoUrl,
       difficulty: row.Difficulty
     }));
@@ -59,12 +58,12 @@ exports.listByTopic = async (req, res) => {
 
 // Create a new video
 exports.create = async (req, res) => {
-  const { topicId, videoTopic, videoUrl, difficulty } = req.body;
+  const { topicId, videoUrl, difficulty } = req.body;
   let connection;
 
   try {
     // Validation
-    if (!topicId || !videoTopic || !videoUrl || !difficulty) {
+    if (!topicId || !videoUrl || !difficulty) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     
@@ -75,14 +74,13 @@ exports.create = async (req, res) => {
     connection = await db.getConnection();
     
     const [result] = await connection.query(
-      "INSERT INTO practice_video (TopicID, VideoTopic, VideoUrl, Difficulty) VALUES (?, ?, ?, ?)",
-      [topicId, videoTopic, videoUrl, difficulty]
+      "INSERT INTO practice_video (TopicID, VideoUrl, Difficulty) VALUES (?, ?, ?)",
+      [topicId, videoUrl, difficulty]
     );
     
     res.status(201).json({
       videoId: result.insertId,
       topicId,
-      videoTopic,
       videoUrl,
       difficulty
     });
@@ -101,7 +99,7 @@ exports.create = async (req, res) => {
 // Update a video
 exports.update = async (req, res) => {
   const { videoId } = req.params;
-  const { videoTopic, videoUrl, difficulty } = req.body;
+  const { videoUrl, difficulty } = req.body;
   let connection;
 
   try {
@@ -115,10 +113,6 @@ exports.update = async (req, res) => {
     const updateFields = [];
     const updateValues = [];
     
-    if (videoTopic !== undefined) {
-      updateFields.push("VideoTopic = ?");
-      updateValues.push(videoTopic);
-    }
     if (videoUrl !== undefined) {
       updateFields.push("VideoUrl = ?");
       updateValues.push(videoUrl);

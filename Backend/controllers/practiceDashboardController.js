@@ -118,7 +118,6 @@ exports.getPracticeVideos = async (req, res) => {
       SELECT 
         pv.VideoID,
         pv.TopicID,
-        pv.VideoTopic,
         pv.VideoUrl,
         pv.Difficulty
       FROM practice_video pv

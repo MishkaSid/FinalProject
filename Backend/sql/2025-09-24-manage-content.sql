@@ -37,7 +37,7 @@ FOREIGN KEY (TopicID) REFERENCES topic(TopicID)
 ON DELETE CASCADE;
 
 -- Verify table structures are correct
--- practice_video should have: VideoID, TopicID, VideoTopic, VideoUrl, Difficulty
+-- practice_video should have: VideoID, TopicID, VideoUrl, Difficulty
 -- practice_exercise should have: ExerciseID, TopicID, AnswerOptions, CorrectAnswer, ContentType, ContentValue, Difficulty
 -- exam_question should have: QuestionID, TopicID, QuestionPicURL, AnswerOptions, CorrectAnswer
 

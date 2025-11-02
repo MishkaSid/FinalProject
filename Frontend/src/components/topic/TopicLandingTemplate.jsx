@@ -324,7 +324,7 @@ export default function TopicLandingTemplate() {
                 <iframe
                   className={styles.videoFrame}
                   src={toYoutubeEmbed(intro.VideoUrl)}
-                  title={intro?.VideoTopic || "סרטון פתיחה"}
+                  title="סרטון פתיחה"
                   loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -383,7 +383,7 @@ export default function TopicLandingTemplate() {
                         <iframe
                           className={styles.videoFrame}
                           src={toYoutubeEmbed(v.VideoUrl)}
-                          title={v?.VideoTopic || label}
+                          title={label}
                           loading="lazy"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen

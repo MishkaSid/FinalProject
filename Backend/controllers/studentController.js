@@ -87,9 +87,21 @@ exports.getAllTopics = async (req, res) => {
     `;
     let params = [];
     
+    // Apply filters based on user role
+    const whereConditions = [];
+    
     // If user is an examinee, only show topics from active courses
     if (userRole === 'Examinee') {
-      query += ` WHERE (c.Status = 'active' OR c.Status IS NULL)`;
+      whereConditions.push(`(c.Status = 'active' OR c.Status IS NULL)`);
+    }
+    
+    // If user is not Admin, only show active topics
+    if (userRole !== 'Admin') {
+      whereConditions.push(`(t.status = 'active' OR t.status IS NULL)`);
+    }
+    
+    if (whereConditions.length > 0) {
+      query += ` WHERE ${whereConditions.join(' AND ')}`;
     }
     
     query += ` ORDER BY c.CourseName, t.TopicName`;
@@ -122,9 +134,15 @@ exports.getTopicsByCourse = async (req, res) => {
     `;
     let params = [courseId];
     
+    // Apply filters based on user role
     // If user is an examinee, only allow access to topics from active courses
     if (userRole === 'Examinee') {
       query += ` AND (c.Status = 'active' OR c.Status IS NULL)`;
+    }
+    
+    // If user is not Admin, only show active topics
+    if (userRole !== 'Admin') {
+      query += ` AND (t.status = 'active' OR t.status IS NULL)`;
     }
     
     query += ` ORDER BY t.TopicName`;
@@ -169,6 +187,15 @@ exports.getTopicById = async (req, res) => {
       // Block access if course is explicitly set to inactive
       if (courseStatus && courseStatus !== 'active') {
         return res.status(403).json({ error: "Course is not active" });
+      }
+    }
+    
+    // For non-Admins, verify that the topic is active
+    if (userRole !== 'Admin') {
+      const topicStatus = rows[0].status;
+      // Block access if topic is explicitly set to inactive
+      if (topicStatus && topicStatus !== 'active') {
+        return res.status(403).json({ error: "Topic is not active" });
       }
     }
     
@@ -417,6 +444,15 @@ exports.getPracticeSessionData = async (req, res) => {
       // Block access if course is explicitly set to inactive
       if (courseStatus && courseStatus !== 'active') {
         return res.status(403).json({ error: "Course is not active" });
+      }
+    }
+    
+    // For non-Admins, verify that the topic is active
+    if (userRole !== 'Admin') {
+      const topicStatus = topicRows[0].status;
+      // Block access if topic is explicitly set to inactive
+      if (topicStatus && topicStatus !== 'active') {
+        return res.status(403).json({ error: "Topic is not active" });
       }
     }
     

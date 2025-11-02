@@ -40,9 +40,14 @@ export default function CourseSelector({
         onChange={e => onSelect(Number(e.target.value))}
       >
         <option value="" disabled>בחר קורס</option>
-        {courses.map(course => (
-          <option key={course.CourseID} value={course.CourseID}>{course.CourseName}</option>
-        ))}
+        {courses.map(course => {
+          const isActive = course.Status === 'active' || course.Status === null;
+          return (
+            <option key={course.CourseID} value={course.CourseID}>
+              {course.CourseName} • {isActive ? 'פעיל' : 'לא פעיל'}
+            </option>
+          );
+        })}
       </select>
       {selectedCourse ? (
         <>

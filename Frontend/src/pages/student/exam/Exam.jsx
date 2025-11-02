@@ -54,17 +54,17 @@ export default function Exam() {
   const EXAM_DURATION_MINUTES = 150;
 
   // Helper functions for custom popups
-  const showAlert = (title, message) => {
+  const showAlert = React.useCallback((title, message) => {
     setPopup({
       isOpen: true,
       type: "alert",
       title,
       message,
-      onConfirm: () => setPopup({ ...popup, isOpen: false }),
+      onConfirm: () => setPopup({ isOpen: false, type: "", title: "", message: "", onConfirm: null }),
     });
-  };
+  }, []);
 
-  const showConfirm = (title, message, onConfirm) => {
+  const showConfirm = React.useCallback((title, message, onConfirm) => {
     setPopup({
       isOpen: true,
       type: "confirm",
@@ -72,11 +72,11 @@ export default function Exam() {
       message,
       onConfirm,
     });
-  };
+  }, []);
 
-  const closePopup = () => {
-    setPopup({ ...popup, isOpen: false });
-  };
+  const closePopup = React.useCallback(() => {
+    setPopup({ isOpen: false, type: "", title: "", message: "", onConfirm: null });
+  }, []);
 
   // auth redirect and data fetch
   useEffect(() => {
@@ -87,6 +87,53 @@ export default function Exam() {
     fetchExamData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
+
+  // prevent page refresh and back navigation during exam
+  useEffect(() => {
+    if (examCompleted || !examStats.startTime) return;
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    const handlePopState = (e) => {
+      // Push a new state to prevent back navigation
+      window.history.pushState(null, '', window.location.href);
+      
+      // Show custom popup
+      showAlert(
+        "⚠️ אזהרה",
+        "לא ניתן לחזור אחורה במהלך המבחן. כל ההתקדמות תשמר."
+      );
+    };
+
+    const handleClick = (e) => {
+      // Check if the clicked element is a Link or inside a Link
+      const link = e.target.closest('a[href]');
+      if (link && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
+        e.preventDefault();
+        e.stopPropagation();
+        showAlert(
+          "⚠️ אזהרה",
+          "לא ניתן לעזוב את המבחן במהלך ביצועו. כל ההתקדמות תשמר."
+        );
+      }
+    };
+
+    // Add a new state to the history stack
+    window.history.pushState(null, '', window.location.href);
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+    document.addEventListener('click', handleClick, true);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('click', handleClick, true);
+    };
+  }, [examCompleted, examStats.startTime, showAlert]);
 
   // timer
   useEffect(() => {

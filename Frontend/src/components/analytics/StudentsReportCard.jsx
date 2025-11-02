@@ -53,7 +53,8 @@ export default function StudentsReportCard() {
   }, [rows]);
 
   function downloadCSV(filename = "students-report.csv") {
-    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
+    const bom = "\ufeff";
+    const blob = new Blob([bom, csvText], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -90,10 +91,10 @@ export default function StudentsReportCard() {
         </label>
 
         <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span>ת.ז תלמיד - אופציונלי</span>
+          <span>חיפוש תלמיד - ת.ז או שם (אופציונלי)</span>
           <input
             type="text"
-            placeholder="למשל 208082206"
+            placeholder="למשל 208082206 או שם"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
           />

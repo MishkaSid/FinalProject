@@ -20,6 +20,7 @@ import styles from "../adminPages.module.css";
  */
 export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
   const [topicName, setTopicName] = useState(initialValues.TopicName || "");
+  const [status, setStatus] = useState(initialValues.status || "active");
 
   return (
     <form
@@ -32,6 +33,7 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
         }
         onSubmit({
           TopicName: topicName,
+          status: status,
         });
       }}
     >
@@ -45,6 +47,18 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
           placeholder="הזן שם נושא"
           required
         />
+      </div>
+      <div className={styles.inputContainer}>
+        <label className={styles.label}>סטטוס</label>
+        <select
+          className={styles.input}
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          required
+        >
+          <option value="active">פעיל</option>
+          <option value="inactive">לא פעיל</option>
+        </select>
       </div>
       <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', width: '100%' }}>
         <button className={styles.submitButton} type="submit" style={{ flex: 1 }}>

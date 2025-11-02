@@ -75,13 +75,10 @@ function validate(fields, values, mode) {
       return "הסיסמה חייבת להכיל לפחות אות אחת, מספר אחד, ואורכה בין 3 ל-8 תווים.";
     }
   }
-  // All required fields must be filled (except password for Examinee users and CourseID which is optional)
+  // All required fields must be filled (except password for Examinee users and expired_date which is validated above)
   for (const field of fields) {
     if (field === "Password" && values.Role === "Examinee") {
       continue; // Skip password validation for Examinee users
-    }
-    if (field === "CourseID") {
-      continue; // CourseID is optional
     }
     if (field === "expired_date") {
       continue; // expired_date validation is handled above
@@ -219,8 +216,9 @@ export default function UserForm({
                       name={field}
                       value={values[field]}
                       onChange={handleChange}
+                      required
                     >
-                      <option value="">בחר קורס (אופציונלי)</option>
+                      <option value="">בחר קורס</option>
                       {courses.map((course) => (
                         <option key={course.CourseID} value={course.CourseID}>
                           {course.CourseName}

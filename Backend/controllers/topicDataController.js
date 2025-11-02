@@ -10,7 +10,18 @@ exports.getAllTopics = async (req, res) => {
   let connection;
   try {
     connection = await db.getConnection();
-    const [rows] = await connection.query("SELECT * FROM topic");
+    
+    // Get user role - Admins see all topics, others only see active topics
+    const userRole = req.user?.role || req.user?.Role;
+    
+    let query = "SELECT * FROM topic";
+    
+    // If user is not Admin, only show active topics
+    if (userRole !== 'Admin') {
+      query += " WHERE status = 'active' OR status IS NULL";
+    }
+    
+    const [rows] = await connection.query(query);
     res.json(rows);
   } catch (err) {
     console.error("Error in getAllTopics:", err);
@@ -50,7 +61,7 @@ exports.getTopicById = async (req, res) => {
 
 // Create a new topic
 exports.createTopic = async (req, res) => {
-  const { TopicName, CourseID } = req.body;
+  const { TopicName, CourseID, status } = req.body;
   let connection;
 
   try {
@@ -95,12 +106,13 @@ exports.createTopic = async (req, res) => {
       return;
     }
     
-    // Insert topic with auto-generated TopicID
+    // Insert topic with auto-generated TopicID and status
+    const topicStatus = status || 'active';
     const [result] = await connection.query(
-      "INSERT INTO topic (TopicName, CourseID) VALUES (?, ?)",
-      [TopicName, targetCourseId]
+      "INSERT INTO topic (TopicName, CourseID, status) VALUES (?, ?, ?)",
+      [TopicName, targetCourseId, topicStatus]
     );
-    res.json({ TopicID: result.insertId, TopicName, CourseID: targetCourseId });
+    res.json({ TopicID: result.insertId, TopicName, CourseID: targetCourseId, status: topicStatus });
   } catch (err) {
     console.error("Error in createTopic:", err);
     if (!res.headersSent) {
@@ -121,7 +133,7 @@ exports.createTopic = async (req, res) => {
 // Update a topic
 exports.updateTopic = async (req, res) => {
   const { id } = req.params;
-  const { TopicName } = req.body;
+  const { TopicName, status } = req.body;
   let connection;
 
   try {
@@ -153,10 +165,33 @@ exports.updateTopic = async (req, res) => {
       }
     }
     
-    // Update only the topic name, CourseID remains unchanged
+    // Build update query based on what's provided
+    let updateFields = [];
+    let values = [];
+    
+    if (TopicName) {
+      updateFields.push('TopicName = ?');
+      values.push(TopicName);
+    }
+    
+    if (status) {
+      updateFields.push('status = ?');
+      values.push(status);
+    }
+    
+    if (updateFields.length === 0) {
+      if (!res.headersSent) {
+        return res.status(400).json({ error: "No fields to update" });
+      }
+      return;
+    }
+    
+    values.push(id);
+    
+    // Update topic fields
     await connection.query(
-      "UPDATE topic SET TopicName = ? WHERE TopicID = ?",
-      [TopicName, id]
+      `UPDATE topic SET ${updateFields.join(', ')} WHERE TopicID = ?`,
+      values
     );
     
     // Get the updated topic to return full data

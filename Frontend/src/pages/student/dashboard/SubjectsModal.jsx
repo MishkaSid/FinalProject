@@ -1,7 +1,6 @@
 // Frontend/src/pages/student/dashboard/SubjectsModal.jsx
 import React from "react";
 import { FiBook, FiCheck, FiAlertCircle } from "react-icons/fi";
-import { LuNotebookPen } from "react-icons/lu";
 import Popup from "../../../components/popup/Popup";
 import styles from "./student.module.css";
 
@@ -18,7 +17,6 @@ const SubjectsModal = ({
   error,
   onSubjectSelect,
   onStartPractice,
-  onStartExam,
   onRetryFetch,
   // NEW: pass the user course id from parent. If null, user is unassigned.
   currentCourseId,
@@ -33,7 +31,7 @@ const SubjectsModal = ({
         <p className={styles.modalDescription}>
           {isUnassigned
             ? "אינך משויך לקורס כרגע. לא מוצגים נושאים עד לשיוך לקורס."
-            : "בחר נושא לתרגול או למבחן מהרשימה המוצגת למטה"}
+            : "בחר נושא לתרגול מהרשימה המוצגת למטה"}
         </p>
 
         {error && !isUnassigned && (
@@ -100,7 +98,7 @@ const SubjectsModal = ({
       </div>
 
       <div className={styles.modalFooter}>
-        <div className={styles.modalActionsGrid}>
+        <div className={styles.modalActionsGrid} style={{ gridTemplateColumns: '1fr', maxWidth: '400px', margin: '0 auto' }}>
           <button
             className={`${styles.actionButton} ${styles.practiceActionButton} ${
               actionsDisabled ? styles.actionButtonDisabled : ""
@@ -108,18 +106,9 @@ const SubjectsModal = ({
             onClick={onStartPractice}
             disabled={actionsDisabled}
           >
+            
+            <span className={styles.actionButtonText}>בואו נתרגל</span>
             <FiBook className={styles.actionButtonIcon} />
-            <span className={styles.actionButtonText}>התחל תרגול</span>
-          </button>
-          <button
-            className={`${styles.actionButton} ${styles.examActionButton} ${
-              actionsDisabled ? styles.actionButtonDisabled : ""
-            }`}
-            onClick={onStartExam}
-            disabled={actionsDisabled}
-          >
-            <LuNotebookPen className={styles.actionButtonIcon} />
-            <span className={styles.actionButtonText}>התחל מבחן</span>
           </button>
         </div>
       </div>

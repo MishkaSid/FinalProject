@@ -33,7 +33,6 @@ curl -H "Authorization: Bearer your-token" \
   {
     "videoId": 1,
     "topicId": 1,
-    "videoTopic": "Introduction to Math",
     "videoUrl": "https://youtube.com/watch?v=example",
     "difficulty": "easy"
   }
@@ -49,7 +48,6 @@ POST /api/videos
 ```json
 {
   "topicId": 1,
-  "videoTopic": "Advanced Algebra",
   "videoUrl": "https://youtube.com/watch?v=advanced",
   "difficulty": "medium"
 }
@@ -60,7 +58,7 @@ POST /api/videos
 curl -X POST \
      -H "Authorization: Bearer your-token" \
      -H "Content-Type: application/json" \
-     -d '{"topicId":1,"videoTopic":"Advanced Algebra","videoUrl":"https://youtube.com/watch?v=advanced","difficulty":"medium"}' \
+     -d '{"topicId":1,"videoUrl":"https://youtube.com/watch?v=advanced","difficulty":"medium"}' \
      "http://localhost:5000/api/videos"
 ```
 
@@ -72,7 +70,6 @@ PUT /api/videos/:videoId
 **Body:**
 ```json
 {
-  "videoTopic": "Updated Topic",
   "videoUrl": "https://youtube.com/watch?v=updated",
   "difficulty": "exam"
 }

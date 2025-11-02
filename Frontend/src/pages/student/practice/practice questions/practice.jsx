@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiX, FiBook } from "react-icons/fi";
+import Popup from "../../../../components/popup/Popup";
 import styles from "./practice.module.css"; // Using dedicated CSS for this component
 
 /**
@@ -24,6 +25,7 @@ export default function Practice() {
     currentTopic: null,
     topicProgress: {},
   });
+  const [showCompletionPopup, setShowCompletionPopup] = useState(false);
 
   // Server URL for images
   const SERVER_URL = "http://localhost:5000";
@@ -106,6 +108,20 @@ export default function Practice() {
 
     const currentExercise = exercises[currentExerciseIndex];
 
+    // Parse answer options safely
+    let answerOptions = [];
+    try {
+      if (currentExercise.AnswerOptions) {
+        answerOptions =
+          typeof currentExercise.AnswerOptions === "string"
+            ? JSON.parse(currentExercise.AnswerOptions)
+            : currentExercise.AnswerOptions;
+      }
+    } catch (error) {
+      console.warn("Failed to parse AnswerOptions:", error);
+      answerOptions = [];
+    }
+
     // Debug logging to see what we're comparing
     console.log("=== ANSWER SUBMISSION DEBUG ===");
     console.log("Selected Answer:", selectedAnswer);
@@ -118,18 +134,13 @@ export default function Practice() {
       typeof currentExercise.CorrectAnswer
     );
 
-    // Check if CorrectAnswer is a letter (A, B, C, D) and convert to actual answer text
+    // Check if CorrectAnswer is a letter (A, B, C, D, E, F, etc.) and convert to actual answer text
     let correctAnswerText = currentExercise.CorrectAnswer;
-    if (
-      ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-        String(currentExercise.CorrectAnswer).trim()
-      )
-    ) {
+    const correctAnswerStr = String(currentExercise.CorrectAnswer).trim();
+    // Check if it's a single letter (A-Z)
+    if (correctAnswerStr.length === 1 && /^[A-Za-z]$/.test(correctAnswerStr)) {
       const letterIndex =
-        String(currentExercise.CorrectAnswer)
-          .trim()
-          .toUpperCase()
-          .charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+        correctAnswerStr.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3, E=4, etc.
       if (letterIndex >= 0 && letterIndex < answerOptions.length) {
         correctAnswerText = answerOptions[letterIndex];
         console.log(
@@ -143,13 +154,13 @@ export default function Practice() {
 
     // Ensure both values are strings for comparison
     const selectedAnswerStr = String(selectedAnswer).trim();
-    const correctAnswerStr = String(correctAnswerText).trim();
+    const correctAnswerStrFinal = String(correctAnswerText).trim();
 
-    const isCorrect = selectedAnswerStr === correctAnswerStr;
+    const isCorrect = selectedAnswerStr === correctAnswerStrFinal;
 
     console.log("String comparison:");
     console.log("  Selected (trimmed):", `"${selectedAnswerStr}"`);
-    console.log("  Correct (trimmed):", `"${correctAnswerStr}"`);
+    console.log("  Correct (trimmed):", `"${correctAnswerStrFinal}"`);
     console.log("  Is Correct:", isCorrect);
     console.log("================================");
 
@@ -191,9 +202,7 @@ export default function Practice() {
   };
 
   /**
-   * Finishes the practice session and navigates back to the practice dashboard.
-   * Calculates the final score as a percentage of correct answers out of total questions.
-   * Logs the final score and topic progress to the console.
+   * Finishes the practice session and shows the completion popup.
    * @returns {void}
    */
   const handleFinishPractice = () => {
@@ -202,7 +211,32 @@ export default function Practice() {
     console.log("Practice completed! Final score:", finalScore);
     console.log("Topic progress:", practiceStats.topicProgress);
 
-    // Navigate back to practice dashboard
+    // Show completion popup
+    setShowCompletionPopup(true);
+  };
+
+  /**
+   * Handles "Practice Again" button click - restarts the practice session.
+   * @returns {void}
+   */
+  const handlePracticeAgain = () => {
+    // Reset all state to restart practice
+    setCurrentExerciseIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setScore(0);
+    setShowCompletionPopup(false);
+    
+    // Re-fetch and shuffle exercises for a fresh start
+    fetchAllPracticeData();
+  };
+
+  /**
+   * Handles "Return to Homepage" button click - navigates to dashboard.
+   * @returns {void}
+   */
+  const handleReturnHome = () => {
+    setShowCompletionPopup(false);
     navigate("/student");
   };
 
@@ -284,14 +318,11 @@ export default function Practice() {
 
   // Get the correct answer text (handle both letter and text formats)
   let correctAnswerText = currentExercise.CorrectAnswer;
-  if (
-    ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-      String(currentExercise.CorrectAnswer).trim()
-    )
-  ) {
+  const correctAnswerStr = String(currentExercise.CorrectAnswer).trim();
+  // Check if it's a single letter (A-Z)
+  if (correctAnswerStr.length === 1 && /^[A-Za-z]$/.test(correctAnswerStr)) {
     const letterIndex =
-      String(currentExercise.CorrectAnswer).trim().toUpperCase().charCodeAt(0) -
-      65; // A=0, B=1, C=2, D=3
+      correctAnswerStr.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3, E=4, etc.
     if (letterIndex >= 0 && letterIndex < answerOptions.length) {
       correctAnswerText = answerOptions[letterIndex];
       console.log(
@@ -376,23 +407,6 @@ export default function Practice() {
 
             <div className={styles.answerOptionsGrid}>
               {answerOptions.map((option, index) => {
-                // Get the correct answer text (handle both letter and text formats)
-                let correctAnswerText = currentExercise.CorrectAnswer;
-                if (
-                  ["A", "B", "C", "D", "a", "b", "c", "d"].includes(
-                    String(currentExercise.CorrectAnswer).trim()
-                  )
-                ) {
-                  const letterIndex =
-                    String(currentExercise.CorrectAnswer)
-                      .trim()
-                      .toUpperCase()
-                      .charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
-                  if (letterIndex >= 0 && letterIndex < answerOptions.length) {
-                    correctAnswerText = answerOptions[letterIndex];
-                  }
-                }
-
                 // Use consistent comparison method for all checks
                 const isCorrectAnswer =
                   String(option).trim() === String(correctAnswerText).trim();
@@ -504,6 +518,57 @@ export default function Practice() {
           </div>
         )}
       </div>
+
+      {/* Completion Popup */}
+      <Popup
+        isOpen={showCompletionPopup}
+        onClose={() => setShowCompletionPopup(false)}
+        header="תרגול הושלם!"
+      >
+        <div style={{ padding: "1.5rem", textAlign: "center" }}>
+          <div style={{ fontSize: "1.8rem", marginBottom: "2rem", color: "#2c3e50" }}>
+            ענית נכון על <strong>{score}</strong> מתוך <strong>{exercises.length}</strong> שאלות
+          </div>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+            <button
+              onClick={handlePracticeAgain}
+              style={{
+                padding: "0.8rem 2rem",
+                fontSize: "1.6rem",
+                fontWeight: "600",
+                color: "white",
+                backgroundColor: "#3498db",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#2980b9")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#3498db")}
+            >
+              תרגול נוסף?
+            </button>
+            <button
+              onClick={handleReturnHome}
+              style={{
+                padding: "0.8rem 2rem",
+                fontSize: "1.6rem",
+                fontWeight: "600",
+                color: "white",
+                backgroundColor: "#95a5a6",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#7f8c8d")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#95a5a6")}
+            >
+              חזרה לדף הבית
+            </button>
+          </div>
+        </div>
+      </Popup>
     </div>
   );
 }
