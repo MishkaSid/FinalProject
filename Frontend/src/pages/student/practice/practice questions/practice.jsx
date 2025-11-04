@@ -28,7 +28,7 @@ export default function Practice() {
   const [showCompletionPopup, setShowCompletionPopup] = useState(false);
 
   // Server URL for images
-  const SERVER_URL = "http://localhost:5000";
+  const SERVER_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   useEffect(() => {
     fetchAllPracticeData();

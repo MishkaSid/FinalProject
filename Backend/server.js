@@ -95,7 +95,10 @@ app.use("/api", authenticateToken, requireAdmin, practiceExercisesRoutes);
 
 // הפעלת השרת
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', (e) => {
+  if (e) {
+    throw e
+  }
   console.log(`Server running on port ${PORT}`);
 });
 

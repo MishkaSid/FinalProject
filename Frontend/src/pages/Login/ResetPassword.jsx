@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import styles from "./passwordReset.module.css";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 export default function ResetPassword() {
   const [code, setCode] = useState("");

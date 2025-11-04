@@ -32,7 +32,7 @@ const AdminExamQuestionsPage = () => {
 
   const resolveImg = (src) => {
     if (!src) return "";
-    const SERVER = "http://localhost:5000";
+    const SERVER = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
     
     // אם זה כבר URL מלא עם http/https
     if (/^https?:\/\//i.test(src)) {
@@ -66,8 +66,9 @@ const AdminExamQuestionsPage = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
+      const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
       const response = await fetch(
-        `http://localhost:5000/api/topics/${topicId}/exam-questions`,
+        `${API_BASE}/api/topics/${topicId}/exam-questions`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -109,10 +110,11 @@ const AdminExamQuestionsPage = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
+      const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
       // עריכה קיימת: נשארים ב־PUT JSON. לא מחליפים תמונה כאן.
       if (editingQuestion) {
-        const url = `http://localhost:5000/api/exam-questions/${editingQuestion.questionId}`;
+        const url = `${API_BASE}/api/exam-questions/${editingQuestion.questionId}`;
         const body = {
           ...formData,
           // וידוא שהמבנה הנשלח נשאר תואם ל־API שלך
@@ -157,7 +159,7 @@ const AdminExamQuestionsPage = () => {
         fd.append("optionsJson", JSON.stringify(optionsObj));
 
         const resp = await fetch(
-          `http://localhost:5000/api/exam-questions/upload`,
+          `${API_BASE}/api/exam-questions/upload`,
           {
             method: "POST",
             headers: {
@@ -210,8 +212,9 @@ const AdminExamQuestionsPage = () => {
 
     try {
       const token = localStorage.getItem("token");
+      const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
       const response = await fetch(
-        `http://localhost:5000/api/exam-questions/${questionId}`,
+        `${API_BASE}/api/exam-questions/${questionId}`,
         {
           method: "DELETE",
           headers: {

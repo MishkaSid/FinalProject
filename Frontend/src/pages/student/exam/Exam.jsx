@@ -48,7 +48,7 @@ export default function Exam() {
   });
 
   // Server URL
-  const SERVER_URL = "http://localhost:5000";
+  const SERVER_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   // Exam duration in minutes (30 seconds for testing)
   const EXAM_DURATION_MINUTES = 150;
@@ -165,7 +165,7 @@ export default function Exam() {
     if (!val) return "";
     const raw = String(val).trim();
 
-    const SERVER = "http://localhost:5000";
+    const SERVER = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
     // אם יש URL מלא, נחליט אם לכבד או להמיר
     if (/^https?:\/\//i.test(raw)) {

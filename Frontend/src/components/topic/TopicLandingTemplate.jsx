@@ -79,7 +79,7 @@ function toYoutubeEmbed(urlOrId) {
  */
 function resolveVideoUrl(url) {
   if (!url) return "";
-  const SERVER = "http://localhost:5000";
+  const SERVER = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   
   // If it's already a full URL
   if (/^https?:\/\//i.test(url)) {
@@ -198,8 +198,9 @@ export default function TopicLandingTemplate() {
         setLoading(true);
         setError(null);
 
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
         const tRes = await fetch(
-          `http://localhost:5000/api/practice-dashboard/topic/${topicId}`
+          `${API_BASE}/api/practice-dashboard/topic/${topicId}`
         );
         if (!tRes.ok) {
           const errText = await tRes.text().catch(() => "");
@@ -208,7 +209,7 @@ export default function TopicLandingTemplate() {
         const tJson = await tRes.json();
 
         const vRes = await fetch(
-          `http://localhost:5000/api/practice-dashboard/videos/${topicId}`
+          `${API_BASE}/api/practice-dashboard/videos/${topicId}`
         );
         let vJson = [];
         if (vRes.ok) vJson = await vRes.json();

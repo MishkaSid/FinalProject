@@ -67,8 +67,9 @@ export default function StudentDashboard() {
         // קבלת טוקן מהדפדפן. אם אתם עובדים עם קוקיז HttpOnly, מחק את headers והוסף credentials: "include"
         const token = localStorage.getItem("token");
 
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
         const response = await fetch(
-          `http://localhost:5000/api/student/dashboard/${userId}`,
+          `${API_BASE}/api/student/dashboard/${userId}`,
           {
             method: "GET",
             headers: {
@@ -274,7 +275,8 @@ export default function StudentDashboard() {
           return;
         }
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:5000/api/topics/getTopics", {
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const response = await fetch(`${API_BASE}/api/topics/getTopics`, {
           method: "GET",
           
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

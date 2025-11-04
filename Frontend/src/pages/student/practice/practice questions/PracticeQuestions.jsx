@@ -33,7 +33,7 @@ export default function PracticeQuestions() {
   const [difficulty, setDifficulty] = useState(null);
 
   // Server URL for images
-  const SERVER_URL = "http://localhost:5000";
+  const SERVER_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   // Get difficulty from URL parameters
   useEffect(() => {

@@ -35,7 +35,7 @@ function LoginPage() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/api/auth/login`,
         { email, password }
       );
 
@@ -74,6 +74,9 @@ function LoginPage() {
 
   return (
     <div className={classes.loginPage}>
+
+
+
       <div className={classes.background}></div>
       <div className={classes.homepage}>
         <div className={classes.logos}>

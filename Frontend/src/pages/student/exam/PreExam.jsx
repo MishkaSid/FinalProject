@@ -14,6 +14,7 @@ import styles from "./preExam.module.css";
 export default function PreExam() {
   const navigate = useNavigate();
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   const handleStartExam = () => {
     if (isConfirmed) {
@@ -96,7 +97,7 @@ export default function PreExam() {
               <li>מומלץ לעבוד בסביבה שקטה וללא הפרעות</li>
               <li>הדוקטור ממליץ להכין מחברת משבצות אשר בה תוכלו לפתור את השאלות ואז לסמן את התשובה הנכונה</li>
               <li className={styles.formulaLink}>
-                <a href="http://localhost:5000/uploads/Formulas.png" target="_blank" rel="noopener noreferrer">
+                <a href={`${API_BASE}/uploads/Formulas.png`} target="_blank" rel="noopener noreferrer">
                    לחץ כאן לצפייה בדף נוסחאות
                 </a>
               </li>

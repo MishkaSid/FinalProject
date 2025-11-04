@@ -42,7 +42,8 @@ const AdminPracticeExercisesPage = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/topics/${topicId}/practice-exercises`, {
+      const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+      const response = await fetch(`${API_BASE}/api/topics/${topicId}/practice-exercises`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -92,9 +93,10 @@ const AdminPracticeExercisesPage = () => {
         return;
       }
 
+      const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
       const url = editingExercise 
-        ? `http://localhost:5000/api/practice-exercises/${editingExercise.exerciseId}`
-        : 'http://localhost:5000/api/practice-exercises';
+        ? `${API_BASE}/api/practice-exercises/${editingExercise.exerciseId}`
+        : `${API_BASE}/api/practice-exercises`;
       
       const method = editingExercise ? 'PUT' : 'POST';
       const body = editingExercise 
@@ -153,7 +155,8 @@ const AdminPracticeExercisesPage = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/practice-exercises/${exerciseId}`, {
+      const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+      const response = await fetch(`${API_BASE}/api/practice-exercises/${exerciseId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -185,7 +188,7 @@ const AdminPracticeExercisesPage = () => {
 
   const resolveImageUrl = (contentValue) => {
     if (!contentValue) return '';
-    const SERVER = 'http://localhost:5000';
+    const SERVER = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
     
     // אם זה כבר URL מלא עם http/https
     if (/^https?:\/\//i.test(contentValue)) {
@@ -253,7 +256,8 @@ const AdminPracticeExercisesPage = () => {
       formData.append('file', fileUpload);
       
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/practice/practiceExercise/upload', {
+      const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+      const response = await fetch(`${API_BASE}/api/practice/practiceExercise/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
