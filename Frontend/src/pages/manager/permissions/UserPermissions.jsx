@@ -36,6 +36,8 @@ export default function UserPermissions() {
   const [selectedRole, setSelectedRole] = useState("");
   const [originalId, setOriginalId] = useState(null);
   const [courses, setCourses] = useState([]);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState(new Set());
 
   /**
    * @effect
@@ -133,6 +135,91 @@ export default function UserPermissions() {
           .catch((err) => {
             console.error("Error deleting user:", err);
             setPopupConfig(null);
+          });
+      },
+    });
+  }
+
+  /**
+   * @function handleToggleMultiSelect
+   * @description Toggles multi-select mode on/off and clears selected users when turning off
+   */
+  function handleToggleMultiSelect() {
+    setIsMultiSelectMode(!isMultiSelectMode);
+    if (isMultiSelectMode) {
+      setSelectedUserIds(new Set());
+    }
+  }
+
+  /**
+   * @function handleToggleUserSelection
+   * @description Toggles the selection state of a user in multi-select mode
+   * @param {number} userId - The ID of the user to toggle
+   */
+  function handleToggleUserSelection(userId) {
+    setSelectedUserIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  }
+
+  /**
+   * @function handleSelectAll
+   * @description Selects or deselects all visible users
+   */
+  function handleSelectAll() {
+    if (selectedUserIds.size === filteredByRole.length) {
+      // Deselect all
+      setSelectedUserIds(new Set());
+    } else {
+      // Select all visible users
+      setSelectedUserIds(new Set(filteredByRole.map((user) => user.UserID)));
+    }
+  }
+
+  /**
+   * @function handleBulkDelete
+   * @description Opens a confirmation popup before deleting multiple users. If confirmed,
+   * it deletes all selected users using the same endpoint as single delete.
+   */
+  function handleBulkDelete() {
+    const count = selectedUserIds.size;
+    setPopupConfig({
+      title: "האם אתה בטוח?",
+      message: `מחיקת ${count} משתמשים תמחק את כל הנתונים שלהם`,
+      confirmLabel: "כן, מחק",
+      cancelLabel: "ביטול",
+      onConfirm: () => {
+        const deletePromises = Array.from(selectedUserIds).map((userId) =>
+          axios.delete(`/api/user/deleteUser/${userId}`)
+        );
+
+        Promise.all(deletePromises)
+          .then(() => {
+            setUsers((prevUsers) =>
+              prevUsers.filter((user) => !selectedUserIds.has(user.UserID))
+            );
+            setSelectedUserIds(new Set());
+            setIsMultiSelectMode(false);
+            setPopupConfig(null);
+          })
+          .catch((err) => {
+            console.error("Error deleting users:", err);
+            setPopupConfig({
+              title: "שגיאה",
+              message: "אירעה שגיאה במחיקת משתמשים. חלק מהמשתמשים אולי נמחקו.",
+              confirmLabel: "סגור",
+              onConfirm: () => {
+                setPopupConfig(null);
+                // Refresh users list to reflect actual state
+                refreshUsers();
+              },
+            });
           });
       },
     });
@@ -389,6 +476,26 @@ export default function UserPermissions() {
             הוסף משתמש
           </button>
           <Upload onUsersAdded={refreshUsers} />
+          <button
+            className={styles.addButton}
+            onClick={handleToggleMultiSelect}
+            style={{
+              backgroundColor: isMultiSelectMode ? "#dc3545" : "#F47521",
+            }}
+          >
+            {isMultiSelectMode ? "בטל בחירה" : "בחר משתמשים"}
+          </button>
+          {isMultiSelectMode && selectedUserIds.size > 0 && (
+            <button
+              className={styles.addButton}
+              onClick={handleBulkDelete}
+              style={{
+                backgroundColor: "#dc3545",
+              }}
+            >
+              מחק משתמשים ({selectedUserIds.size})
+            </button>
+          )}
           <div className={styles.sort}>
             <select
               id="role-select"
@@ -410,39 +517,64 @@ export default function UserPermissions() {
         <table className={styles.table}>
           <thead>
             <tr>
+              {isMultiSelectMode && (
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={
+                      filteredByRole.length > 0 &&
+                      selectedUserIds.size === filteredByRole.length
+                    }
+                    onChange={handleSelectAll}
+                    style={{ cursor: "pointer", width: "18px", height: "18px" }}
+                  />
+                </th>
+              )}
               <th>ת.ז</th>
               <th>שם משתמש</th>
               <th>תפקיד</th>
               <th>אימייל</th>
-              <th>פעולות</th>
+              {!isMultiSelectMode && <th>פעולות</th>}
             </tr>
           </thead>
           <tbody>
             {filteredByRole.map((user, index) => (
               <tr key={index}>
+                {isMultiSelectMode && (
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.has(user.UserID)}
+                      onChange={() => handleToggleUserSelection(user.UserID)}
+                      style={{ cursor: "pointer", width: "18px", height: "18px" }}
+                    />
+                  </td>
+                )}
                 <td>{user.UserID}</td>
                 <td>{user.Name}</td>
                 <td>{user.Role || "---"}</td>
                 <td>{user.Email}</td>
-                <td>
-                  <button
-                    className={`${styles.actionButton} ${styles.editButton}`}
-                    onClick={() => handleEditUser(user)}
-                  >
-                    ערוך ✏️
-                  </button>
-                  <button
-                    className={`${styles.actionButton} ${styles.deleteButton}`}
-                    onClick={() => handleDeleteUser(user.UserID)}
-                  >
-                    מחק 🗑️
-                  </button>
-                </td>
+                {!isMultiSelectMode && (
+                  <td>
+                    <button
+                      className={`${styles.actionButton} ${styles.editButton}`}
+                      onClick={() => handleEditUser(user)}
+                    >
+                      ערוך ✏️
+                    </button>
+                    <button
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                      onClick={() => handleDeleteUser(user.UserID)}
+                    >
+                      מחק 🗑️
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
             {!filteredByRole.length && (
               <tr className="noResults">
-                <td colSpan="5">לא נמצאו משתמשים</td>
+                <td colSpan={isMultiSelectMode ? 5 : 5}>לא נמצאו משתמשים</td>
               </tr>
             )}
           </tbody>
@@ -465,11 +597,6 @@ export default function UserPermissions() {
               })
             }
           />
-          {isEditMode && (
-            <div className={styles.note}>
-                <p> על מנת לשנות / לאפס את הסיסמא, עבור אל - <a href="/forgot-password">שכחתי סיסמה</a> </p>
-            </div>
-          )}
         </Popup>
       )}
       {popupConfig && (
@@ -479,9 +606,16 @@ export default function UserPermissions() {
           isOpen={true}
           onClose={() => setPopupConfig(null)}
         >
-          <button onClick={popupConfig.onConfirm}>
-            {popupConfig.confirmLabel}
-          </button>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", marginTop: "1rem" }}>
+            <button onClick={popupConfig.onConfirm}>
+              {popupConfig.confirmLabel}
+            </button>
+            {popupConfig.cancelLabel && (
+              <button onClick={() => setPopupConfig(null)}>
+                {popupConfig.cancelLabel}
+              </button>
+            )}
+          </div>
         </Popup>
       )}
     </>

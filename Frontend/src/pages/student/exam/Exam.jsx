@@ -47,6 +47,17 @@ export default function Exam() {
     onConfirm: null,
   });
 
+  // Exit warning popup state
+  const [exitWarning, setExitWarning] = useState({
+    isOpen: false,
+    pendingAction: null, // Function to execute if user confirms exit
+  });
+
+  // Ref to track exit warning state for event handlers
+  const exitWarningRef = React.useRef({ isOpen: false, pendingAction: null });
+  // Ref to track if user has confirmed exit
+  const allowExitRef = React.useRef(false);
+
   // Server URL
   const SERVER_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -78,6 +89,41 @@ export default function Exam() {
     setPopup({ isOpen: false, type: "", title: "", message: "", onConfirm: null });
   }, []);
 
+  // Show standardized exit warning popup
+  const showExitWarning = React.useCallback((pendingAction) => {
+    const newState = {
+      isOpen: true,
+      pendingAction,
+    };
+    exitWarningRef.current = newState;
+    setExitWarning(newState);
+  }, []);
+
+  // Handle exit confirmation - execute immediately without additional alerts
+  const handleExitConfirm = React.useCallback(() => {
+    const pendingAction = exitWarningRef.current.pendingAction;
+    // Set allow exit flag
+    allowExitRef.current = true;
+    // Close popup first
+    const newState = { isOpen: false, pendingAction: null };
+    exitWarningRef.current = newState;
+    setExitWarning(newState);
+    // Execute the pending action immediately (navigation/reload)
+    if (pendingAction) {
+      // Use setTimeout to ensure popup closes before navigation
+      setTimeout(() => {
+        pendingAction();
+      }, 0);
+    }
+  }, []);
+
+  // Handle exit cancellation
+  const handleExitCancel = React.useCallback(() => {
+    const newState = { isOpen: false, pendingAction: null };
+    exitWarningRef.current = newState;
+    setExitWarning(newState);
+  }, []);
+
   // auth redirect and data fetch
   useEffect(() => {
     if (!user) {
@@ -90,22 +136,60 @@ export default function Exam() {
 
   // prevent page refresh and back navigation during exam
   useEffect(() => {
-    if (examCompleted || !examStats.startTime) return;
+    if (examCompleted || !examStats.startTime) {
+      // Reset allow exit when exam is completed or not started
+      allowExitRef.current = false;
+      return;
+    }
 
     const handleBeforeUnload = (e) => {
+      // If user already confirmed exit, allow it
+      if (allowExitRef.current) {
+        return;
+      }
+      // Prevent default browser dialog and reload
       e.preventDefault();
       e.returnValue = '';
+      // Show our custom popup
+      if (!exitWarningRef.current.isOpen) {
+        showExitWarning(() => {
+          allowExitRef.current = true;
+          // Reload the page
+          window.location.reload();
+        });
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      // Intercept F5, Ctrl+R, Cmd+R (reload shortcuts)
+      const isReloadKey = 
+        e.key === 'F5' ||
+        (e.key === 'r' && (e.ctrlKey || e.metaKey)) ||
+        (e.key === 'R' && (e.ctrlKey || e.metaKey));
+      
+      if (isReloadKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!exitWarningRef.current.isOpen) {
+          showExitWarning(() => {
+            allowExitRef.current = true;
+            window.location.reload();
+          });
+        }
+      }
     };
 
     const handlePopState = (e) => {
       // Push a new state to prevent back navigation
       window.history.pushState(null, '', window.location.href);
       
-      // Show custom popup
-      showAlert(
-        "⚠️ אזהרה",
-        "לא ניתן לחזור אחורה במהלך המבחן. כל ההתקדמות תשמר."
-      );
+      // Show standardized exit warning
+      if (!exitWarningRef.current.isOpen) {
+        showExitWarning(() => {
+          allowExitRef.current = true;
+          window.history.back();
+        });
+      }
     };
 
     const handleClick = (e) => {
@@ -114,10 +198,13 @@ export default function Exam() {
       if (link && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
         e.preventDefault();
         e.stopPropagation();
-        showAlert(
-          "⚠️ אזהרה",
-          "לא ניתן לעזוב את המבחן במהלך ביצועו. כל ההתקדמות תשמר."
-        );
+        const href = link.getAttribute('href');
+        if (!exitWarningRef.current.isOpen) {
+          showExitWarning(() => {
+            allowExitRef.current = true;
+            window.location.href = href;
+          });
+        }
       }
     };
 
@@ -125,15 +212,17 @@ export default function Exam() {
     window.history.pushState(null, '', window.location.href);
     
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('popstate', handlePopState);
     document.addEventListener('click', handleClick, true);
     
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('popstate', handlePopState);
       document.removeEventListener('click', handleClick, true);
     };
-  }, [examCompleted, examStats.startTime, showAlert]);
+  }, [examCompleted, examStats.startTime, showExitWarning]);
 
   // timer
   useEffect(() => {
@@ -423,11 +512,25 @@ export default function Exam() {
 
   // back to dashboard
   const handleBackToDashboard = () => {
-    const event = new CustomEvent("examCompleted", {
-      detail: { userId: user?.id || user?.UserID },
+    // If exam is completed, allow navigation without warning
+    if (examCompleted) {
+      const event = new CustomEvent("examCompleted", {
+        detail: { userId: user?.id || user?.UserID },
+      });
+      window.dispatchEvent(event);
+      setTimeout(() => navigate("/student", { replace: true }), 100);
+      return;
+    }
+    
+    // If exam is in progress, show exit warning
+    showExitWarning(() => {
+      const event = new CustomEvent("examCompleted", {
+        detail: { userId: user?.id || user?.UserID },
+      });
+      window.dispatchEvent(event);
+      // Navigate immediately without additional alerts
+      navigate("/student", { replace: true });
     });
-    window.dispatchEvent(event);
-    setTimeout(() => navigate("/student", { replace: true }), 100);
   };
 
   const handleRetakeExam = () => {
@@ -619,6 +722,21 @@ export default function Exam() {
             <div className={styles.answerOptionsGrid}>
               {answerOptions.map((option, index) => {
                 const isSelected = currentSelectedAnswer === option;
+                const isCorrectAnswer = examCompleted && showResults && 
+                  examStats.results?.[currentQuestionId]?.correct === option;
+                const isIncorrectAnswer = examCompleted && showResults && 
+                  examStats.results?.[currentQuestionId]?.selected === option &&
+                  !examStats.results?.[currentQuestionId]?.isCorrect;
+
+                // Determine border style for review mode
+                let borderStyle = {};
+                if (examCompleted && showResults) {
+                  if (isCorrectAnswer) {
+                    borderStyle = { border: '3px solid #28a745' };
+                  } else if (isIncorrectAnswer) {
+                    borderStyle = { border: '3px solid #dc3545' };
+                  }
+                }
 
                 return (
                   <button
@@ -626,6 +744,7 @@ export default function Exam() {
                     className={`${styles.answerOption} ${
                       isSelected ? styles.selected : ""
                     }`}
+                    style={borderStyle}
                     onClick={() => !examCompleted && handleAnswerSelect(option)}
                     disabled={examCompleted}
                   >
@@ -881,6 +1000,53 @@ export default function Exam() {
                 סגור
               </button>
             )}
+          </div>
+        </div>
+      </Popup>
+
+      {/* Standardized Exit Warning Popup */}
+      <Popup isOpen={exitWarning.isOpen} onClose={handleExitCancel} header="אזהרה ⚠️">
+        <div style={{ padding: "1rem 0", textAlign: "center" }}>
+          <p style={{ fontSize: "1.6rem", marginBottom: "2rem", lineHeight: "1.6", color: "#000" }}>
+            אם תעזוב את המבחן תאבד את כל המידע ותצטרך להתחיל מחדש
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+            <button
+              onClick={handleExitConfirm}
+              style={{
+                padding: "0.8rem 2rem",
+                fontSize: "1.8rem",
+                fontWeight: "600",
+                color: "white",
+                backgroundColor: "#F47521",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#d96518")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#F47521")}
+            >
+              אישור ויציאה
+            </button>
+            <button
+              onClick={handleExitCancel}
+              style={{
+                padding: "0.8rem 2rem",
+                fontSize: "1.8rem",
+                fontWeight: "600",
+                color: "white",
+                backgroundColor: "#F47521",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#d96518")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#F47521")}
+            >
+              סגירה
+            </button>
           </div>
         </div>
       </Popup>

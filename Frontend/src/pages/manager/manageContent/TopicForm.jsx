@@ -20,6 +20,7 @@ import styles from "../adminPages.module.css";
  */
 export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
   const [topicName, setTopicName] = useState(initialValues.TopicName || "");
+  const [topicDescription, setTopicDescription] = useState(initialValues.TopicDescription || "");
   const [status, setStatus] = useState(initialValues.status || "active");
 
   return (
@@ -31,8 +32,13 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
           alert("יש להזין שם נושא");
           return;
         }
+        if (!topicDescription.trim()) {
+          alert("יש להזין תיאור נושא");
+          return;
+        }
         onSubmit({
           TopicName: topicName,
+          TopicDescription: topicDescription,
           status: status,
         });
       }}
@@ -46,6 +52,18 @@ export default function TopicForm({ initialValues, onSubmit, onClose, mode }) {
           onChange={(e) => setTopicName(e.target.value)}
           placeholder="הזן שם נושא"
           required
+        />
+      </div>
+      <div className={styles.inputContainer}>
+        <label className={styles.label}>תיאור נושא</label>
+        <textarea
+          className={styles.input}
+          value={topicDescription}
+          onChange={(e) => setTopicDescription(e.target.value)}
+          placeholder="הזן תיאור נושא"
+          required
+          rows={4}
+          style={{ resize: "vertical", minHeight: "80px" }}
         />
       </div>
       <div className={styles.inputContainer}>

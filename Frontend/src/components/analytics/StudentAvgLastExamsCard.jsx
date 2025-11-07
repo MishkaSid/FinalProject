@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -20,11 +20,39 @@ export default function StudentAvgLastExamsCard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [examinees, setExaminees] = useState([]);
+  const [examineesLoading, setExamineesLoading] = useState(false);
+
+  // Fetch all examinees on component mount
+  useEffect(() => {
+    const fetchExaminees = async () => {
+      try {
+        setExamineesLoading(true);
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const response = await fetch(`${API_BASE}/api/general/examinees`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch examinees');
+        }
+        const data = await response.json();
+        // Handle both array formats: rows directly or [rows]
+        const examineesList = Array.isArray(data) ? (Array.isArray(data[0]) ? data[0] : data) : [];
+        setExaminees(examineesList);
+      } catch (error) {
+        console.error("Error fetching examinees:", error);
+        setExaminees([]);
+      } finally {
+        setExamineesLoading(false);
+      }
+    };
+
+    fetchExaminees();
+  }, []);
 
   async function load() {
     try {
       setErr("");
       setLoading(true);
+      setData(null);
 
       // Check if token is valid before making the request
       if (!isTokenValid()) {
@@ -48,22 +76,37 @@ export default function StudentAvgLastExamsCard() {
     } catch (e) {
       console.error(e);
 
+      // Handle user not found error
+      if (e.userNotFound || (e.status === 404 && e.message.includes("ת.ז"))) {
+        setErr("ת.ז שהוזנה לא נמצאת במערכת.");
+        setData(null);
+      }
       // Handle authentication errors
-      if (
+      else if (
         e.message &&
         (e.message.includes("403") ||
           e.message.includes("Invalid or expired token"))
       ) {
         setErr("הטוקן שלך פג תוקף או אינו תקין. אנא התחבר מחדש.");
         logout();
+        setData(null);
       } else {
         setErr(e.message || "שגיאה בטעינת הנתונים");
+        setData(null);
       }
-      setData(null);
     } finally {
       setLoading(false);
     }
   }
+
+  const handleExamineeSelect = (e) => {
+    const selectedUserId = e.target.value;
+    if (selectedUserId) {
+      setUserId(selectedUserId);
+    } else {
+      setUserId("");
+    }
+  };
 
   return (
     <div style={{ background: "#fff", borderRadius: 12, padding: 16 }}>
@@ -86,6 +129,22 @@ export default function StudentAvgLastExamsCard() {
             onChange={(e) => setUserId(e.target.value)}
             style={{ fontSize: "1.4rem", padding: "0.75rem" }}
           />
+        </label>
+
+        <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <span style={{ fontSize: "1.6rem", fontWeight: "600" }}>בחר מתוך רשימה</span>
+          <select
+            value={userId || ""}
+            onChange={handleExamineeSelect}
+            style={{ fontSize: "1.4rem", padding: "0.75rem", minWidth: "200px" }}
+          >
+            <option value="">-- בחר נבחן --</option>
+            {examinees.map((examinee) => (
+              <option key={examinee.UserID} value={examinee.UserID}>
+                {examinee.Name} — {examinee.UserID}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -125,6 +184,11 @@ export default function StudentAvgLastExamsCard() {
              }}
            >
              <span>ממוצע:</span>
+            <span>מספר המבחנים שהנבחן ביצע הוא: </span>
+             {data.totalExams !== undefined && (
+               <span>{data.totalExams}</span>
+             )}
+             <span>הממוצע הוא: </span>
              <b style={{ fontSize: "1.6rem", color: "#194973" }}>
                {data.average}
              </b>
@@ -137,15 +201,18 @@ export default function StudentAvgLastExamsCard() {
         <div
           style={{
             marginTop: 12,
-            padding: "12px 16px",
-            backgroundColor: "#fff3cd",
-            border: "1px solid #ffc107",
+            padding: "16px 20px",
+            backgroundColor: err.includes("ת.ז שהוזנה") ? "#f8d7da" : "#fff3cd",
+            border: `2px solid ${err.includes("ת.ז שהוזנה") ? "#dc3545" : "#ffc107"}`,
             borderRadius: "8px",
-            color: "#856404",
+            color: err.includes("ת.ז שהוזנה") ? "#721c24" : "#856404",
+            fontSize: "1.8rem",
+            fontWeight: "600",
+            textAlign: "center",
           }}
         >
-          <div style={{ fontWeight: "bold", marginBottom: "8px" }}>
-            ⚠️ שגיאה
+          <div style={{ fontWeight: "bold", marginBottom: err.includes("התחבר מחדש") ? "8px" : "0" }}>
+            {err.includes("ת.ז שהוזנה") ? "⚠️" : "⚠️ שגיאה"}
           </div>
           <div>{err}</div>
           {err.includes("התחבר מחדש") && (

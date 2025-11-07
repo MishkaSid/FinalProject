@@ -102,7 +102,7 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const { id } = req.params; // old ID
-  const { UserID: newId, Name, Email, Role, CourseID, expired_date } = req.body;
+  const { UserID: newId, Name, Email, Role, CourseID, expired_date, Password } = req.body;
 
   const newIdDigits = digitsOnly(newId);
   const newIdFinal = padToNine(newIdDigits);
@@ -144,10 +144,21 @@ exports.updateUser = async (req, res) => {
       return res.status(400).json({ error: "אימייל זה כבר קיים" });
     }
 
-    await connection.query(
-      "UPDATE users SET UserID = ?, Name = ?, Email = ?, Role = ?, CourseID = ?, expired_date = ? WHERE UserID = ?",
-      [newIdFinal, Name, Email, Role, CourseID, expired_date || null, id]
-    );
+    // Build dynamic UPDATE query based on whether password is provided
+    let updateQuery = "UPDATE users SET UserID = ?, Name = ?, Email = ?, Role = ?, CourseID = ?, expired_date = ?";
+    const updateValues = [newIdFinal, Name, Email, Role, CourseID, expired_date || null];
+
+    // If password is provided, hash it and add to update
+    if (Password && Password.trim() !== "") {
+      const hashedPassword = await bcrypt.hash(String(Password).trim(), 10);
+      updateQuery += ", Password = ?";
+      updateValues.push(hashedPassword);
+    }
+
+    updateQuery += " WHERE UserID = ?";
+    updateValues.push(id);
+
+    await connection.query(updateQuery, updateValues);
 
     connection.release();
     res.json({ UserID: newIdFinal, Name, Email, Role, CourseID, expired_date });

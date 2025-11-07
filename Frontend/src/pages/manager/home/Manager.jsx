@@ -27,7 +27,9 @@ import { getLast30DaysRange } from "../../../utils/dateUtils";
  */
 function Manager() {
   const { user } = useAuth();
-  const [courseId, setCourseId] = useState("");
+  const [courseName, setCourseName] = useState("");
+  const [courses, setCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [visFrom, setVisFrom] = useState("");
@@ -35,6 +37,35 @@ function Manager() {
   const [visSeries, setVisSeries] = useState([]);
   const [gradeFrom, setGradeFrom] = useState("");
   const [gradeTo, setGradeTo] = useState("");
+
+  // Fetch all courses on component mount
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setCoursesLoading(true);
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/api/courses/getCourses`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+        const data = await response.json();
+        const coursesList = Array.isArray(data) ? data : [];
+        setCourses(coursesList);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        setCourses([]);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   useEffect(() => {
     async function loadVisits() {
@@ -76,15 +107,24 @@ function Manager() {
             <h3 className={styles.cardTitle}>מעקב ציונים לאורך זמן</h3>
             <div className={styles.cardControls}>
               <div className={styles.controlRow}>
-                <label className={styles.controlLabel}>מזהה קורס</label>
+                <label className={styles.controlLabel}>קורס</label>
                 <input
                   type="text"
+                  list="courses-list-manager"
                   className={styles.controlInput}
-                  placeholder="הזן מזהה קורס"
-                  value={courseId}
-                  onChange={(e) => setCourseId(e.target.value)}
-                  style={{ maxWidth: '150px' }}
+                  value={courseName || ""}
+                  onChange={(e) => setCourseName(e.target.value)}
+                  placeholder="חפש או בחר קורס"
+                  required
+                  style={{ maxWidth: '200px' }}
                 />
+                <datalist id="courses-list-manager">
+                  {courses.map((course) => (
+                    <option key={course.CourseID} value={course.CourseName}>
+                      {course.CourseName}
+                    </option>
+                  ))}
+                </datalist>
                 <label className={styles.controlLabel}>מתאריך</label>
                 <input
                   type="date"
@@ -126,7 +166,7 @@ function Manager() {
             </div>
             <div className={styles.chartContainer}>
               <CourseGradesOverTimeChart
-                courseId={courseId}
+                courseId={courseName ? courses.find(c => c.CourseName === courseName)?.CourseID : ""}
                 from={from}
                 to={to}
               />

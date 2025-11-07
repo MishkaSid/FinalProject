@@ -13,6 +13,33 @@ export default function SiteVisitStats({ from, to }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [examinees, setExaminees] = useState([]);
+  const [examineesLoading, setExamineesLoading] = useState(false);
+
+  // Fetch all examinees on component mount
+  useEffect(() => {
+    const fetchExaminees = async () => {
+      try {
+        setExamineesLoading(true);
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const response = await fetch(`${API_BASE}/api/general/examinees`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch examinees');
+        }
+        const data = await response.json();
+        // Handle both array formats: rows directly or [rows]
+        const examineesList = Array.isArray(data) ? (Array.isArray(data[0]) ? data[0] : data) : [];
+        setExaminees(examineesList);
+      } catch (error) {
+        console.error("Error fetching examinees:", error);
+        setExaminees([]);
+      } finally {
+        setExamineesLoading(false);
+      }
+    };
+
+    fetchExaminees();
+  }, []);
 
   useEffect(() => {
     loadStats();
@@ -64,6 +91,15 @@ export default function SiteVisitStats({ from, to }) {
     }
   };
 
+  const handleExamineeSelect = (e) => {
+    const selectedUserId = e.target.value;
+    if (selectedUserId) {
+      setUserId(selectedUserId);
+    } else {
+      setUserId("");
+    }
+  };
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "לא זמין";
     try {
@@ -94,6 +130,22 @@ export default function SiteVisitStats({ from, to }) {
             onChange={(e) => setUserId(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           />
+        </label>
+        <label className={styles.label}>
+          <span className={styles.labelText}>בחר מתוך רשימה</span>
+          <select
+            className={styles.input}
+            value={userId || ""}
+            onChange={handleExamineeSelect}
+            style={{ minWidth: "200px" }}
+          >
+            <option value="">-- בחר נבחן --</option>
+            {examinees.map((examinee) => (
+              <option key={examinee.UserID} value={examinee.UserID}>
+                {examinee.Name} — {examinee.UserID}
+              </option>
+            ))}
+          </select>
         </label>
         <div className={styles.buttonGroup}>
           <button className={styles.searchButton} onClick={handleSearch}>

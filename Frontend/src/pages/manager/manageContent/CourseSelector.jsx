@@ -51,15 +51,17 @@ export default function CourseSelector({
       </select>
       {selectedCourse ? (
         <>
-          <button className={styles.deleteButtonLarge} style={{marginRight: 8}} onClick={() => onDelete(selectedCourse)}>
-            מחק קורס
-          </button>
-          <button className={styles.addButton} onClick={onAddTopic} style={{marginRight: 8}}>
+         <button className={styles.addButton} onClick={onAddTopic} style={{marginRight: 8}}>
             הוסף נושא
           </button>
           <button className={styles.addButton} onClick={onAdd} style={{marginRight: 8}}>
             הוסף קורס
           </button>
+          <button className={styles.deleteButtonLarge} style={{marginRight: 8}} onClick={() => onDelete(selectedCourse)}>
+            מחק קורס
+          </button>
+         
+          
           <button 
             className={styles.addButton} 
             onClick={() => {

@@ -353,6 +353,30 @@ exports.getStudentAvgLastExams = async (req, res) => {
   try {
     connection = await db.getConnection();
 
+    // Validate that the user exists and has Role = 'Examinee'
+    const [userRows] = await connection.query(
+      `
+      SELECT UserID, Role
+      FROM users
+      WHERE UserID = ?
+      `,
+      [userId]
+    );
+
+    if (!userRows || userRows.length === 0) {
+      return res.status(404).json({ 
+        error: "ת.ז שהוזנה לא נמצאת במערכת.",
+        userNotFound: true 
+      });
+    }
+
+    if (userRows[0].Role !== 'Examinee') {
+      return res.status(404).json({ 
+        error: "ת.ז שהוזנה לא נמצאת במערכת.",
+        userNotFound: true 
+      });
+    }
+
     // מחשבים ציון מבחן כממוצע Grade ב-exam_result, בוחרים את N האחרונים לפי ExamID
     // משתמשים ב-ExamID DESC כדי להבטיח שהמבחנים האחרונים נבחרים גם אם נלקחו באותו תאריך
     const [rows] = await connection.query(
@@ -383,7 +407,20 @@ exports.getStudentAvgLastExams = async (req, res) => {
       ? Number((exams.reduce((s, x) => s + x.score, 0) / exams.length).toFixed(1))
       : 0;
 
-    res.json({ userId: String(userId), limit, average, exams });
+    // Count total exams for this user (validate via users.UserID)
+    const [countRows] = await connection.query(
+      `
+      SELECT COUNT(*) AS totalExams
+      FROM exam e
+      INNER JOIN users u ON u.UserID = e.UserID
+      WHERE e.UserID = ?
+      `,
+      [userId]
+    );
+
+    const totalExams = countRows[0] ? Number(countRows[0].totalExams || 0) : 0;
+
+    res.json({ userId: String(userId), limit, average, exams, totalExams });
   } catch (err) {
     console.error("Error getStudentAvgLastExams:", err);
     if (!res.headersSent) res.status(500).json({ error: "Server error" });

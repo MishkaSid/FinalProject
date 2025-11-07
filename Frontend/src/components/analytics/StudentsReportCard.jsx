@@ -1,17 +1,52 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { getStudentsReport } from "../../services/analyticsApi";
 
 export default function StudentsReportCard() {
-  const [courseId, setCourseId] = useState("");
+  const [courseName, setCourseName] = useState("");
+  const [courses, setCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(false);
   const [userId, setUserId] = useState("");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
+  // Fetch all courses on component mount
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setCoursesLoading(true);
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/api/courses/getCourses`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+        const data = await response.json();
+        const coursesList = Array.isArray(data) ? data : [];
+        setCourses(coursesList);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        setCourses([]);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
   async function load() {
     try {
       setErr("");
       setLoading(true);
+      // Convert CourseName to CourseID for API call
+      const selectedCourse = courses.find(c => c.CourseName === courseName);
+      const courseId = selectedCourse ? selectedCourse.CourseID : undefined;
+      
       const { data } = await getStudentsReport({
         courseId: courseId || undefined,
         userId: userId || undefined,
@@ -81,13 +116,23 @@ export default function StudentsReportCard() {
         }}
       >
         <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span>Course ID - אופציונלי</span>
+          <span>קורס</span>
           <input
             type="text"
-            placeholder="למשל 1"
-            value={courseId}
-            onChange={(e) => setCourseId(e.target.value)}
+            list="courses-list"
+            value={courseName || ""}
+            onChange={(e) => setCourseName(e.target.value)}
+            placeholder="חפש או בחר קורס"
+            required
+            style={{ padding: "0.5rem", fontSize: "1.4rem", minWidth: "200px" }}
           />
+          <datalist id="courses-list">
+            {courses.map((course) => (
+              <option key={course.CourseID} value={course.CourseName}>
+                {course.CourseName}
+              </option>
+            ))}
+          </datalist>
         </label>
 
         <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>

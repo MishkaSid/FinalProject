@@ -61,10 +61,15 @@ exports.getTopicById = async (req, res) => {
 
 // Create a new topic
 exports.createTopic = async (req, res) => {
-  const { TopicName, CourseID, status } = req.body;
+  const { TopicName, TopicDescription, CourseID, status } = req.body;
   let connection;
 
   try {
+    // Validate required fields
+    if (!TopicDescription || !TopicDescription.trim()) {
+      return res.status(400).json({ error: "תיאור נושא הוא שדה חובה" });
+    }
+
     // Determine which CourseID to use
     const userRole = req.user?.role || req.user?.Role;
     const userCourseId = req.user?.courseId;
@@ -109,10 +114,10 @@ exports.createTopic = async (req, res) => {
     // Insert topic with auto-generated TopicID and status
     const topicStatus = status || 'active';
     const [result] = await connection.query(
-      "INSERT INTO topic (TopicName, CourseID, status) VALUES (?, ?, ?)",
-      [TopicName, targetCourseId, topicStatus]
+      "INSERT INTO topic (TopicName, TopicDescription, CourseID, status) VALUES (?, ?, ?, ?)",
+      [TopicName, TopicDescription.trim(), targetCourseId, topicStatus]
     );
-    res.json({ TopicID: result.insertId, TopicName, CourseID: targetCourseId, status: topicStatus });
+    res.json({ TopicID: result.insertId, TopicName, TopicDescription: TopicDescription.trim(), CourseID: targetCourseId, status: topicStatus });
   } catch (err) {
     console.error("Error in createTopic:", err);
     if (!res.headersSent) {
@@ -133,10 +138,15 @@ exports.createTopic = async (req, res) => {
 // Update a topic
 exports.updateTopic = async (req, res) => {
   const { id } = req.params;
-  const { TopicName, status } = req.body;
+  const { TopicName, TopicDescription, status } = req.body;
   let connection;
 
   try {
+    // Validate TopicDescription if provided
+    if (TopicDescription !== undefined && (!TopicDescription || !TopicDescription.trim())) {
+      return res.status(400).json({ error: "תיאור נושא הוא שדה חובה" });
+    }
+
     // Get CourseID from JWT token for validation
     const userCourseId = req.user?.courseId;
     const userRole = req.user?.role;
@@ -172,6 +182,11 @@ exports.updateTopic = async (req, res) => {
     if (TopicName) {
       updateFields.push('TopicName = ?');
       values.push(TopicName);
+    }
+    
+    if (TopicDescription !== undefined) {
+      updateFields.push('TopicDescription = ?');
+      values.push(TopicDescription.trim());
     }
     
     if (status) {

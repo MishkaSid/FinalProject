@@ -10,6 +10,7 @@ const FIELD_CONFIG = {
   Name: { label: "שם", type: "text" },
   Email: { label: "אימייל", type: "email" },
   Password: { label: "סיסמה (אופציונלי לסטודנטים)", type: "password" },
+  NewPassword: { label: "שנה סיסמה", type: "password" }, // Special field for edit mode
   Role: {
     label: "תפקיד",
     type: "select",
@@ -25,7 +26,7 @@ const FIELD_CONFIG = {
 const MODE_FIELDS = {
   login: ["Email", "Password"],
   add: ["UserID", "Name", "Email", "Password", "Role", "CourseID", "expired_date"],
-  edit: ["UserID", "Name", "Email", "Role", "CourseID", "expired_date"], // Password not shown in edit
+  edit: ["UserID", "Name", "Email", "NewPassword", "Role", "CourseID", "expired_date"], // NewPassword shown in edit
 };
 
 /**
@@ -75,10 +76,22 @@ function validate(fields, values, mode) {
       return "הסיסמה חייבת להכיל לפחות אות אחת, מספר אחד, ואורכה בין 3 ל-8 תווים.";
     }
   }
-  // All required fields must be filled (except password for Examinee users and expired_date which is validated above)
+  // Validate NewPassword in edit mode (optional, but if provided must be valid)
+  if (fields.includes("NewPassword") && mode === "edit" && values.NewPassword) {
+    if (
+      values.Role !== "Examinee" &&
+      !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,8}$/.test(values.NewPassword || "")
+    ) {
+      return "הסיסמה חייבת להכיל לפחות אות אחת, מספר אחד, ואורכה בין 3 ל-8 תווים.";
+    }
+  }
+  // All required fields must be filled (except password for Examinee users, NewPassword which is optional, and expired_date which is validated above)
   for (const field of fields) {
     if (field === "Password" && values.Role === "Examinee") {
       continue; // Skip password validation for Examinee users
+    }
+    if (field === "NewPassword") {
+      continue; // NewPassword is optional in edit mode
     }
     if (field === "expired_date") {
       continue; // expired_date validation is handled above
@@ -118,6 +131,7 @@ export default function UserForm({
     Name: initialValues.Name || "",
     Email: initialValues.Email || "",
     Password: initialValues.Password || "",
+    NewPassword: "", // Separate field for password change in edit mode
     Role: initialValues.Role || "Examinee",
     CourseID: initialValues.CourseID || "",
     expired_date: initialValues.expired_date || "",
@@ -172,6 +186,16 @@ export default function UserForm({
     // For login, only send Email and Password
     if (mode === "login") {
       onSubmit({ email: values.Email, password: values.Password });
+    } else if (mode === "edit") {
+      // In edit mode, send NewPassword as Password if provided, otherwise don't send password field
+      const submitValues = { ...values };
+      if (submitValues.NewPassword && submitValues.NewPassword.trim() !== "") {
+        submitValues.Password = submitValues.NewPassword;
+      } else {
+        delete submitValues.Password; // Don't send password if not provided
+      }
+      delete submitValues.NewPassword; // Remove NewPassword from submission
+      onSubmit(submitValues);
     } else {
       onSubmit(values);
     }
@@ -296,7 +320,9 @@ export default function UserForm({
                 value={values[field]}
                 onChange={handleChange}
                 autoComplete={
-                  field === "Password" ? "current-password" : undefined
+                  field === "Password" ? "current-password" : 
+                  field === "NewPassword" ? "new-password" : 
+                  undefined
                 }
                 min={field === "expired_date" ? new Date().toISOString().split('T')[0] : undefined}
               />

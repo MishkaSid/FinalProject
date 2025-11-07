@@ -14,12 +14,43 @@ import { getLast30DaysRange } from "../../utils/dateUtils";
 import styles from "../../pages/manager/home/manager.module.css";
 
 export default function TopicFailureRateCard() {
-  const [courseId, setCourseId] = useState("");
+  const [courseName, setCourseName] = useState("");
+  const [courses, setCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  // Fetch all courses on component mount
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setCoursesLoading(true);
+        const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/api/courses/getCourses`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+        const data = await response.json();
+        const coursesList = Array.isArray(data) ? data : [];
+        setCourses(coursesList);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        setCourses([]);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const title = useMemo(() => {
     const base = "ניתוח שגיאות לפי נושא";
@@ -40,13 +71,20 @@ export default function TopicFailureRateCard() {
 
   async function load() {
     try {
-      if (!courseId) {
+      if (!courseName) {
         setRows([]);
         return;
       }
       setErr("");
       setLoading(true);
-      const { items } = await getTopicFailureRates(courseId, from, to);
+      // Convert CourseName to CourseID for API call
+      const selectedCourse = courses.find(c => c.CourseName === courseName);
+      if (!selectedCourse) {
+        setErr("קורס לא נמצא");
+        setRows([]);
+        return;
+      }
+      const { items } = await getTopicFailureRates(selectedCourse.CourseID, from, to);
       
       // Sort by number of wrong answers (ascending order)
       const chartData = (items || [])
@@ -69,10 +107,10 @@ export default function TopicFailureRateCard() {
   }
 
   useEffect(() => {
-    // Auto-load when courseId is selected
-    if (courseId) load();
+    // Auto-load when courseName is selected
+    if (courseName) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId, from, to]);
+  }, [courseName, from, to]);
 
   return (
     <div style={{ background: "#fff", borderRadius: 12, padding: 16 }}>
@@ -80,15 +118,24 @@ export default function TopicFailureRateCard() {
 
       <div className={styles.cardControls}>
         <div className={styles.controlRow}>
-          <label className={styles.controlLabel}>מזהה קורס</label>
+          <label className={styles.controlLabel}>קורס</label>
           <input
             type="text"
+            list="courses-list-topic"
             className={styles.controlInput}
-            placeholder="הזן מזהה קורס"
-            value={courseId}
-            onChange={(e) => setCourseId(e.target.value)}
-            style={{ maxWidth: '150px' }}
+            value={courseName || ""}
+            onChange={(e) => setCourseName(e.target.value)}
+            placeholder="חפש או בחר קורס"
+            required
+            style={{ maxWidth: '200px' }}
           />
+          <datalist id="courses-list-topic">
+            {courses.map((course) => (
+              <option key={course.CourseID} value={course.CourseName}>
+                {course.CourseName}
+              </option>
+            ))}
+          </datalist>
           <label className={styles.controlLabel}>מתאריך</label>
           <input
             type="date"
@@ -109,10 +156,10 @@ export default function TopicFailureRateCard() {
             <button
               className={styles.smallButton}
               onClick={load}
-              disabled={!courseId || loading}
+              disabled={!courseName || loading}
               style={{ 
-                backgroundColor: courseId ? "var(--admin-accent)" : "#bdc3c7",
-                cursor: courseId ? "pointer" : "not-allowed"
+                backgroundColor: courseName ? "var(--admin-accent)" : "#bdc3c7",
+                cursor: courseName ? "pointer" : "not-allowed"
               }}
             >
               {loading ? "טוען..." : "טען"}
@@ -133,7 +180,7 @@ export default function TopicFailureRateCard() {
         </div>
       </div>
 
-      {!courseId && (
+      {!courseName && (
         <div style={{ 
           background: "#fff3cd", 
           border: "1px solid #ffeaa7", 
@@ -142,11 +189,11 @@ export default function TopicFailureRateCard() {
           marginBottom: "12px",
           color: "#856404"
         }}>
-          ⚠️ יש לבחור מזהה קורס כדי להציג נתונים
+          ⚠️ יש לבחור קורס כדי להציג נתונים
         </div>
       )}
 
-      {courseId && (
+      {courseName && (
         <div style={{ width: "100%", height: 360 }}>
           <ResponsiveContainer>
             <BarChart
@@ -184,7 +231,7 @@ export default function TopicFailureRateCard() {
       {err && <div style={{ color: "crimson" }}>{err}</div>}
 
       {/* טבלה מפורטת מתחת לגרף */}
-      {courseId && (
+      {courseName && (
         <div style={{ marginTop: 12, overflowX: "auto" }}>
           <h3 style={{ marginBottom: 8, color: "#333" }}>פירוט לפי נושא (מסודר לפי מספר שגיאות)</h3>
           <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ddd" }}>

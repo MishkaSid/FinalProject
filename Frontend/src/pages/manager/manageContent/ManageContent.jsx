@@ -34,6 +34,7 @@ export default function ManageContent() {
   const [editTopic, setEditTopic] = useState(null);
   const [addTopicInitial, setAddTopicInitial] = useState({
     TopicName: "",
+    TopicDescription: "",
     status: "active",
   });
   const [practiceContent, setPracticeContent] = useState({}); // { [topicId]: [content, ...] }
@@ -226,6 +227,7 @@ export default function ManageContent() {
   const handleAddTopic = () => {
     setAddTopicInitial({
       TopicName: "",
+      TopicDescription: "",
       status: "active",
     });
     setIsAddTopicOpen(true);
@@ -276,6 +278,7 @@ export default function ManageContent() {
     axios.post("/api/topics/addTopic", 
       { 
         TopicName: values.TopicName,
+        TopicDescription: values.TopicDescription,
         CourseID: selectedCourse,  // Send the selected course ID
         status: values.status || 'active'  // Send the status
       },
@@ -314,7 +317,7 @@ export default function ManageContent() {
     const token = localStorage.getItem("token");
     axios
       .put(`/api/topics/updateTopic/${editTopic.TopicID}`, 
-        { TopicName: values.TopicName, status: values.status },
+        { TopicName: values.TopicName, TopicDescription: values.TopicDescription, status: values.status },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -324,7 +327,7 @@ export default function ManageContent() {
       .then((res) => {
         setTopics((prev) =>
           prev.map((t) =>
-            t.TopicID === editTopic.TopicID ? { ...t, TopicName: values.TopicName, status: values.status } : t
+            t.TopicID === editTopic.TopicID ? { ...t, TopicName: values.TopicName, TopicDescription: values.TopicDescription, status: values.status } : t
           )
         );
         setIsEditTopicOpen(false);

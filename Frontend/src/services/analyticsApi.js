@@ -185,10 +185,24 @@ export async function getStudentAvgLastExams(userId, limit = 3) {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
   if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(
-      `avg last exams failed: ${res.status} ${body || ""}`.trim()
-    );
+    // Try to parse JSON error response
+    let errorMessage = `avg last exams failed: ${res.status}`;
+    try {
+      const errorData = await res.json();
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch {
+      // If JSON parsing fails, try text
+      const body = await res.text().catch(() => "");
+      if (body) {
+        errorMessage = body;
+      }
+    }
+    const error = new Error(errorMessage);
+    error.status = res.status;
+    error.userNotFound = res.status === 404;
+    throw error;
   }
   return res.json();
 }
