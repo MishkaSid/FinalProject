@@ -198,16 +198,13 @@ export default function TopicFailureRateCard() {
           <ResponsiveContainer>
             <BarChart
               data={rows}
-              margin={{ top: 12, right: 16, left: 0, bottom: 12 }}
+              margin={{ top: 12, right: 16, left: 0, bottom: 35 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="topic" 
                 interval={0} 
                 tick={{ fontSize: 12 }} 
-                angle={-45}
-                textAnchor="end"
-                height={80}
               />
               <YAxis 
                 label={{ value: 'מספר תשובות שגויות', angle: -90, position: 'insideLeft' }}

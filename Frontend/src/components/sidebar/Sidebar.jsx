@@ -36,7 +36,7 @@ function Sidebar({ isOpen, setIsOpen, userType = "guest" }) {
     ],
     Teacher: [
       { to: "/teacher", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },
-      { to: "/teacher/manageContent", icon: <FiBookOpen size={30} className={styles.icon} />, label: "שיעורים" }
+      { to: "/teacher/manageContent", icon: <FiBookOpen size={30} className={styles.icon} />, label: "ניהול תכנים" }
     ],
     Examinee: [
       { to: "/student", icon: <FiHome size={30} className={styles.icon} />, label: "בית" },

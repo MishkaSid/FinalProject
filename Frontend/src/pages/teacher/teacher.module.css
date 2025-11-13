@@ -4,9 +4,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 90vh;
-  background: var(--admin-bg);
-}
+  min-height: 90vh;}
 
 .background {
   position: fixed;
@@ -29,7 +27,6 @@
 .teacherContent {
   flex-grow: 1;
   padding: 2rem;
-  margin-left: 4%;
 }
 
 /* Dashboard Header */
@@ -61,11 +58,15 @@
 /* charts Grid */
 .chartsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   width: 100%;
   margin-top: 16px;
   padding: 8px;
+}
+
+.chartsGrid .fullWidth {
+  grid-column: 1 / -1;
 }
 
 
@@ -116,7 +117,7 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .chartsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -135,6 +136,10 @@
     gap: 16px;
     margin-top: 8px;
     padding: 4px;
+  }
+
+  .chartsGrid .fullWidth {
+    grid-column: 1;
   }
 
   .sidebar {

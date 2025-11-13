@@ -30,7 +30,7 @@ function Navbar({ userType = "guest" }) {
     ],
     Teacher: [
       { to: "/teacher", icon: <FiHome size={24} className={styles.icon} />, label: "בית" },
-      { to: "/teacher/manageContent", icon: <FiBookOpen size={24} className={styles.icon} />, label: "שיעורים" }
+      { to: "/teacher/manageContent", icon: <FiBookOpen size={24} className={styles.icon} />, label: "ניהול תכנים" }
     ],
     Examinee: [
       { to: "/student/pre-exam", icon: <LuNotebookPen size={24} className={styles.icon} />, label: "הדמיית מבחן" },

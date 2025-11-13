@@ -123,7 +123,7 @@ export default function GradeDistributionChart({ from, to }) {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 20, right: 30, bottom: 60, left: 20 }}>
+            <BarChart data={data} margin={{ top: 20, right: 30, bottom: 35, left: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis 
                 dataKey="range" 
@@ -131,9 +131,7 @@ export default function GradeDistributionChart({ from, to }) {
                 axisLine={{ stroke: '#ccc' }}
                 tickLine={{ stroke: '#ccc' }}
                 interval={0}
-                angle={-45}
-                textAnchor="end"
-                height={60}
+                height={40}
               />
               <YAxis 
                 allowDecimals={false}

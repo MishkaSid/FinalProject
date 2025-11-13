@@ -182,7 +182,7 @@ function Manager() {
               onFromChange={setVisFrom}
               onToChange={setVisTo}
             />
-            <div className={styles.chartContainer}>
+            <div className={`${styles.chartContainer} ${styles.chartContainerStretch}`}>
               <SiteVisitStats from={visFrom} to={visTo} />
             </div>
           </div>

@@ -4,8 +4,8 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--admin-shadow);
   border: 1px solid var(--admin-border);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
   width: 100%;
   position: relative;
   overflow: hidden;
@@ -124,7 +124,7 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .chartWrapper {
-    padding: 1.25rem;
+    padding: 1.75rem;
   }
 
   .chartContainer {
@@ -134,7 +134,7 @@
 
 @media (max-width: 768px) {
   .chartWrapper {
-    padding: 1rem;
+    padding: 1.25rem;
     margin-bottom: 1rem;
   }
 
@@ -155,7 +155,7 @@
 
 @media (max-width: 480px) {
   .chartWrapper {
-    padding: 0.75rem;
+    padding: 1rem;
   }
 
   .chartTitle {

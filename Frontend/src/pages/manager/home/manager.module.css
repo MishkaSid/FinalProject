@@ -182,6 +182,17 @@
   width: 100%;
 }
 
+.chartContainerStretch {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+}
+
+.chartContainerStretch > * {
+  flex: 1;
+}
+
 .smallButton {
   padding: 0.6rem 1.2rem;
   background: var(--admin-accent);
