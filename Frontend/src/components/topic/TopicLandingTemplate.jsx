@@ -37,6 +37,23 @@ function isYoutubeUrl(url) {
 }
 
 /**
+ * Check if a URL is a Vimeo URL.
+ *
+ * @param {string|null|undefined} url The URL to check.
+ * @returns {boolean} True if the URL is a Vimeo URL.
+ */
+function isVimeoUrl(url) {
+  if (!url) return false;
+  const raw = String(url).trim();
+  try {
+    const u = new URL(raw);
+    return u.hostname.includes("vimeo.com");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Given a URL or ID, returns a YouTube embed URL.
  *
  * @param {string|null|undefined} urlOrId The URL or ID to convert.
@@ -235,6 +252,19 @@ export default function TopicLandingTemplate() {
     };
   }, [topicId]);
 
+  // Load Vimeo player script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://player.vimeo.com/api/player.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
   const subjectName = useMemo(() => {
     if (!topic) return "";
     const course = topic.CourseName || "קורס";
@@ -379,7 +409,26 @@ export default function TopicLandingTemplate() {
                   }`}
                 >
                   <div className={styles.levelFrame}>
-                    {v?.VideoUrl ? (
+                    {i === 2 ? (
+                      // רמת מבחן - Vimeo embed
+                      <div style={{ padding: '43.18% 0 0 0', position: 'relative' }}>
+                        <iframe
+                          src="https://player.vimeo.com/video/1133061765?badge=0&autopause=0&player_id=0&app_id=58479"
+                          frameBorder="0"
+                          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%'
+                          }}
+                          title="רמת מבחן"
+                          className={styles.videoFrame}
+                        />
+                      </div>
+                    ) : v?.VideoUrl ? (
                       isYoutubeUrl(v.VideoUrl) ? (
                         <iframe
                           className={styles.videoFrame}

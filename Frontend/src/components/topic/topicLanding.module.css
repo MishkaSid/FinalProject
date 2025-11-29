@@ -191,6 +191,18 @@
   color: var(--muted);
   font-size: 0.95rem;
 }
+.examLevelText {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.6;
+}
 .introInfo {
   padding: 0.9rem 1rem 0;
   display: flex;
