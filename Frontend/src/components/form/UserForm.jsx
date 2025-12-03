@@ -2,6 +2,7 @@
 // הקובץ מספק טופס רב-שימושי להתחברות, הוספה ועריכת משתמשים
 // הוא כולל ולידציה מתקדמת ותמיכה במצבים שונים של הטופס
 import React, { useState } from "react";
+import axios from "axios";
 import styles from "./form.module.css";
 import Popup from "../popup/Popup";
 
@@ -138,6 +139,7 @@ export default function UserForm({
   });
   const [showPopup, setShowPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState("");
+  const [popupTitle, setPopupTitle] = useState("שגיאה");
   const [showNewCourseInput, setShowNewCourseInput] = useState(false);
   const [newCourseName, setNewCourseName] = useState("");
 
@@ -175,6 +177,7 @@ export default function UserForm({
       if (onValidationError) {
         onValidationError(error);
       } else {
+        setPopupTitle("שגיאה");
         setPopupMsg(error);
         setShowPopup(true);
       }
@@ -207,18 +210,47 @@ export default function UserForm({
    */
   const handleCreateNewCourse = async () => {
     if (!newCourseName.trim()) {
+      setPopupTitle("שגיאה");
       setPopupMsg("יש להזין שם קורס");
       setShowPopup(true);
       return;
     }
     
-    if (onCreateCourse) {
-      const newCourse = await onCreateCourse(newCourseName);
+    try {
+      let newCourse;
+      
+      if (onCreateCourse) {
+        // Use the provided callback if available
+        newCourse = await onCreateCourse(newCourseName);
+      } else {
+        // Fallback: make direct API call if callback is not provided
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+          "/api/courses/addCourse",
+          { CourseName: newCourseName },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        newCourse = response.data;
+      }
+      
       if (newCourse) {
+        const createdCourseName = newCourse.CourseName || newCourseName;
         setValues((prev) => ({ ...prev, CourseID: newCourse.CourseID }));
         setShowNewCourseInput(false);
         setNewCourseName("");
+        setPopupTitle("הצלחה");
+        setPopupMsg(`הקורס "${createdCourseName}" נוסף בהצלחה!`);
+        setShowPopup(true);
       }
+    } catch (err) {
+      console.error("Error creating course:", err);
+      setPopupTitle("שגיאה");
+      setPopupMsg(err.response?.data?.error || "שגיאה ביצירת קורס");
+      setShowPopup(true);
     }
   };
 
@@ -342,11 +374,35 @@ export default function UserForm({
         )}
       </form>
       <Popup
-        header="שגיאה"
+        header={popupTitle}
         isOpen={showPopup}
         onClose={() => setShowPopup(false)}
       >
-        <div style={{ color: "black" }}>{popupMsg}</div>
+        <div style={{ padding: "1rem 0", textAlign: "center" }}>
+          <p style={{ fontSize: "1.4rem", lineHeight: "1.6", color: "#000" }}>
+            {popupMsg}
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", marginTop: "1.5rem" }}>
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                padding: "0.8rem 2rem",
+                fontSize: "1.3rem",
+                fontWeight: "600",
+                color: "white",
+                backgroundColor: "#F47521",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#d96518")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#F47521")}
+            >
+              סגור
+            </button>
+          </div>
+        </div>
       </Popup>
     </>
   );

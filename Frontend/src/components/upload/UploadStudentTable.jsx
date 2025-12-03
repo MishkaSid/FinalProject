@@ -23,6 +23,8 @@ export default function UploadStudentTable({ onUsersAdded }) {
   const [courses, setCourses] = useState([]);
   const [newCourseName, setNewCourseName] = useState("");
   const [showNewCourseInput, setShowNewCourseInput] = useState(false);
+  const [showMessagePopup, setShowMessagePopup] = useState(false);
+  const [messagePopup, setMessagePopup] = useState({ title: "", message: "" });
 
   // Fetch courses on component mount
   useEffect(() => {
@@ -56,14 +58,25 @@ export default function UploadStudentTable({ onUsersAdded }) {
 
   async function handleCreateCourse() {
     if (!newCourseName.trim()) {
-      alert("יש להזין שם קורס");
+      setMessagePopup({
+        title: "שגיאה",
+        message: "יש להזין שם קורס",
+      });
+      setShowMessagePopup(true);
       return;
     }
 
     try {
-      const response = await axios.post("/api/courses/addCourse", {
-        CourseName: newCourseName,
-      });
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "/api/courses/addCourse",
+        { CourseName: newCourseName },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       
       const newCourse = response.data;
       
@@ -73,12 +86,21 @@ export default function UploadStudentTable({ onUsersAdded }) {
       // Select the new course
       setSelectedCourseId(newCourse.CourseID);
       setShowNewCourseInput(false);
+      const createdCourseName = newCourse.CourseName || newCourseName;
       setNewCourseName("");
       
-      alert(`הקורס "${newCourseName}" נוסף בהצלחה!`);
+      setMessagePopup({
+        title: "הצלחה",
+        message: `הקורס "${createdCourseName}" נוסף בהצלחה!`,
+      });
+      setShowMessagePopup(true);
     } catch (err) {
       console.error("Error creating course:", err);
-      alert(err.response?.data?.error || "שגיאה ביצירת קורס");
+      setMessagePopup({
+        title: "שגיאה",
+        message: err.response?.data?.error || "שגיאה ביצירת קורס",
+      });
+      setShowMessagePopup(true);
     }
   }
 
@@ -333,6 +355,39 @@ export default function UploadStudentTable({ onUsersAdded }) {
           </div>
         </Popup>
       )}
+
+      {/* Message Popup for success/error messages */}
+      <Popup
+        header={messagePopup.title}
+        isOpen={showMessagePopup}
+        onClose={() => setShowMessagePopup(false)}
+      >
+        <div style={{ padding: "1rem 0", textAlign: "center" }}>
+          <p style={{ fontSize: "1.4rem", lineHeight: "1.6", color: "#000" }}>
+            {messagePopup.message}
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", marginTop: "1.5rem" }}>
+            <button
+              onClick={() => setShowMessagePopup(false)}
+              style={{
+                padding: "0.8rem 2rem",
+                fontSize: "1.3rem",
+                fontWeight: "600",
+                color: "white",
+                backgroundColor: "#F47521",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#d96518")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#F47521")}
+            >
+              סגור
+            </button>
+          </div>
+        </div>
+      </Popup>
     </>
   );
 }
