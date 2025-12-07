@@ -234,22 +234,21 @@ export default function UploadStudentTable({ onUsersAdded }) {
                   value={selectedCourseId}
                   onChange={(e) => setSelectedCourseId(e.target.value)}
                   style={{
-                    width: "100%",
+                    width: "50%",
                     padding: "0.75rem",
                     marginBottom: "1rem",
-                    fontSize: "1rem",
+                    fontSize: "1.5rem",
                     border: "1px solid #ccc",
                     borderRadius: "4px",
                   }}
                 >
-                  <option value="">ללא קורס (אופציונלי)</option>
                   {courses.map((course) => (
                     <option key={course.CourseID} value={course.CourseID}>
                       {course.CourseName}
                     </option>
                   ))}
                 </select>
-                
+                <br />
                 <button
                   onClick={() => setShowNewCourseInput(true)}
                   style={{
@@ -273,15 +272,15 @@ export default function UploadStudentTable({ onUsersAdded }) {
                   value={newCourseName}
                   onChange={(e) => setNewCourseName(e.target.value)}
                   style={{
-                    width: "100%",
+                    width: "50%",
                     padding: "0.75rem",
                     marginBottom: "0.5rem",
-                    fontSize: "1rem",
+                    fontSize: "1.5rem",
                     border: "1px solid #ccc",
                     borderRadius: "4px",
                   }}
                 />
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div style={{ display: "flex",justifyContent: "center", gap: "0.5rem" }}>
                   <button
                     onClick={handleCreateCourse}
                     style={{
@@ -316,42 +315,44 @@ export default function UploadStudentTable({ onUsersAdded }) {
               </div>
             )}
 
-            <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
-              <button
-                onClick={handleUploadWithCourse}
-                disabled={isUploading}
-                style={{
-                  flex: 1,
-                  padding: "0.75rem",
-                  backgroundColor: "#2196F3",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "1rem",
-                }}
-              >
-                {isUploading ? "מעלה..." : "העלה קובץ"}
-              </button>
-              <button
-                onClick={() => {
-                  setShowCoursePopup(false);
-                  setSelectedFile(null);
-                }}
-                style={{
-                  flex: 1,
-                  padding: "0.75rem",
-                  backgroundColor: "#f44336",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "1rem",
-                }}
-              >
-                ביטול
-              </button>
-            </div>
+            {!showNewCourseInput && (
+              <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
+                <button
+                  onClick={handleUploadWithCourse}
+                  disabled={isUploading}
+                  style={{
+                    flex: 1,
+                    padding: "0.75rem",
+                    backgroundColor: "#2196F3",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "1.5rem",
+                  }}
+                >
+                  {isUploading ? "מעלה..." : "העלה קובץ"}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCoursePopup(false);
+                    setSelectedFile(null);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "0.75rem",
+                    backgroundColor: "#f44336",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "1.5rem",
+                  }}
+                >
+                  ביטול
+                </button>
+              </div>
+            )}
           </div>
         </Popup>
       )}

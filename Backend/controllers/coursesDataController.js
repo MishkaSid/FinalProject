@@ -166,18 +166,80 @@ exports.deleteCourse = async (req, res) => {
     connection = await db.getConnection();
     await connection.beginTransaction();
 
+    // Check if course exists
+    const [courseRows] = await connection.query(
+      "SELECT CourseID, CourseName FROM course WHERE CourseID = ?",
+      [id]
+    );
+
+    if (courseRows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    const courseName = courseRows[0].CourseName;
+
+    // Get all topics for this course
+    const [topics] = await connection.query(
+      "SELECT TopicID FROM topic WHERE CourseID = ?",
+      [id]
+    );
+    const topicIds = topics.map(t => t.TopicID);
+    const topicCount = topicIds.length;
+
+    // Delete all nested content for all topics in this course
+    // This must be done before deleting topics to avoid foreign key constraint errors
+    if (topicIds.length > 0) {
+      // Create placeholders for the IN clause
+      const placeholders = topicIds.map(() => '?').join(',');
+      
+      // Delete all practice exercises for topics in this course
+      await connection.query(
+        `DELETE FROM practice_exercise WHERE TopicID IN (${placeholders})`,
+        topicIds
+      );
+
+      // Delete all practice videos for topics in this course
+      await connection.query(
+        `DELETE FROM practice_video WHERE TopicID IN (${placeholders})`,
+        topicIds
+      );
+
+      // Delete all exam questions for topics in this course
+      await connection.query(
+        `DELETE FROM exam_question WHERE TopicID IN (${placeholders})`,
+        topicIds
+      );
+    }
+
+    // Delete all topics for this course
+    await connection.query(
+      "DELETE FROM topic WHERE CourseID = ?",
+      [id]
+    );
+
+    // Finally, delete the course itself
     await connection.query(
       "DELETE FROM course WHERE CourseID = ?",
       [id]
     );
 
     await connection.commit();
-    return res.json({ ok: true, message: `Course ${id} deleted with cascade` });
+    
+    return res.json({ 
+      ok: true, 
+      message: `Course "${courseName}" (ID: ${id}) deleted successfully`,
+      deletedTopics: topicCount
+    });
   } catch (err) {
     if (connection) await connection.rollback();
     console.error("Error in deleteCourse:", err);
+    console.error("Error code:", err.code);
+    console.error("Error sqlMessage:", err.sqlMessage);
+
     return res.status(500).json({
-      error: err.sqlMessage || err.message || "Delete course failed"
+      error: err.sqlMessage || err.message || "Delete course failed",
+      code: err.code
     });
   } finally {
     if (connection) connection.release();

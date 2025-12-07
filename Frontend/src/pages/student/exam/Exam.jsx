@@ -147,36 +147,10 @@ export default function Exam() {
       if (allowExitRef.current) {
         return;
       }
-      // Prevent default browser dialog and reload
+      // Only show native browser dialog for real reload/exit
+      // Do NOT call showExitWarning here - that's only for internal navigation
       e.preventDefault();
       e.returnValue = '';
-      // Show our custom popup
-      if (!exitWarningRef.current.isOpen) {
-        showExitWarning(() => {
-          allowExitRef.current = true;
-          // Reload the page
-          window.location.reload();
-        });
-      }
-    };
-
-    const handleKeyDown = (e) => {
-      // Intercept F5, Ctrl+R, Cmd+R (reload shortcuts)
-      const isReloadKey = 
-        e.key === 'F5' ||
-        (e.key === 'r' && (e.ctrlKey || e.metaKey)) ||
-        (e.key === 'R' && (e.ctrlKey || e.metaKey));
-      
-      if (isReloadKey) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!exitWarningRef.current.isOpen) {
-          showExitWarning(() => {
-            allowExitRef.current = true;
-            window.location.reload();
-          });
-        }
-      }
     };
 
     const handlePopState = (e) => {
@@ -212,13 +186,13 @@ export default function Exam() {
     window.history.pushState(null, '', window.location.href);
     
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('keydown', handleKeyDown);
+    // Removed handleKeyDown - reload keys (F5, Ctrl+R) now trigger native browser dialog only
     window.addEventListener('popstate', handlePopState);
     document.addEventListener('click', handleClick, true);
     
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('keydown', handleKeyDown);
+      // Removed handleKeyDown cleanup
       window.removeEventListener('popstate', handlePopState);
       document.removeEventListener('click', handleClick, true);
     };

@@ -198,15 +198,7 @@ export default function ManageContent() {
               : course
           )
         );
-
-        // Show success message
-        setMessage({
-          type: "success",
-          text: `סטטוס הקורס עודכן בהצלחה ל: ${newStatus}`,
-        });
-
-        // Clear message after 3 seconds
-        setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+        // Status is now shown visually in the dropdown, no message needed
       }
     } catch (error) {
       console.error("Error updating course status:", error);

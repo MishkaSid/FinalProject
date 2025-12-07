@@ -42,8 +42,14 @@ export default function CourseSelector({
         <option value="" disabled>בחר קורס</option>
         {courses.map(course => {
           const isActive = course.Status === 'active' || course.Status === null;
+          const backgroundColor = isActive ? '#d4edda' : '#f8d7da'; // Green for active, red for inactive
+          const color = isActive ? '#155724' : '#721c24'; // Dark green text for active, dark red for inactive
           return (
-            <option key={course.CourseID} value={course.CourseID}>
+            <option 
+              key={course.CourseID} 
+              value={course.CourseID}
+              style={{ backgroundColor, color }}
+            >
               {course.CourseName} • {isActive ? 'פעיל' : 'לא פעיל'}
             </option>
           );

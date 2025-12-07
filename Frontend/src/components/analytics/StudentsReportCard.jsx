@@ -102,9 +102,9 @@ export default function StudentsReportCard() {
 
   return (
     <div style={{ background: "#fff", borderRadius: 12, padding: 16 }}>
-      <h2 style={{ marginBottom: 12 }}>
-        דוח מנהל - כל התלמידים או תלמיד ספציפי
-      </h2>
+      {/*<h2 style={{ marginBottom: 12 }}>*/}
+        דוח כללי - עבור נבחנים
+      {/*</h2>*/}
 
       <div
         style={{
@@ -116,7 +116,7 @@ export default function StudentsReportCard() {
         }}
       >
         <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span>קורס</span>
+          <span style={{ fontSize: "1.6rem", fontWeight: "600" }}>קורס</span>
           <input
             type="text"
             list="courses-list"
@@ -136,10 +136,10 @@ export default function StudentsReportCard() {
         </label>
 
         <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span>חיפוש תלמיד - ת.ז או שם (אופציונלי)</span>
+          <span style={{ fontSize: "1.6rem", fontWeight: "600" }}>חיפוש תלמיד - ת.ז או שם (אופציונלי)</span>
           <input
             type="text"
-            placeholder="למשל 208082206 או שם"
+            placeholder="למשל 999999999 או שם"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
           />

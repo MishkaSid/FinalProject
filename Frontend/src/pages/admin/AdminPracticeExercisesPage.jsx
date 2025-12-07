@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit, FiTrash2, FiArrowRight } from 'react-icons/fi';
 import styles from './AdminPages.module.css';
+import Popup from '../../components/popup/Popup';
 
 const AdminPracticeExercisesPage = () => {
   const { topicId } = useParams();
@@ -21,6 +22,7 @@ const AdminPracticeExercisesPage = () => {
   const [fileUpload, setFileUpload] = useState(null);
   const [filePreview, setFilePreview] = useState('');
   const [imagePopup, setImagePopup] = useState({ isOpen: false, imageUrl: '' });
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, exerciseId: null });
 
   useEffect(() => {
     fetchExercises();
@@ -148,10 +150,13 @@ const AdminPracticeExercisesPage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (exerciseId) => {
-    if (!window.confirm('האם אתה בטוח שברצונך למחוק את התרגיל?')) {
-      return;
-    }
+  const handleDelete = (exerciseId) => {
+    setDeleteConfirm({ isOpen: true, exerciseId });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const exerciseId = deleteConfirm.exerciseId;
+    if (!exerciseId) return;
 
     try {
       const token = localStorage.getItem('token');
@@ -167,9 +172,11 @@ const AdminPracticeExercisesPage = () => {
         throw new Error('Failed to delete exercise');
       }
 
+      setDeleteConfirm({ isOpen: false, exerciseId: null });
       fetchExercises();
     } catch (err) {
       setError(err.message);
+      setDeleteConfirm({ isOpen: false, exerciseId: null });
     }
   };
 
@@ -558,6 +565,69 @@ const AdminPracticeExercisesPage = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Popup */}
+      <Popup
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, exerciseId: null })}
+        header="⚠️ אישור מחיקה"
+      >
+        <div style={{ padding: "2.5rem", textAlign: "center" }}>
+          <div style={{ 
+            fontSize: '22px', 
+            marginBottom: '24px',
+            fontWeight: '600',
+            color: '#2c3e50',
+            lineHeight: '1.5'
+          }}>
+            האם אתה בטוח שברצונך למחוק את התרגיל?
+          </div>
+          <div style={{ 
+            fontSize: '16px', 
+            marginBottom: '32px', 
+            color: '#e74c3c',
+            backgroundColor: '#ffebee',
+            padding: '16px 20px',
+            borderRadius: '8px',
+            border: '2px solid #e74c3c',
+            lineHeight: '1.6',
+            fontWeight: '500'
+          }}>
+            <strong style={{ fontSize: '18px', display: 'block', marginBottom: '8px' }}>⚠️ אזהרה!</strong>
+            פעולה זו היא קבועה ולא ניתנת לביטול.
+          </div>
+          <div style={{ 
+            display: 'flex', 
+            gap: '16px', 
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <button
+              className={styles.deleteButtonLarge}
+              onClick={handleDeleteConfirm}
+              style={{ 
+                width: '180px',
+                fontSize: '1.4rem',
+                padding: '0.7rem 1.5rem'
+              }}
+            >
+              🗑️ מחק
+            </button>
+            <button
+              className={styles.addButton}
+              onClick={() => setDeleteConfirm({ isOpen: false, exerciseId: null })}
+              style={{ 
+                width: '180px',
+                fontSize: '1.4rem',
+                padding: '0.7rem 1.5rem',
+                backgroundColor: '#6c757d'
+              }}
+            >
+              ❌ ביטול
+            </button>
+          </div>
+        </div>
+      </Popup>
     </div>
   );
 };

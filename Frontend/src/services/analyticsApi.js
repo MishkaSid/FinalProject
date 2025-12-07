@@ -74,42 +74,6 @@ export const getCourseTopicDistribution = async (courseId) => {
 };
 
 /**
- * Get course grades over time for all users in a course
- * @param {string|number} courseId - The course ID
- * @param {string} from - Start date in YYYY-MM-DD format
- * @param {string} to - End date in YYYY-MM-DD format
- * @returns {Promise<Object>} Response with series data
- */
-export const getCourseGradesOverTime = async (courseId, from, to) => {
-  if (!courseId) throw new Error("courseId is required");
-  const params = new URLSearchParams();
-  if (from) params.append("from", from);
-  if (to) params.append("to", to);
-
-  const token =
-    typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
-
-  const url = `${API_BASE}/analytics/course/${encodeURIComponent(
-    courseId
-  )}/grades-over-time${params.toString() ? `?${params.toString()}` : ""}`;
-
-  const res = await fetch(url, {
-    method: "GET",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(
-      `Failed to fetch course grades over time: ${res.status} ${
-        body || ""
-      }`.trim()
-    );
-  }
-  return res.json();
-};
-
-
-/**
  * Get video watch minutes per day for student analytics
  * @param {string|number} userId - The student's user ID
  * @param {number} days - Number of days to look back (default: 14)

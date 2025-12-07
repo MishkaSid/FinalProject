@@ -110,7 +110,7 @@ export default function StudentAvgLastExamsCard() {
 
   return (
     <div style={{ background: "#fff", borderRadius: 12, padding: 16 }}>
-      <h2 style={{ marginBottom: 12 }}>ממוצע ציונים לפי מספר מבחנים אחרונים</h2>
+      {/*<h2 style={{ marginBottom: 12 }}>ממוצע ציונים לפי מספר מבחנים אחרונים</h2>*/}
 
       <div
         style={{
@@ -124,7 +124,7 @@ export default function StudentAvgLastExamsCard() {
           <span style={{ fontSize: "1.6rem", fontWeight: "600" }}>ת.ז</span>
           <input
             type="text"
-            placeholder="לדוגמה 208082206"
+            placeholder="לדוגמה 999999999"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             style={{ fontSize: "1.4rem", padding: "0.75rem" }}

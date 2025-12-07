@@ -14,11 +14,6 @@ router.get(
 
 // שאר נתיבי האנליטיקה הקיימים אצלך
 router.get(
-  "/course/:courseId/grades-over-time",
-  authenticateToken,
-  analyticsController.getCourseGradesOverTime
-);
-router.get(
   "/student/:userId/grades",
   authenticateToken,
   analyticsController.getStudentGrades

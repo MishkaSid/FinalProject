@@ -53,7 +53,7 @@ export default function TopicFailureRateCard() {
   }, []);
 
   const title = useMemo(() => {
-    const base = "ניתוח שגיאות לפי נושא";
+    const base = "";
     if (from && to) return `${base}: ${from} עד ${to}`;
     return base;
   }, [from, to]);

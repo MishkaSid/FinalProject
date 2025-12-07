@@ -132,12 +132,11 @@
   height: auto;
 }
 
-/* Transparent select in course selector */
+/* Solid background select in course selector */
 .addingLine .searchInput {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #fff;
+  border: 1px solid var(--admin-border);
   color: var(--admin-text);
-  backdrop-filter: blur(10px);
 }
 
 .searchInput:focus {
@@ -149,7 +148,7 @@
 .addingLine .searchInput:focus {
   border-color: var(--admin-accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 30%, transparent);
-  background: rgba(255, 255, 255, 0.2);
+  background: #fff;
 }
 
 /* Flex line - Container for buttons and inputs in a row */

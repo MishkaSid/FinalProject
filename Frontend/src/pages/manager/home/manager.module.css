@@ -68,6 +68,10 @@
   direction: rtl;
 }
 
+.cardsGrid .fullWidth {
+  grid-column: 1 / -1;
+}
+
 /* Statistics Card */
 .statCard {
   background: var(--admin-surface);
@@ -406,6 +410,10 @@
     grid-template-columns: 1fr;
     gap: 1.25rem;
     padding: 0.5rem;
+  }
+
+  .cardsGrid .fullWidth {
+    grid-column: 1;
   }
 
   .statCard {

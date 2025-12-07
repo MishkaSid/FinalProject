@@ -8,7 +8,10 @@
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  overflow-y: auto;
   z-index: 1000;
   animation: fadeIn 0.3s ease-in forwards;
 }
@@ -19,11 +22,14 @@
   border-radius: var(--radius-lg);
   max-width: 1000px;
   width: 95%;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
   box-shadow: var(--admin-shadow);
   border: 1px solid var(--admin-border);
   text-align: center;
   animation: slideUp 0.3s ease-in forwards;
   position: relative;
+  margin: auto;
 }
 
 .popupHeader {
