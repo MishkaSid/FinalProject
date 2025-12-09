@@ -474,22 +474,24 @@ exports.getTopicFailureRates = async (req, res) => {
   try {
     connection = await db.getConnection();
 
-    // Use exam_result and exam tables to analyze correctness by position (topic)
-    // Position column represents topics, isCorrect indicates correctness
+    // Use exam_result with real topic metadata to show proper topic names
+    // Join exam_question -> topic to resolve TopicName instead of generic numbering
     const [rows] = await connection.query(
       `
       SELECT
-        er.Position AS topicId,
-        CONCAT('נושא ', er.Position) AS topicName,
+        eq.TopicID AS topicId,
+        COALESCE(t.TopicName, CONCAT('נושא ', eq.TopicID)) AS topicName,
         COUNT(*) AS total,
         SUM(CASE WHEN er.IsCorrect = 0 THEN 1 ELSE 0 END) AS failed,
         AVG(CASE WHEN er.IsCorrect = 1 THEN 1 ELSE 0 END) * 100 AS correctRate
       FROM exam_result er
       JOIN exam e ON e.ExamID = er.ExamID
       JOIN users u ON u.UserID = e.UserID
+      JOIN exam_question eq ON eq.QuestionID = er.QuestionID
+      LEFT JOIN topic t ON t.TopicID = eq.TopicID
       WHERE u.CourseID = ?
         AND DATE(e.ExamDate) BETWEEN ? AND ?
-      GROUP BY er.Position
+      GROUP BY eq.TopicID, t.TopicName
       ORDER BY failed ASC, total ASC
       `,
       [courseId, fromDate, toDate]
