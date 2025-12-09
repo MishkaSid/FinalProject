@@ -564,7 +564,9 @@ export default function ManageContent() {
                 },
               })
               .then((res) => {
-                setCourses((prev) => [...prev, res.data]);
+                // Ensure the new course has Status set to 'active' for proper UI display
+                const newCourse = { ...res.data, Status: res.data.Status || 'active' };
+                setCourses((prev) => [...prev, newCourse]);
                 setNewCourseName("");
                 setIsAddCourseOpen(false);
               })

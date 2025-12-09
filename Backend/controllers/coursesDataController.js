@@ -75,11 +75,11 @@ exports.createCourse = async (req, res) => {
   try {
     connection = await db.getConnection();
     const [result] = await connection.query(
-      "INSERT INTO course (CourseName) VALUES (?)",
+      "INSERT INTO course (CourseName, Status) VALUES (?, 'active')",
       [CourseName]
     );
 
-    res.json({ CourseID: result.insertId, CourseName });
+    res.json({ CourseID: result.insertId, CourseName, Status: 'active' });
   } catch (err) {
     console.error("Error in createCourse:", err);
     res.status(500).json({ error: "Server error" });
