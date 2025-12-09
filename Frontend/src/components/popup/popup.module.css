@@ -9,9 +9,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  overflow-y: auto;
+  padding: 1rem;
+  overflow-y: auto; /* allow the popup itself to remain fully visible on small screens */
   z-index: 1000;
   animation: fadeIn 0.3s ease-in forwards;
 }
@@ -20,16 +19,16 @@
   background-color: var(--admin-surface);
   padding: var(--pad-lg);
   border-radius: var(--radius-lg);
-  max-width: 1000px;
-  width: 95%;
-  max-height: calc(100vh - 4rem);
+  width: min(960px, 96vw);
+  max-width: 100%;
+  max-height: calc(100vh - 2rem);
+  margin: 0 auto;
   overflow-y: auto;
   box-shadow: var(--admin-shadow);
   border: 1px solid var(--admin-border);
   text-align: center;
   animation: slideUp 0.3s ease-in forwards;
   position: relative;
-  margin: auto;
 }
 
 .popupHeader {

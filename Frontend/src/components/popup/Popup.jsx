@@ -2,6 +2,7 @@
 // הקובץ מספק רכיב popup רב-שימושי עם אפשרויות התאמה שונות
 // הוא משמש להצגת טפסים, הודעות ומידע נוסף בממשק המשתמש
 // Frontend/src/components/popup/Popup.jsx
+import { useEffect } from 'react';
 import styles from './popup.module.css';
 
 /**
@@ -17,6 +18,22 @@ import styles from './popup.module.css';
  * @returns {JSX.Element|null} The rendered popup component or null if not open.
  */
 const Popup = ({ header, text, isOpen, onClose, children }) => {
+  // Prevent background scrolling while popup is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    // Jump viewport to top so the popup is immediately visible
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
