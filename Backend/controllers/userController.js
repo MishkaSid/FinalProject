@@ -170,14 +170,46 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
+  let connection;
   try {
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    // Step 1: Get all ExamIDs for this user
+    const [exams] = await connection.query(
+      "SELECT ExamID FROM exam WHERE UserID = ?",
+      [id]
+    );
+    
+    // Step 2: Delete exam_results for these exams
+    if (exams.length > 0) {
+      const examIds = exams.map(exam => exam.ExamID);
+      const placeholders = examIds.map(() => '?').join(',');
+      await connection.query(
+        `DELETE FROM exam_result WHERE ExamID IN (${placeholders})`,
+        examIds
+      );
+    }
+
+    // Step 3: Delete exams belonging to this user
+    await connection.query("DELETE FROM exam WHERE UserID = ?", [id]);
+
+    // Step 4: Delete the user
     await connection.query("DELETE FROM users WHERE UserID = ?", [id]);
+
+    await connection.commit();
     connection.release();
-    res.json({ message: `User with ID ${id} deleted` });
+    res.json({ message: `User with ID ${id} deleted successfully` });
   } catch (err) {
+    if (connection) {
+      await connection.rollback();
+      connection.release();
+    }
     console.error("Error in deleteUser:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ 
+      error: err.message || "Server error",
+      details: "Failed to delete user. Please ensure all related records can be deleted."
+    });
   }
 };
 

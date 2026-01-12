@@ -360,52 +360,55 @@ export default function StudentDashboard() {
 
   return (
     <div className={styles.studentPage}>
-      {/* Hero Section */}
-      <div className={styles.hero}>
-        <div className={styles.heroBackground} />
-        {/* Content on the right */}
-        <div className={styles.heroContent}>
-          <h1 className={styles.title}>שלום, {studentData.user.name}</h1>
-          <p className={styles.subTitle}>{studentData.user.course}</p>
+      <div className={styles.mainLayout}>
+        {/* Right Side - Hero Section */}
+        <div className={styles.rightSection}>
+          <div className={styles.hero}>
+            <div className={styles.heroBackground} />
+            {/* Content on the right */}
+            <div className={styles.heroContent}>
+              <h1 className={styles.title}>שלום, {studentData.user.name}</h1>
+              <p className={styles.subTitle}>{studentData.user.course}</p>
+            </div>
+            {/* Profile Section on the left */}
+            <ProfileSection
+              studentData={studentData}
+              refreshing={refreshing}
+              error={error}
+              hasValidData={hasValidData}
+            />
+          </div>
         </div>
-        {/* Profile Section on the left */}
-        <ProfileSection
-          studentData={studentData}
-          refreshing={refreshing}
-          error={error}
-          hasValidData={hasValidData}
-        />
-      </div>
 
-      {/* Dashboard Section */}
-      <div className={styles.dashboard}>
-        <h2 className={styles.dashboardTitle}>מה תרצו לעשות היום?</h2>
-        
-        <div className={styles.cardContainer}>
-          <Card
-            title="תרגול נושא ספציפי"
-            description="תרגול שאלות מנושא מסוים לפי בחירתך"
-            icon={<FiPenTool size={30} />}
-            onClick={handlePracticeClick}
-            size="large"
-            layout="horizontal"
-          />
-          <Card
-            title="תרגול כללי"
-            description="תרגול שאלות מכל הנושאים הזמינים במערכת"
-            icon={<FiBook size={30} />}
-            onClick={() => navigate("/student/practice")}
-            size="large"
-            layout="horizontal"
-          />
-          <Card
-            title="הדמיית מבחן"
-            description="כאן תוכלו לדמות מבחן אמיתי עם שאלות מכל הנושאים"
-            icon={<LuNotebookPen size={30} />}
-            onClick={() => navigate("/student/pre-exam")}
-            size="large"
-            layout="horizontal"
-          />
+        {/* Left Side - Navigation Cards */}
+        <div className={styles.leftSection}>
+          <h2 className={styles.dashboardTitle}>מה תרצו לעשות היום?</h2>
+          <div className={styles.cardContainer}>
+            <Card
+              title="תרגול נושא ספציפי"
+              description="תרגול שאלות מנושא מסוים לפי בחירתך"
+              icon={<FiPenTool size={30} />}
+              onClick={handlePracticeClick}
+              size="large"
+              layout="horizontal"
+            />
+            <Card
+              title="תרגול כללי"
+              description="תרגול שאלות מכל הנושאים הזמינים במערכת"
+              icon={<FiBook size={30} />}
+              onClick={() => navigate("/student/practice")}
+              size="large"
+              layout="horizontal"
+            />
+            <Card
+              title="הדמיית מבחן"
+              description="כאן תוכלו לדמות מבחן אמיתי עם שאלות מכל הנושאים"
+              icon={<LuNotebookPen size={30} />}
+              onClick={() => navigate("/student/pre-exam")}
+              size="large"
+              layout="horizontal"
+            />
+          </div>
         </div>
       </div>
 
